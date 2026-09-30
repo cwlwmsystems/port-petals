@@ -2,19 +2,25 @@
 
 import { useMemo, useState } from "react";
 
-type FlowerOption = {
+type GatorVariantOption = {
+  id: string;
   name: string;
+  size: string | null;
+  color: string | null;
   price: number;
-  quantity?: number | null;
-  trackInventory?: boolean;
+  quantity: number | null;
+  trackInventory: boolean;
 };
 
-type FlowerOrderConfiguratorProps = {
+type GatorOrderConfiguratorProps = {
   productName: string;
-  options: FlowerOption[];
+  basePrice: number;
+  baseQuantity: number | null;
+  baseTrackInventory: boolean;
+  variants: GatorVariantOption[];
+  customizable: boolean;
   pickupAvailable: boolean;
   deliveryAvailable: boolean;
-  allowsCardMessage: boolean;
 };
 
 type FulfillmentType = "pickup" | "delivery";
@@ -32,15 +38,20 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
-export default function FlowerOrderConfigurator({
+export default function GatorOrderConfigurator({
   productName,
-  options,
+  basePrice,
+  baseQuantity,
+  baseTrackInventory,
+  variants,
+  customizable,
   pickupAvailable,
   deliveryAvailable,
-  allowsCardMessage,
-}: FlowerOrderConfiguratorProps) {
-  const [selectedOption, setSelectedOption] = useState(
-    options[0]?.name ?? ""
+}: GatorOrderConfiguratorProps) {
+  const hasVariants = variants.length > 0;
+
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    variants[0]?.id ?? ""
   );
 
   const [fulfillment, setFulfillment] =
@@ -49,17 +60,19 @@ export default function FlowerOrderConfigurator({
   const [deliveryArea, setDeliveryArea] =
     useState<DeliveryArea>("");
 
-  const selectedOptionData = options.find(
-    (option) => option.name === selectedOption
+  const selectedVariant = variants.find(
+    (variant) => variant.id === selectedVariantId
   );
 
-  const selectedPrice = selectedOptionData?.price ?? 0;
+  const selectedPrice = selectedVariant?.price ?? basePrice;
 
-  const selectedTracksInventory =
-    selectedOptionData?.trackInventory ?? false;
+  const selectedTracksInventory = hasVariants
+    ? selectedVariant?.trackInventory ?? false
+    : baseTrackInventory;
 
-  const selectedQuantity =
-    selectedOptionData?.quantity ?? null;
+  const selectedQuantity = hasVariants
+    ? selectedVariant?.quantity ?? null
+    : baseQuantity;
 
   const soldOut =
     selectedTracksInventory &&
@@ -87,76 +100,98 @@ export default function FlowerOrderConfigurator({
 
   return (
     <div className="mt-8 border-t border-[#284239]/10 pt-7">
-      <fieldset>
-        <legend className="text-sm font-semibold text-[#153f32]">
-          Choose Your Option
-        </legend>
+      {hasVariants && (
+        <fieldset>
+          <legend className="text-sm font-semibold text-[#153f32]">
+            Choose Size / Option
+          </legend>
 
-        <div
-          className={`mt-3 grid gap-3 ${
-            options.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"
-          }`}
-        >
-          {options.map((option) => {
-            const selected = selectedOption === option.name;
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {variants.map((variant) => {
+              const selected = selectedVariantId === variant.id;
 
-            const optionSoldOut =
-              option.trackInventory &&
-              option.quantity !== null &&
-              option.quantity !== undefined &&
-              option.quantity <= 0;
+              const variantSoldOut =
+                variant.trackInventory &&
+                variant.quantity !== null &&
+                variant.quantity <= 0;
 
-            return (
-              <label
-                key={option.name}
-                className={`rounded-xl border px-4 py-3 transition ${
-                  optionSoldOut
-                    ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
-                    : selected
-                      ? "cursor-pointer border-[#e76d61] bg-[#fff4f1] shadow-sm"
-                      : "cursor-pointer border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="flowerOption"
-                  value={option.name}
-                  checked={selected}
-                  disabled={optionSoldOut}
-                  onChange={() => setSelectedOption(option.name)}
-                  className="sr-only"
-                />
+              return (
+                <label
+                  key={variant.id}
+                  className={`rounded-xl border px-4 py-3 transition ${
+                    variantSoldOut
+                      ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
+                      : selected
+                        ? "cursor-pointer border-[#e76d61] bg-[#fff4f1] shadow-sm"
+                        : "cursor-pointer border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="gatorVariant"
+                    value={variant.id}
+                    checked={selected}
+                    disabled={variantSoldOut}
+                    onChange={() =>
+                      setSelectedVariantId(variant.id)
+                    }
+                    className="sr-only"
+                  />
 
-                <span className="block text-sm font-semibold text-[#153f32]">
-                  {option.name}
-                </span>
+                  <span className="block font-semibold text-[#153f32]">
+                    {variant.size || variant.name}
+                  </span>
 
-                <span className="mt-1 block text-lg font-semibold text-[#e76d61]">
-                  {formatPrice(option.price)}
-                </span>
-
-                {option.trackInventory &&
-                  option.quantity !== null &&
-                  option.quantity !== undefined && (
-                    <span
-                      className={`mt-2 block text-xs font-semibold ${
-                        option.quantity > 0
-                          ? "text-[#607068]"
-                          : "text-[#a7473f]"
-                      }`}
-                    >
-                      {option.quantity > 0
-                        ? `${option.quantity} available`
-                        : "Sold out"}
+                  {variant.color && (
+                    <span className="mt-1 block text-xs text-[#718078]">
+                      {variant.color}
                     </span>
                   )}
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
 
-      {selectedTracksInventory &&
+                  <span className="mt-2 block text-lg font-semibold text-[#e76d61]">
+                    {formatPrice(variant.price)}
+                  </span>
+
+                  {variant.trackInventory &&
+                    variant.quantity !== null && (
+                      <span
+                        className={`mt-2 block text-xs font-semibold ${
+                          variant.quantity > 0
+                            ? "text-[#607068]"
+                            : "text-[#a7473f]"
+                        }`}
+                      >
+                        {variant.quantity > 0
+                          ? `${variant.quantity} available`
+                          : "Sold out"}
+                      </span>
+                    )}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+      )}
+
+      {!hasVariants &&
+        baseTrackInventory &&
+        baseQuantity !== null && (
+          <div
+            className={`rounded-xl px-4 py-3 text-sm ${
+              soldOut
+                ? "bg-[#fff0ed] text-[#a7473f]"
+                : "bg-[#edf3e7] text-[#36594c]"
+            }`}
+          >
+            <span className="font-semibold">Availability:</span>{" "}
+            {soldOut
+              ? "Currently sold out"
+              : `${baseQuantity} currently available`}
+          </div>
+        )}
+
+      {hasVariants &&
+        selectedTracksInventory &&
         selectedQuantity !== null && (
           <div
             className={`mt-5 rounded-xl px-4 py-3 text-sm ${
@@ -166,13 +201,60 @@ export default function FlowerOrderConfigurator({
             }`}
           >
             <span className="font-semibold">
-              {selectedOption}:
+              {selectedVariant?.size ||
+                selectedVariant?.name}
+              :
             </span>{" "}
             {soldOut
               ? "Currently sold out"
               : `${selectedQuantity} currently available`}
           </div>
         )}
+
+      {customizable && (
+        <div className="mt-6 grid gap-5">
+          <label className="grid gap-2">
+            <span className="text-sm font-semibold text-[#153f32]">
+              Name / Personalization
+            </span>
+
+            <input
+              type="text"
+              name="personalization"
+              placeholder="Name or wording"
+              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
+            />
+          </label>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-[#153f32]">
+                Number
+              </span>
+
+              <input
+                type="text"
+                name="number"
+                placeholder="Example: 12"
+                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-[#153f32]">
+                Color / Design Notes
+              </span>
+
+              <input
+                type="text"
+                name="designNotes"
+                placeholder="Preferred colors or details"
+                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
+              />
+            </label>
+          </div>
+        </div>
+      )}
 
       <fieldset className="mt-6">
         <legend className="text-sm font-semibold text-[#153f32]">
@@ -278,9 +360,13 @@ export default function FlowerOrderConfigurator({
             Estimated Total
           </p>
 
-          <p className="mt-1 text-xs text-[#718078]">
-            Selected: {selectedOption}
-          </p>
+          {selectedVariant && (
+            <p className="mt-1 text-xs text-[#718078]">
+              Selected:{" "}
+              {selectedVariant.size ||
+                selectedVariant.name}
+            </p>
+          )}
         </div>
 
         <p className="text-3xl font-semibold text-[#e76d61]">
@@ -294,33 +380,6 @@ export default function FlowerOrderConfigurator({
         </summary>
 
         <div className="grid gap-5 border-t border-[#284239]/10 p-5">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold">
-              Preferred Colors
-            </span>
-
-            <input
-              type="text"
-              name="preferredColors"
-              placeholder="Example: pink and white"
-              className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-            />
-          </label>
-
-          {allowsCardMessage && (
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold">
-                Card Message
-              </span>
-
-              <textarea
-                name="cardMessage"
-                rows={3}
-                className="resize-y rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-              />
-            </label>
-          )}
-
           {fulfillment === "delivery" && (
             <>
               <label className="grid gap-2">

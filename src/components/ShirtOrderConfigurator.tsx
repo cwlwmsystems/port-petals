@@ -2,19 +2,26 @@
 
 import { useMemo, useState } from "react";
 
-type FlowerOption = {
+type ShirtVariantOption = {
+  id: string;
   name: string;
+  size: string | null;
+  color: string | null;
   price: number;
-  quantity?: number | null;
-  trackInventory?: boolean;
+  quantity: number | null;
+  trackInventory: boolean;
 };
 
-type FlowerOrderConfiguratorProps = {
+type ShirtOrderConfiguratorProps = {
   productName: string;
-  options: FlowerOption[];
+  basePrice: number;
+  baseQuantity: number | null;
+  baseTrackInventory: boolean;
+  variants: ShirtVariantOption[];
+  presetDesign: boolean;
+  customizableColors: boolean;
   pickupAvailable: boolean;
   deliveryAvailable: boolean;
-  allowsCardMessage: boolean;
 };
 
 type FulfillmentType = "pickup" | "delivery";
@@ -32,15 +39,21 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
-export default function FlowerOrderConfigurator({
+export default function ShirtOrderConfigurator({
   productName,
-  options,
+  basePrice,
+  baseQuantity,
+  baseTrackInventory,
+  variants,
+  presetDesign,
+  customizableColors,
   pickupAvailable,
   deliveryAvailable,
-  allowsCardMessage,
-}: FlowerOrderConfiguratorProps) {
-  const [selectedOption, setSelectedOption] = useState(
-    options[0]?.name ?? ""
+}: ShirtOrderConfiguratorProps) {
+  const hasVariants = variants.length > 0;
+
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    variants[0]?.id ?? ""
   );
 
   const [fulfillment, setFulfillment] =
@@ -49,17 +62,19 @@ export default function FlowerOrderConfigurator({
   const [deliveryArea, setDeliveryArea] =
     useState<DeliveryArea>("");
 
-  const selectedOptionData = options.find(
-    (option) => option.name === selectedOption
+  const selectedVariant = variants.find(
+    (variant) => variant.id === selectedVariantId
   );
 
-  const selectedPrice = selectedOptionData?.price ?? 0;
+  const selectedPrice = selectedVariant?.price ?? basePrice;
 
-  const selectedTracksInventory =
-    selectedOptionData?.trackInventory ?? false;
+  const selectedTracksInventory = hasVariants
+    ? selectedVariant?.trackInventory ?? false
+    : baseTrackInventory;
 
-  const selectedQuantity =
-    selectedOptionData?.quantity ?? null;
+  const selectedQuantity = hasVariants
+    ? selectedVariant?.quantity ?? null
+    : baseQuantity;
 
   const soldOut =
     selectedTracksInventory &&
@@ -87,76 +102,101 @@ export default function FlowerOrderConfigurator({
 
   return (
     <div className="mt-8 border-t border-[#284239]/10 pt-7">
-      <fieldset>
-        <legend className="text-sm font-semibold text-[#153f32]">
-          Choose Your Option
-        </legend>
+      {hasVariants && (
+        <fieldset>
+          <legend className="text-sm font-semibold text-[#153f32]">
+            Choose Size / Option
+          </legend>
 
-        <div
-          className={`mt-3 grid gap-3 ${
-            options.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"
-          }`}
-        >
-          {options.map((option) => {
-            const selected = selectedOption === option.name;
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {variants.map((variant) => {
+              const selected = selectedVariantId === variant.id;
 
-            const optionSoldOut =
-              option.trackInventory &&
-              option.quantity !== null &&
-              option.quantity !== undefined &&
-              option.quantity <= 0;
+              const variantSoldOut =
+                variant.trackInventory &&
+                variant.quantity !== null &&
+                variant.quantity <= 0;
 
-            return (
-              <label
-                key={option.name}
-                className={`rounded-xl border px-4 py-3 transition ${
-                  optionSoldOut
-                    ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
-                    : selected
-                      ? "cursor-pointer border-[#e76d61] bg-[#fff4f1] shadow-sm"
-                      : "cursor-pointer border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="flowerOption"
-                  value={option.name}
-                  checked={selected}
-                  disabled={optionSoldOut}
-                  onChange={() => setSelectedOption(option.name)}
-                  className="sr-only"
-                />
+              const displayName =
+                variant.size || variant.name;
 
-                <span className="block text-sm font-semibold text-[#153f32]">
-                  {option.name}
-                </span>
+              return (
+                <label
+                  key={variant.id}
+                  className={`rounded-xl border px-4 py-3 transition ${
+                    variantSoldOut
+                      ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
+                      : selected
+                        ? "cursor-pointer border-[#e76d61] bg-[#fff4f1] shadow-sm"
+                        : "cursor-pointer border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="shirtVariant"
+                    value={variant.id}
+                    checked={selected}
+                    disabled={variantSoldOut}
+                    onChange={() =>
+                      setSelectedVariantId(variant.id)
+                    }
+                    className="sr-only"
+                  />
 
-                <span className="mt-1 block text-lg font-semibold text-[#e76d61]">
-                  {formatPrice(option.price)}
-                </span>
+                  <span className="block font-semibold text-[#153f32]">
+                    {displayName}
+                  </span>
 
-                {option.trackInventory &&
-                  option.quantity !== null &&
-                  option.quantity !== undefined && (
-                    <span
-                      className={`mt-2 block text-xs font-semibold ${
-                        option.quantity > 0
-                          ? "text-[#607068]"
-                          : "text-[#a7473f]"
-                      }`}
-                    >
-                      {option.quantity > 0
-                        ? `${option.quantity} available`
-                        : "Sold out"}
+                  {variant.color && (
+                    <span className="mt-1 block text-xs text-[#718078]">
+                      {variant.color}
                     </span>
                   )}
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
 
-      {selectedTracksInventory &&
+                  <span className="mt-2 block text-lg font-semibold text-[#e76d61]">
+                    {formatPrice(variant.price)}
+                  </span>
+
+                  {variant.trackInventory &&
+                    variant.quantity !== null && (
+                      <span
+                        className={`mt-2 block text-xs font-semibold ${
+                          variant.quantity > 0
+                            ? "text-[#607068]"
+                            : "text-[#a7473f]"
+                        }`}
+                      >
+                        {variant.quantity > 0
+                          ? `${variant.quantity} available`
+                          : "Sold out"}
+                      </span>
+                    )}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+      )}
+
+      {!hasVariants &&
+        baseTrackInventory &&
+        baseQuantity !== null && (
+          <div
+            className={`rounded-xl px-4 py-3 text-sm ${
+              soldOut
+                ? "bg-[#fff0ed] text-[#a7473f]"
+                : "bg-[#edf3e7] text-[#36594c]"
+            }`}
+          >
+            <span className="font-semibold">Availability:</span>{" "}
+            {soldOut
+              ? "Currently sold out"
+              : `${baseQuantity} currently available`}
+          </div>
+        )}
+
+      {hasVariants &&
+        selectedTracksInventory &&
         selectedQuantity !== null && (
           <div
             className={`mt-5 rounded-xl px-4 py-3 text-sm ${
@@ -166,13 +206,51 @@ export default function FlowerOrderConfigurator({
             }`}
           >
             <span className="font-semibold">
-              {selectedOption}:
+              {selectedVariant?.size ||
+                selectedVariant?.name}
+              :
             </span>{" "}
             {soldOut
               ? "Currently sold out"
               : `${selectedQuantity} currently available`}
           </div>
         )}
+
+      {presetDesign && (
+        <div className="mt-6 rounded-xl bg-[#f5efe6] p-4">
+          <p className="text-sm font-semibold text-[#153f32]">
+            Preset Screen-Printed Design
+          </p>
+
+          <p className="mt-2 text-sm leading-6 text-[#607068]">
+            This shirt uses one of Port Petals&apos; available preset
+            screen-print designs. Custom artwork is not currently offered
+            through the online catalog.
+          </p>
+        </div>
+      )}
+
+      {customizableColors && (
+        <div className="mt-6">
+          <label className="grid gap-2">
+            <span className="text-sm font-semibold text-[#153f32]">
+              Tie-Dye Color Preference
+            </span>
+
+            <input
+              type="text"
+              name="tieDyeColors"
+              placeholder="Example: pink and purple, blue and green, black and orange"
+              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
+            />
+          </label>
+
+          <p className="mt-2 text-xs leading-5 text-[#718078]">
+            Every custom tie-dye shirt is handmade and unique. Exact
+            patterns will vary.
+          </p>
+        </div>
+      )}
 
       <fieldset className="mt-6">
         <legend className="text-sm font-semibold text-[#153f32]">
@@ -278,9 +356,13 @@ export default function FlowerOrderConfigurator({
             Estimated Total
           </p>
 
-          <p className="mt-1 text-xs text-[#718078]">
-            Selected: {selectedOption}
-          </p>
+          {selectedVariant && (
+            <p className="mt-1 text-xs text-[#718078]">
+              Selected:{" "}
+              {selectedVariant.size ||
+                selectedVariant.name}
+            </p>
+          )}
         </div>
 
         <p className="text-3xl font-semibold text-[#e76d61]">
@@ -294,29 +376,17 @@ export default function FlowerOrderConfigurator({
         </summary>
 
         <div className="grid gap-5 border-t border-[#284239]/10 p-5">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold">
-              Preferred Colors
-            </span>
-
-            <input
-              type="text"
-              name="preferredColors"
-              placeholder="Example: pink and white"
-              className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-            />
-          </label>
-
-          {allowsCardMessage && (
+          {presetDesign && (
             <label className="grid gap-2">
               <span className="text-sm font-semibold">
-                Card Message
+                Preferred Shirt Color
               </span>
 
-              <textarea
-                name="cardMessage"
-                rows={3}
-                className="resize-y rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
+              <input
+                type="text"
+                name="shirtColor"
+                placeholder="Example: black, white, gray"
+                className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
               />
             </label>
           )}
@@ -376,7 +446,7 @@ export default function FlowerOrderConfigurator({
           }`}
         >
           {soldOut
-            ? "Selected Option Sold Out"
+            ? "Selected Size Sold Out"
             : "Call to Order · 814-642-1253"}
         </a>
 

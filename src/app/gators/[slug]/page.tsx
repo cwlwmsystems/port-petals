@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import FlowerOrderConfigurator from "@/components/FlowerOrderConfigurator";
-import FlowerProductInfoTabs from "@/components/FlowerProductInfoTabs";
-import { getPublishedFlowerBySlug } from "@/lib/flowers";
+import GatorOrderConfigurator from "@/components/GatorOrderConfigurator";
+import { getPublishedGatorBySlug } from "@/lib/gators";
 
-type FlowerPageProps = {
+type GatorPageProps = {
   params: Promise<{
     slug: string;
   }>;
@@ -39,7 +38,7 @@ function getStartingPrice(
 
 function getLeadTimeText(days: number | null) {
   if (days === null) {
-    return undefined;
+    return null;
   }
 
   return `Please allow at least ${days} day${days === 1 ? "" : "s"} for this item.`;
@@ -47,14 +46,13 @@ function getLeadTimeText(days: number | null) {
 
 export async function generateMetadata({
   params,
-}: FlowerPageProps): Promise<Metadata> {
+}: GatorPageProps): Promise<Metadata> {
   const { slug } = await params;
-
-  const product = await getPublishedFlowerBySlug(slug);
+  const product = await getPublishedGatorBySlug(slug);
 
   if (!product) {
     return {
-      title: "Flower Product Not Found",
+      title: "Gator Gear Not Found",
     };
   }
 
@@ -63,23 +61,23 @@ export async function generateMetadata({
     description:
       product.short_description ??
       product.description ??
-      "Fresh flowers from Port Petals.",
+      "Port Allegany Gator gear from Port Petals.",
   };
 }
 
-export default async function FlowerPage({
+export default async function GatorProductPage({
   params,
-}: FlowerPageProps) {
+}: GatorPageProps) {
   const { slug } = await params;
-
-  const product = await getPublishedFlowerBySlug(slug);
+  const product = await getPublishedGatorBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
   const primaryImage =
-    product.images[0]?.publicUrl ?? "/collections/fresh-flowers.jpg";
+    product.images[0]?.publicUrl ??
+    "/collections/gators.jpg";
 
   const startingPrice = getStartingPrice(
     product.base_price,
@@ -88,20 +86,15 @@ export default async function FlowerPage({
 
   const leadTime = getLeadTimeText(product.lead_time_days);
 
-  const configuratorOptions = [
-    {
-      name: "Standard",
-      price: product.base_price ?? 0,
-      quantity: product.quantity,
-      trackInventory: product.track_inventory,
-    },
-    ...product.variants.map((variant) => ({
-      name: variant.name,
-      price: variant.price ?? product.base_price ?? 0,
-      quantity: variant.quantity,
-      trackInventory: variant.track_inventory,
-    })),
-  ];
+  const gatorVariants = product.variants.map((variant) => ({
+    id: variant.id,
+    name: variant.name,
+    size: variant.size,
+    color: variant.color,
+    price: variant.price ?? product.base_price ?? 0,
+    quantity: variant.quantity,
+    trackInventory: variant.track_inventory,
+  }));
 
   const trackedVariantQuantity = product.variants
     .filter(
@@ -129,10 +122,10 @@ export default async function FlowerPage({
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
       <section className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
         <Link
-          href="/flowers"
+          href="/gators"
           className="inline-flex items-center gap-2 text-sm font-semibold text-[#36594c] transition hover:text-[#e76d61]"
         >
-          ← Back to Fresh Flowers
+          ← Back to Gator Gear
         </Link>
       </section>
 
@@ -182,6 +175,12 @@ export default async function FlowerPage({
                 </span>
               )}
 
+              {product.ready_made && (
+                <span className="inline-flex rounded-full bg-[#edf1f6] px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#536578]">
+                  Ready-Made
+                </span>
+              )}
+
               {product.made_to_order && (
                 <span className="inline-flex rounded-full bg-[#edf3e7] px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#36594c]">
                   Made to Order
@@ -195,7 +194,13 @@ export default async function FlowerPage({
               )}
             </div>
 
-            <h1 className="mt-5 max-w-2xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
+            {product.maker && (
+              <p className="mt-4 text-sm font-semibold text-[#36594c]">
+                Made by {product.maker}
+              </p>
+            )}
+
+            <h1 className="mt-4 max-w-2xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
               {product.name}
             </h1>
 
@@ -231,24 +236,62 @@ export default async function FlowerPage({
               </div>
             </div>
 
-            <FlowerOrderConfigurator
+            <GatorOrderConfigurator
               productName={product.name}
-              options={configuratorOptions as any}
+              basePrice={product.base_price ?? 0}
+              baseQuantity={product.quantity}
+              baseTrackInventory={product.track_inventory}
+              variants={gatorVariants}
+              customizable={product.customizable}
               pickupAvailable={product.pickup_available}
               deliveryAvailable={product.delivery_available}
-              allowsCardMessage={true}
             />
           </div>
         </div>
       </section>
 
-      <FlowerProductInfoTabs
-        description={
-          product.description ??
-          product.short_description ??
-          product.name
-        }
-      />
+      <section className="border-t border-[#284239]/10 bg-white/50">
+        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 md:grid-cols-3 lg:px-10">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
+              Product Details
+            </p>
+
+            <p className="mt-3 text-sm leading-6 text-[#607068]">
+              {product.description ??
+                product.short_description ??
+                product.name}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
+              Fulfillment
+            </p>
+
+            <div className="mt-3 space-y-1 text-sm leading-6 text-[#607068]">
+              {product.pickup_available && (
+                <p>Pickup available in Port Allegany.</p>
+              )}
+
+              {product.delivery_available && (
+                <p>Local delivery available.</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
+              Availability
+            </p>
+
+            <p className="mt-3 text-sm leading-6 text-[#607068]">
+              {leadTime ??
+                "Availability depends on current inventory and product options."}
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

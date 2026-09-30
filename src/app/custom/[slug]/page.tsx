@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import CustomItemConfigurator from "@/components/CustomItemConfigurator";
 import CustomItemInfoTabs from "@/components/CustomItemInfoTabs";
-import { customItemProducts } from "@/data/customItems";
+import { getPublishedCustomItemBySlug } from "@/lib/custom-items";
 
 type CustomItemPageProps = {
   params: Promise<{
@@ -12,30 +12,44 @@ type CustomItemPageProps = {
   }>;
 };
 
-function formatPrice(price: number) {
+function formatPrice(price: number | null) {
+  if (price === null) {
+    return "Contact for price";
+  }
+
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 0,
   }).format(price);
 }
 
-export async function generateStaticParams() {
-  return customItemProducts
-    .filter((product) => product.active)
-    .map((product) => ({
-      slug: product.slug,
-    }));
+function getStartingPrice(
+  basePrice: number | null,
+  variants: { price: number | null }[]
+) {
+  const prices = [
+    ...(basePrice !== null ? [basePrice] : []),
+    ...variants
+      .map((variant) => variant.price)
+      .filter((price): price is number => price !== null),
+  ];
+
+  return prices.length > 0 ? Math.min(...prices) : null;
+}
+
+function getLeadTimeText(days: number | null) {
+  if (days === null) {
+    return undefined;
+  }
+
+  return `Please allow at least ${days} day${days === 1 ? "" : "s"} for this item.`;
 }
 
 export async function generateMetadata({
   params,
 }: CustomItemPageProps): Promise<Metadata> {
   const { slug } = await params;
-
-  const product = customItemProducts.find(
-    (item) => item.slug === slug && item.active
-  );
+  const product = await getPublishedCustomItemBySlug(slug);
 
   if (!product) {
     return {
@@ -45,7 +59,10 @@ export async function generateMetadata({
 
   return {
     title: product.name,
-    description: product.shortDescription,
+    description:
+      product.short_description ??
+      product.description ??
+      "Custom item from Port Petals.",
   };
 }
 
@@ -53,18 +70,54 @@ export default async function CustomItemPage({
   params,
 }: CustomItemPageProps) {
   const { slug } = await params;
-
-  const product = customItemProducts.find(
-    (item) => item.slug === slug && item.active
-  );
+  const product = await getPublishedCustomItemBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const startingPrice = Math.min(
-    ...product.options.map((option) => option.price)
+  const primaryImage =
+    product.images[0]?.publicUrl ??
+    "/collections/customized-items.jpg";
+
+  const startingPrice = getStartingPrice(
+    product.base_price,
+    product.variants
   );
+
+  const leadTime = getLeadTimeText(product.lead_time_days);
+
+  const customVariants = product.variants.map((variant) => ({
+    id: variant.id,
+    name: variant.name,
+    size: variant.size,
+    color: variant.color,
+    price: variant.price ?? product.base_price ?? 0,
+    quantity: variant.quantity,
+    trackInventory: variant.track_inventory,
+  }));
+
+  const trackedVariantQuantity = product.variants
+    .filter(
+      (variant) =>
+        variant.active &&
+        variant.track_inventory &&
+        variant.quantity !== null
+    )
+    .reduce(
+      (total, variant) => total + (variant.quantity ?? 0),
+      0
+    );
+
+  const hasTrackedVariants = product.variants.some(
+    (variant) =>
+      variant.active &&
+      variant.track_inventory
+  );
+
+  const totalAvailable = hasTrackedVariants
+    ? trackedVariantQuantity
+    : product.quantity;
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
@@ -83,15 +136,36 @@ export default async function CustomItemPage({
             <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_50px_rgba(42,66,57,0.12)]">
               <div className="relative aspect-[4/3]">
                 <Image
-                  src={product.image}
-                  alt={product.name}
+                  src={primaryImage}
+                  alt={product.images[0]?.alt_text ?? product.name}
                   fill
                   priority
+                  unoptimized
                   sizes="(max-width: 1023px) 100vw, 44vw"
                   className="object-cover"
                 />
               </div>
             </div>
+
+            {product.images.length > 1 && (
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                {product.images.slice(1, 4).map((image) => (
+                  <div
+                    key={image.id}
+                    className="relative aspect-square overflow-hidden rounded-xl border border-[#284239]/10 bg-white"
+                  >
+                    <Image
+                      src={image.publicUrl}
+                      alt={image.alt_text ?? product.name}
+                      fill
+                      unoptimized
+                      sizes="160px"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="mt-5 rounded-2xl border border-[#284239]/10 bg-white/70 p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
@@ -99,32 +173,61 @@ export default async function CustomItemPage({
               </p>
 
               <p className="mt-3 text-sm leading-6 text-[#607068]">
-                Photos and catalog examples represent the type of work
-                Port Petals can create. Final colors, materials, wording,
-                and design details may vary based on the approved request.
+                Colors, materials, wording, and design details may vary based
+                on the individual request and available supplies.
               </p>
             </div>
           </div>
 
           <div>
-            {product.featured && (
-              <span className="inline-flex rounded-full bg-[#f3d8d2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#b94f45]">
-                Port Petals Favorite
-              </span>
+            <div className="flex flex-wrap gap-2">
+              {product.featured && (
+                <span className="inline-flex rounded-full bg-[#f3d8d2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#b94f45]">
+                  Port Petals Favorite
+                </span>
+              )}
+
+              {product.ready_made && (
+                <span className="inline-flex rounded-full bg-[#edf1f6] px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#536578]">
+                  Ready-Made
+                </span>
+              )}
+
+              {product.made_to_order && (
+                <span className="inline-flex rounded-full bg-[#edf3e7] px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#36594c]">
+                  Made to Order
+                </span>
+              )}
+
+              {product.customizable && (
+                <span className="inline-flex rounded-full bg-[#f8e1dc] px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#b9564c]">
+                  Customizable
+                </span>
+              )}
+            </div>
+
+            {product.maker && (
+              <p className="mt-4 text-sm font-semibold text-[#36594c]">
+                Made by {product.maker}
+              </p>
             )}
 
-            <h1 className="mt-5 max-w-2xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
+            <h1 className="mt-4 max-w-2xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
               {product.name}
             </h1>
 
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#52655d]">
-              {product.description}
-            </p>
+            {(product.description || product.short_description) && (
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-[#52655d]">
+                {product.description ?? product.short_description}
+              </p>
+            )}
 
             <div className="mt-7 flex flex-wrap items-end gap-x-8 gap-y-3 border-b border-[#284239]/10 pb-7">
               <div>
                 <p className="text-sm text-[#718078]">
-                  Starting at
+                  {product.variants.length > 0
+                    ? "Starting at"
+                    : "Price"}
                 </p>
 
                 <p className="mt-1 text-3xl font-semibold text-[#e76d61]">
@@ -133,27 +236,42 @@ export default async function CustomItemPage({
               </div>
 
               <div className="max-w-md text-sm leading-6 text-[#607068]">
-                <p>{product.leadTime}</p>
-                <p>Final pricing is confirmed after the design is reviewed.</p>
+                {leadTime && <p>{leadTime}</p>}
+
+                {totalAvailable !== null && (
+                  <p>
+                    {totalAvailable > 0
+                      ? `${totalAvailable} currently available`
+                      : "Currently sold out"}
+                  </p>
+                )}
               </div>
             </div>
 
             <CustomItemConfigurator
               productName={product.name}
-              options={product.options}
-              personalizationAvailable={
-                product.personalizationAvailable
-              }
-              pickupAvailable={product.pickupAvailable}
-              deliveryAvailable={product.deliveryAvailable}
+              basePrice={product.base_price ?? 0}
+              baseQuantity={product.quantity}
+              baseTrackInventory={product.track_inventory}
+              variants={customVariants}
+              personalizationAvailable={product.customizable}
+              pickupAvailable={product.pickup_available}
+              deliveryAvailable={product.delivery_available}
             />
           </div>
         </div>
       </section>
 
       <CustomItemInfoTabs
-        description={product.description}
-        leadTime={product.leadTime}
+        description={
+          product.description ??
+          product.short_description ??
+          product.name
+        }
+        leadTime={
+          leadTime ??
+          "Timing depends on the requested design and material availability."
+        }
       />
     </main>
   );

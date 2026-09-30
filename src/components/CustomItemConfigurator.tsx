@@ -2,14 +2,22 @@
 
 import { useMemo, useState } from "react";
 
-type CustomItemOption = {
+type CustomItemVariant = {
+  id: string;
   name: string;
+  size: string | null;
+  color: string | null;
   price: number;
+  quantity: number | null;
+  trackInventory: boolean;
 };
 
 type CustomItemConfiguratorProps = {
   productName: string;
-  options: CustomItemOption[];
+  basePrice: number;
+  baseQuantity: number | null;
+  baseTrackInventory: boolean;
+  variants: CustomItemVariant[];
   pickupAvailable: boolean;
   deliveryAvailable: boolean;
   personalizationAvailable: boolean;
@@ -27,19 +35,23 @@ function formatPrice(price: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 0,
   }).format(price);
 }
 
 export default function CustomItemConfigurator({
   productName,
-  options,
+  basePrice,
+  baseQuantity,
+  baseTrackInventory,
+  variants,
   pickupAvailable,
   deliveryAvailable,
   personalizationAvailable,
 }: CustomItemConfiguratorProps) {
-  const [selectedOption, setSelectedOption] = useState(
-    options[0]?.name ?? ""
+  const hasVariants = variants.length > 0;
+
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    variants[0]?.id ?? ""
   );
 
   const [fulfillment, setFulfillment] =
@@ -48,11 +60,24 @@ export default function CustomItemConfigurator({
   const [deliveryArea, setDeliveryArea] =
     useState<DeliveryArea>("");
 
-  const selectedOptionData = options.find(
-    (option) => option.name === selectedOption
+  const selectedVariant = variants.find(
+    (variant) => variant.id === selectedVariantId
   );
 
-  const basePrice = selectedOptionData?.price ?? 0;
+  const selectedPrice = selectedVariant?.price ?? basePrice;
+
+  const selectedTracksInventory = hasVariants
+    ? selectedVariant?.trackInventory ?? false
+    : baseTrackInventory;
+
+  const selectedQuantity = hasVariants
+    ? selectedVariant?.quantity ?? null
+    : baseQuantity;
+
+  const soldOut =
+    selectedTracksInventory &&
+    selectedQuantity !== null &&
+    selectedQuantity <= 0;
 
   const deliveryFee = useMemo(() => {
     if (fulfillment !== "delivery") {
@@ -71,53 +96,120 @@ export default function CustomItemConfigurator({
     }
   }, [fulfillment, deliveryArea]);
 
-  const estimatedTotal = basePrice + deliveryFee;
+  const estimatedTotal = selectedPrice + deliveryFee;
 
   return (
     <div className="mt-8 border-t border-[#284239]/10 pt-7">
-      <fieldset>
-        <legend className="text-sm font-semibold text-[#153f32]">
-          Choose Your Option
-        </legend>
+      {hasVariants && (
+        <fieldset>
+          <legend className="text-sm font-semibold text-[#153f32]">
+            Choose Your Option
+          </legend>
 
-        <div
-          className={`mt-3 grid gap-3 ${
-            options.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"
-          }`}
-        >
-          {options.map((option) => {
-            const selected = selectedOption === option.name;
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {variants.map((variant) => {
+              const selected = selectedVariantId === variant.id;
 
-            return (
-              <label
-                key={option.name}
-                className={`cursor-pointer rounded-xl border px-4 py-3 transition ${
-                  selected
-                    ? "border-[#e76d61] bg-[#fff4f1] shadow-sm"
-                    : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="customOption"
-                  value={option.name}
-                  checked={selected}
-                  onChange={() => setSelectedOption(option.name)}
-                  className="sr-only"
-                />
+              const variantSoldOut =
+                variant.trackInventory &&
+                variant.quantity !== null &&
+                variant.quantity <= 0;
 
-                <span className="block text-xs font-semibold uppercase tracking-[0.08em] text-[#52655d]">
-                  {option.name}
-                </span>
+              return (
+                <label
+                  key={variant.id}
+                  className={`rounded-xl border px-4 py-3 transition ${
+                    variantSoldOut
+                      ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
+                      : selected
+                        ? "cursor-pointer border-[#e76d61] bg-[#fff4f1] shadow-sm"
+                        : "cursor-pointer border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="customItemVariant"
+                    value={variant.id}
+                    checked={selected}
+                    disabled={variantSoldOut}
+                    onChange={() =>
+                      setSelectedVariantId(variant.id)
+                    }
+                    className="sr-only"
+                  />
 
-                <span className="mt-1 block text-lg font-semibold text-[#153f32]">
-                  {formatPrice(option.price)}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
+                  <span className="block font-semibold text-[#153f32]">
+                    {variant.name}
+                  </span>
+
+                  {(variant.size || variant.color) && (
+                    <span className="mt-1 block text-xs text-[#718078]">
+                      {[variant.size, variant.color]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  )}
+
+                  <span className="mt-2 block text-lg font-semibold text-[#e76d61]">
+                    {formatPrice(variant.price)}
+                  </span>
+
+                  {variant.trackInventory &&
+                    variant.quantity !== null && (
+                      <span
+                        className={`mt-2 block text-xs font-semibold ${
+                          variant.quantity > 0
+                            ? "text-[#607068]"
+                            : "text-[#a7473f]"
+                        }`}
+                      >
+                        {variant.quantity > 0
+                          ? `${variant.quantity} available`
+                          : "Sold out"}
+                      </span>
+                    )}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+      )}
+
+      {!hasVariants &&
+        baseTrackInventory &&
+        baseQuantity !== null && (
+          <div
+            className={`rounded-xl px-4 py-3 text-sm ${
+              soldOut
+                ? "bg-[#fff0ed] text-[#a7473f]"
+                : "bg-[#edf3e7] text-[#36594c]"
+            }`}
+          >
+            <span className="font-semibold">Availability:</span>{" "}
+            {soldOut
+              ? "Currently sold out"
+              : `${baseQuantity} currently available`}
+          </div>
+        )}
+
+      {hasVariants &&
+        selectedTracksInventory &&
+        selectedQuantity !== null && (
+          <div
+            className={`mt-5 rounded-xl px-4 py-3 text-sm ${
+              soldOut
+                ? "bg-[#fff0ed] text-[#a7473f]"
+                : "bg-[#edf3e7] text-[#36594c]"
+            }`}
+          >
+            <span className="font-semibold">
+              {selectedVariant?.name}:
+            </span>{" "}
+            {soldOut
+              ? "Currently sold out"
+              : `${selectedQuantity} currently available`}
+          </div>
+        )}
 
       {personalizationAvailable && (
         <div className="mt-6 grid gap-5">
@@ -129,8 +221,8 @@ export default function CustomItemConfigurator({
             <input
               type="text"
               name="personalization"
-              placeholder="Example: Easton, The Williams Family, Your Name"
-              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61] focus:ring-2 focus:ring-[#e76d61]/15"
+              placeholder="Name, wording, phrase, or other personalization"
+              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
             />
           </label>
 
@@ -144,7 +236,7 @@ export default function CustomItemConfigurator({
                 type="text"
                 name="number"
                 placeholder="Example: 33"
-                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61] focus:ring-2 focus:ring-[#e76d61]/15"
+                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
               />
             </label>
 
@@ -157,7 +249,7 @@ export default function CustomItemConfigurator({
                 type="text"
                 name="year"
                 placeholder="Example: 2026"
-                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61] focus:ring-2 focus:ring-[#e76d61]/15"
+                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
               />
             </label>
           </div>
@@ -171,7 +263,7 @@ export default function CustomItemConfigurator({
               type="text"
               name="theme"
               placeholder="Example: orange and black, Christmas, fall, floral"
-              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61] focus:ring-2 focus:ring-[#e76d61]/15"
+              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
             />
           </label>
         </div>
@@ -254,9 +346,11 @@ export default function CustomItemConfigurator({
               required
               value={deliveryArea}
               onChange={(event) =>
-                setDeliveryArea(event.target.value as DeliveryArea)
+                setDeliveryArea(
+                  event.target.value as DeliveryArea
+                )
               }
-              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition focus:border-[#e76d61] focus:ring-2 focus:ring-[#e76d61]/15"
+              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
             >
               <option value="">Choose delivery area</option>
               <option value="within-3">
@@ -279,8 +373,14 @@ export default function CustomItemConfigurator({
             Estimated Starting Total
           </p>
 
+          {selectedVariant && (
+            <p className="mt-1 text-xs text-[#718078]">
+              Selected: {selectedVariant.name}
+            </p>
+          )}
+
           <p className="mt-1 text-xs text-[#718078]">
-            Final price depends on the approved design and materials.
+            Final price may change based on approved design and materials.
           </p>
         </div>
 
@@ -303,7 +403,7 @@ export default function CustomItemConfigurator({
             <textarea
               name="idea"
               rows={4}
-              placeholder={`Describe how you would like your ${productName} personalized...`}
+              placeholder={`Describe how you would like your ${productName} made or personalized...`}
               className="resize-y rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
             />
           </label>
@@ -355,9 +455,16 @@ export default function CustomItemConfigurator({
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         <a
           href="/custom/request"
-          className="inline-flex items-center justify-center rounded-xl bg-[#e76d61] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#d85b50]"
+          aria-disabled={soldOut}
+          className={`inline-flex items-center justify-center rounded-xl px-7 py-4 text-base font-semibold text-white shadow-md transition ${
+            soldOut
+              ? "pointer-events-none bg-[#9b9b96]"
+              : "bg-[#e76d61] hover:bg-[#d85b50]"
+          }`}
         >
-          Start Custom Request
+          {soldOut
+            ? "Selected Option Sold Out"
+            : "Start Custom Request"}
         </a>
 
         <a
@@ -369,8 +476,8 @@ export default function CustomItemConfigurator({
       </div>
 
       <p className="mt-3 text-center text-xs leading-5 text-[#718078]">
-        Custom orders are not final until Port Petals reviews the design,
-        confirms pricing, and approves the request.
+        Custom orders are confirmed after Port Petals reviews the requested
+        design, materials, availability, and final price.
       </p>
     </div>
   );

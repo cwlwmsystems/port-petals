@@ -4,67 +4,103 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import CandleOrderConfigurator from "@/components/CandleOrderConfigurator";
 import CandleProductInfoTabs from "@/components/CandleProductInfoTabs";
-import { candleProducts } from "@/data/candles";
+import { getPublishedCandleBySlug } from "@/lib/candles";
 
-type CandleProductPageProps = {
+type CandlePageProps = {
   params: Promise<{
     slug: string;
   }>;
 };
 
-function formatPrice(price: number) {
+function formatPrice(price: number | null) {
+  if (price === null) {
+    return "Contact for price";
+  }
+
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 0,
   }).format(price);
 }
 
-export async function generateStaticParams() {
-  return candleProducts
-    .filter((product) => product.active)
-    .map((product) => ({
-      slug: product.slug,
-    }));
+function getStartingPrice(
+  basePrice: number | null,
+  variants: { price: number | null }[]
+) {
+  const prices = [
+    ...(basePrice !== null ? [basePrice] : []),
+    ...variants
+      .map((variant) => variant.price)
+      .filter((price): price is number => price !== null),
+  ];
+
+  if (prices.length === 0) {
+    return null;
+  }
+
+  return Math.min(...prices);
 }
 
 export async function generateMetadata({
   params,
-}: CandleProductPageProps): Promise<Metadata> {
+}: CandlePageProps): Promise<Metadata> {
   const { slug } = await params;
 
-  const product = candleProducts.find(
-    (item) => item.slug === slug && item.active
-  );
+  const product = await getPublishedCandleBySlug(slug);
 
   if (!product) {
     return {
-      title: "Candle Product Not Found",
+      title: "Candle Not Found",
     };
   }
 
   return {
     title: product.name,
-    description: product.shortDescription,
+    description:
+      product.short_description ??
+      product.description ??
+      "Candle product from Port Petals.",
   };
 }
 
-export default async function CandleProductPage({
+export default async function CandlePage({
   params,
-}: CandleProductPageProps) {
+}: CandlePageProps) {
   const { slug } = await params;
 
-  const product = candleProducts.find(
-    (item) => item.slug === slug && item.active
-  );
+  const product = await getPublishedCandleBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const startingPrice = Math.min(
-    ...product.options.map((option) => option.price)
+  const primaryImage =
+    product.images[0]?.publicUrl ?? "/collections/candles.jpg";
+
+  const startingPrice = getStartingPrice(
+    product.base_price,
+    product.variants
   );
+
+  const configuratorOptions = [
+    {
+      name: "Standard",
+      price: product.base_price ?? 0,
+      quantity: product.quantity,
+      trackInventory: product.track_inventory,
+    },
+    ...product.variants.map((variant) => ({
+      name: variant.name,
+      price: variant.price ?? product.base_price ?? 0,
+      quantity: variant.quantity,
+      trackInventory: variant.track_inventory,
+    })),
+  ];
+
+  const leadTime =
+    product.lead_time_days !== null
+      ? `Please allow at least ${product.lead_time_days} days for this item.`
+      : undefined;
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
@@ -83,25 +119,34 @@ export default async function CandleProductPage({
             <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_50px_rgba(42,66,57,0.12)]">
               <div className="relative aspect-[4/3]">
                 <Image
-                  src={product.image}
-                  alt={product.name}
+                  src={primaryImage}
+                  alt={product.images[0]?.alt_text ?? product.name}
                   fill
                   priority
+                  unoptimized
                   sizes="(max-width: 1023px) 100vw, 44vw"
                   className="object-cover"
                 />
               </div>
             </div>
 
-            {product.leadTime && (
-              <div className="mt-5 rounded-2xl border border-[#284239]/10 bg-[#edf3e7] p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#36594c]">
-                  Advance Notice
-                </p>
-
-                <p className="mt-3 text-sm font-semibold leading-6 text-[#153f32]">
-                  {product.leadTime}
-                </p>
+            {product.images.length > 1 && (
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                {product.images.slice(1, 4).map((image) => (
+                  <div
+                    key={image.id}
+                    className="relative aspect-square overflow-hidden rounded-xl border border-[#284239]/10 bg-white"
+                  >
+                    <Image
+                      src={image.publicUrl}
+                      alt={image.alt_text ?? product.name}
+                      fill
+                      unoptimized
+                      sizes="160px"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -117,33 +162,54 @@ export default async function CandleProductPage({
               {product.name}
             </h1>
 
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#52655d]">
-              {product.description}
-            </p>
-
-            <div className="mt-7 border-b border-[#284239]/10 pb-7">
-              <p className="text-sm text-[#718078]">
-                {product.options.length > 1 ? "Starting at" : "Price"}
+            {product.description && (
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-[#52655d]">
+                {product.description}
               </p>
+            )}
 
-              <p className="mt-1 text-3xl font-semibold text-[#e76d61]">
-                {formatPrice(startingPrice)}
-              </p>
+            <div className="mt-7 flex flex-wrap items-end gap-x-8 gap-y-3 border-b border-[#284239]/10 pb-7">
+              <div>
+                <p className="text-sm text-[#718078]">
+                  {product.variants.length > 1 ? "Starting at" : "Price"}
+                </p>
+
+                <p className="mt-1 text-3xl font-semibold text-[#e76d61]">
+                  {formatPrice(startingPrice)}
+                </p>
+              </div>
+
+              <div className="max-w-md text-sm leading-6 text-[#607068]">
+                {leadTime && <p>{leadTime}</p>}
+
+                {product.track_inventory &&
+                  product.quantity !== null && (
+                    <p>
+                      {product.quantity > 0
+                        ? `${product.quantity} currently available`
+                        : "Currently sold out"}
+                    </p>
+                  )}
+              </div>
             </div>
 
             <CandleOrderConfigurator
               productName={product.name}
-              options={product.options}
-              allowsGiftMessage={product.allowsGiftMessage}
-              pickupAvailable={product.pickupAvailable}
-              deliveryAvailable={product.deliveryAvailable}
+              options={configuratorOptions}
+              pickupAvailable={product.pickup_available}
+              deliveryAvailable={product.delivery_available}
+              allowsGiftMessage={true}
             />
           </div>
         </div>
       </section>
 
       <CandleProductInfoTabs
-        description={product.description}
+        description={
+          product.description ??
+          product.short_description ??
+          product.name
+        }
       />
     </main>
   );

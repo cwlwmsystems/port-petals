@@ -5,14 +5,16 @@ import { useMemo, useState } from "react";
 type CandleOption = {
   name: string;
   price: number;
+  quantity?: number | null;
+  trackInventory?: boolean;
 };
 
 type CandleOrderConfiguratorProps = {
   productName: string;
   options: CandleOption[];
-  allowsGiftMessage: boolean;
   pickupAvailable: boolean;
   deliveryAvailable: boolean;
+  allowsGiftMessage: boolean;
 };
 
 type FulfillmentType = "pickup" | "delivery";
@@ -27,16 +29,15 @@ function formatPrice(price: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 0,
   }).format(price);
 }
 
 export default function CandleOrderConfigurator({
   productName,
   options,
-  allowsGiftMessage,
   pickupAvailable,
   deliveryAvailable,
+  allowsGiftMessage,
 }: CandleOrderConfiguratorProps) {
   const [selectedOption, setSelectedOption] = useState(
     options[0]?.name ?? ""
@@ -52,7 +53,7 @@ export default function CandleOrderConfigurator({
     (option) => option.name === selectedOption
   );
 
-  const productPrice = selectedOptionData?.price ?? 0;
+  const basePrice = selectedOptionData?.price ?? 0;
 
   const deliveryFee = useMemo(() => {
     if (fulfillment !== "delivery") {
@@ -71,7 +72,18 @@ export default function CandleOrderConfigurator({
     }
   }, [fulfillment, deliveryArea]);
 
-  const estimatedTotal = productPrice + deliveryFee;
+  const estimatedTotal = basePrice + deliveryFee;
+
+  const selectedTracksInventory =
+    selectedOptionData?.trackInventory ?? false;
+
+  const selectedQuantity =
+    selectedOptionData?.quantity ?? null;
+
+  const soldOut =
+    selectedTracksInventory &&
+    selectedQuantity !== null &&
+    selectedQuantity <= 0;
 
   return (
     <div className="mt-8 border-t border-[#284239]/10 pt-7">
@@ -88,13 +100,21 @@ export default function CandleOrderConfigurator({
           {options.map((option) => {
             const selected = selectedOption === option.name;
 
+            const optionSoldOut =
+              option.trackInventory &&
+              option.quantity !== null &&
+              option.quantity !== undefined &&
+              option.quantity <= 0;
+
             return (
               <label
                 key={option.name}
-                className={`cursor-pointer rounded-xl border px-4 py-3 transition ${
-                  selected
-                    ? "border-[#e76d61] bg-[#fff4f1] shadow-sm"
-                    : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
+                className={`rounded-xl border px-4 py-3 transition ${
+                  optionSoldOut
+                    ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
+                    : selected
+                      ? "cursor-pointer border-[#e76d61] bg-[#fff4f1] shadow-sm"
+                      : "cursor-pointer border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
                 }`}
               >
                 <input
@@ -102,22 +122,56 @@ export default function CandleOrderConfigurator({
                   name="candleOption"
                   value={option.name}
                   checked={selected}
+                  disabled={optionSoldOut}
                   onChange={() => setSelectedOption(option.name)}
                   className="sr-only"
                 />
 
-                <span className="block text-xs font-semibold uppercase tracking-[0.08em] text-[#52655d]">
+                <span className="block text-sm font-semibold text-[#153f32]">
                   {option.name}
                 </span>
 
-                <span className="mt-1 block text-lg font-semibold text-[#153f32]">
+                <span className="mt-1 block text-lg font-semibold text-[#e76d61]">
                   {formatPrice(option.price)}
                 </span>
+
+                {option.trackInventory &&
+                  option.quantity !== null &&
+                  option.quantity !== undefined && (
+                    <span
+                      className={`mt-2 block text-xs font-semibold ${
+                        option.quantity > 0
+                          ? "text-[#607068]"
+                          : "text-[#a7473f]"
+                      }`}
+                    >
+                      {option.quantity > 0
+                        ? `${option.quantity} available`
+                        : "Sold out"}
+                    </span>
+                  )}
               </label>
             );
           })}
         </div>
       </fieldset>
+
+      {selectedTracksInventory && selectedQuantity !== null && (
+        <div
+          className={`mt-5 rounded-xl px-4 py-3 text-sm ${
+            soldOut
+              ? "bg-[#fff0ed] text-[#a7473f]"
+              : "bg-[#edf3e7] text-[#36594c]"
+          }`}
+        >
+          <span className="font-semibold">
+            {selectedOption}:
+          </span>{" "}
+          {soldOut
+            ? "Currently sold out"
+            : `${selectedQuantity} currently available`}
+        </div>
+      )}
 
       <div className="mt-6">
         <label className="grid gap-2">
@@ -127,15 +181,11 @@ export default function CandleOrderConfigurator({
 
           <input
             type="text"
-            name="scentPreference"
-            placeholder="Example: vanilla, cinnamon, floral, fresh, fruity"
+            name="preferredScent"
+            placeholder="Tell us your preferred scent, if applicable"
             className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61] focus:ring-2 focus:ring-[#e76d61]/15"
           />
         </label>
-
-        <p className="mt-2 text-xs leading-5 text-[#718078]">
-          Scent availability may vary by season and current inventory.
-        </p>
       </div>
 
       <fieldset className="mt-6">
@@ -217,7 +267,7 @@ export default function CandleOrderConfigurator({
               onChange={(event) =>
                 setDeliveryArea(event.target.value as DeliveryArea)
               }
-              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition focus:border-[#e76d61] focus:ring-2 focus:ring-[#e76d61]/15"
+              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
             >
               <option value="">Choose delivery area</option>
               <option value="within-3">
@@ -241,7 +291,7 @@ export default function CandleOrderConfigurator({
           </p>
 
           <p className="mt-1 text-xs text-[#718078]">
-            Final total subject to confirmation
+            Selected: {selectedOption}
           </p>
         </div>
 
@@ -258,13 +308,12 @@ export default function CandleOrderConfigurator({
         <div className="grid gap-5 border-t border-[#284239]/10 p-5">
           <label className="grid gap-2">
             <span className="text-sm font-semibold">
-              Color or Theme Preference
+              Color / Theme Preference
             </span>
 
             <input
               type="text"
-              name="themePreference"
-              placeholder="Example: pink and cream, fall colors, birthday theme"
+              name="theme"
               className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
             />
           </label>
@@ -278,8 +327,6 @@ export default function CandleOrderConfigurator({
               <textarea
                 name="giftMessage"
                 rows={3}
-                maxLength={250}
-                placeholder="Add a short message..."
                 className="resize-y rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
               />
             </label>
@@ -332,9 +379,16 @@ export default function CandleOrderConfigurator({
       <div className="mt-6">
         <a
           href="tel:+18146421253"
-          className="inline-flex w-full items-center justify-center rounded-xl bg-[#e76d61] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#d85b50]"
+          aria-disabled={soldOut}
+          className={`inline-flex w-full items-center justify-center rounded-xl px-7 py-4 text-base font-semibold text-white shadow-md transition ${
+            soldOut
+              ? "pointer-events-none bg-[#9b9b96]"
+              : "bg-[#e76d61] hover:bg-[#d85b50]"
+          }`}
         >
-          Call to Order · 814-642-1253
+          {soldOut
+            ? "Selected Option Sold Out"
+            : "Call to Order · 814-642-1253"}
         </a>
 
         <p className="mt-3 text-center text-xs leading-5 text-[#718078]">
