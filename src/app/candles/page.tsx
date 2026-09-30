@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getPublishedCandles } from "@/lib/candles";
+import ProductCardCarousel from "@/components/ProductCardCarousel";
 
 export const metadata: Metadata = {
   title: "Candles",
