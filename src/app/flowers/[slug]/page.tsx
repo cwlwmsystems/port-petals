@@ -86,12 +86,16 @@ export default async function FlowerPage({
   const leadTime = getLeadTimeText(product.lead_time_days);
 
   const configuratorOptions = [
-    {
-      name: "Standard",
-      price: product.base_price ?? 0,
-      quantity: product.quantity,
-      trackInventory: product.track_inventory,
-    },
+    ...(product.base_price !== null
+      ? [
+          {
+            name: "Standard",
+            price: product.base_price,
+            quantity: product.quantity,
+            trackInventory: product.track_inventory,
+          },
+        ]
+      : []),
     ...product.variants.map((variant) => ({
       name: variant.name,
       price: variant.price ?? product.base_price ?? 0,
