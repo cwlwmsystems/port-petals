@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import FlowerOrderConfigurator from "@/components/FlowerOrderConfigurator";
+import FlowerProductInfoTabs from "@/components/FlowerProductInfoTabs";
 import { flowerProducts } from "@/data/flowers";
 
 type FlowerProductPageProps = {
@@ -131,103 +133,20 @@ export default async function FlowerProductPage({
             )}
           </div>
 
-          <div className="mt-8">
-            <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
-              Available Options
-            </h2>
-
-            <div className="mt-4 grid gap-3">
-              {product.sizes.map((size) => (
-                <div
-                  key={size.name}
-                  className="flex items-center justify-between rounded-xl border border-[#284239]/10 bg-white/70 px-5 py-4"
-                >
-                  <span className="font-semibold text-[#52655d]">
-                    {size.name}
-                  </span>
-
-                  <span className="text-lg font-semibold text-[#153f32]">
-                    {formatPrice(size.price)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-8 rounded-2xl bg-[#edf3e7] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#36594c]">
-              Advance Notice
-            </p>
-
-            <p className="mt-2 font-semibold text-[#153f32]">
-              {product.leadTime}
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            {product.pickupAvailable && (
-              <div className="rounded-xl border border-[#284239]/10 bg-white/65 p-4">
-                <p className="text-sm font-semibold text-[#153f32]">
-                  Pickup Available
-                </p>
-
-                <p className="mt-1 text-sm leading-6 text-[#607068]">
-                  430 E Arnold Avenue
-                  <br />
-                  Port Allegany, PA 16743
-                </p>
-              </div>
-            )}
-
-            {product.deliveryAvailable && (
-              <div className="rounded-xl border border-[#284239]/10 bg-white/65 p-4">
-                <p className="text-sm font-semibold text-[#153f32]">
-                  Local Delivery
-                </p>
-
-                <p className="mt-1 text-sm leading-6 text-[#607068]">
-                  Free within 3 miles, $10 over 3 miles and up to 8 miles,
-                  and $15 to Smethport or Eldred.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {product.allowsCardMessage && (
-            <div className="mt-6 rounded-xl border border-[#284239]/10 bg-white/65 p-4">
-              <p className="text-sm font-semibold text-[#153f32]">
-                Complimentary Card Message
-              </p>
-
-              <p className="mt-1 text-sm leading-6 text-[#607068]">
-                A short personal card message can be included with this
-                arrangement.
-              </p>
-            </div>
-          )}
-
-          <div className="mt-9">
-            <a
-              href="tel:+18146421253"
-              className="inline-flex w-full items-center justify-center rounded-full bg-[#e76d61] px-7 py-4 text-base font-semibold text-white shadow-md shadow-[#e76d61]/15 transition hover:bg-[#d85b50]"
-            >
-              Call to Order · 814-642-1253
-            </a>
-
-            <a
-              href="mailto:PortPetals@yahoo.com"
-              className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-[#284239]/15 bg-white/70 px-7 py-4 text-base font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              Email Port Petals
-            </a>
-
-            <p className="mt-4 text-center text-xs leading-5 text-[#718078]">
-              Online ordering and payment will be added after the final catalog
-              and Square setup are completed.
-            </p>
-          </div>
+          <FlowerOrderConfigurator
+            productName={product.name}
+            sizes={product.sizes}
+            allowsCardMessage={product.allowsCardMessage}
+            pickupAvailable={product.pickupAvailable}
+            deliveryAvailable={product.deliveryAvailable}
+          />
         </div>
       </section>
+
+      <FlowerProductInfoTabs
+        description={product.description}
+        substitutionNote={product.substitutionNote}
+      />
     </main>
   );
 }
