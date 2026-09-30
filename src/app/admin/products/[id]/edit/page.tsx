@@ -91,6 +91,19 @@ export default async function EditProductPage({
 
   const variants = productVariants ?? [];
 
+  const hasVariants = variants.length > 0;
+
+  const trackedVariants = variants.filter(
+    (variant) =>
+      variant.active &&
+      variant.track_inventory
+  );
+
+  const trackedVariantQuantity = trackedVariants.reduce(
+    (total, variant) => total + (variant.quantity ?? 0),
+    0
+  );
+
   const updateAction = updateProduct.bind(null, id);
 
   return (
@@ -215,18 +228,45 @@ export default async function EditProductPage({
                 />
               </label>
 
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold">Quantity</span>
+              {hasVariants ? (
+                <div className="grid gap-2">
+                  <span className="text-sm font-semibold">
+                    Variant Inventory
+                  </span>
 
-                <input
-                  type="number"
-                  name="quantity"
-                  min="0"
-                  step="1"
-                  defaultValue={product.quantity ?? ""}
-                  className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
-                />
-              </label>
+                  <div className="rounded-xl border border-[#284239]/10 bg-[#edf3e7] px-4 py-3">
+                    <p className="font-semibold text-[#153f32]">
+                      {trackedVariantQuantity} total available
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-[#607068]">
+                      {trackedVariants.length} active inventory-tracked{" "}
+                      {trackedVariants.length === 1
+                        ? "variant"
+                        : "variants"}
+                    </p>
+                  </div>
+
+                  <input
+                    type="hidden"
+                    name="quantity"
+                    value={product.quantity ?? ""}
+                  />
+                </div>
+              ) : (
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold">Quantity</span>
+
+                  <input
+                    type="number"
+                    name="quantity"
+                    min="0"
+                    step="1"
+                    defaultValue={product.quantity ?? ""}
+                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  />
+                </label>
+              )}
 
               <label className="grid gap-2">
                 <span className="text-sm font-semibold">Lead Time</span>
@@ -243,14 +283,38 @@ export default async function EditProductPage({
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <label className="flex items-center gap-3 rounded-xl border border-[#284239]/10 p-4">
-                <input
-                  type="checkbox"
-                  name="track_inventory"
-                  defaultChecked={product.track_inventory}
-                />
-                <span className="text-sm font-semibold">Track Inventory</span>
-              </label>
+              {hasVariants ? (
+                <div className="rounded-xl border border-[#284239]/10 bg-[#faf7f1] p-4">
+                  <p className="text-sm font-semibold text-[#153f32]">
+                    Inventory Mode: Variant Inventory
+                  </p>
+
+                  <p className="mt-2 text-xs leading-5 text-[#607068]">
+                    Inventory is managed individually under Product Variants
+                    below. The storefront uses the summed quantity of active
+                    inventory-tracked variants.
+                  </p>
+
+                  {product.track_inventory && (
+                    <input
+                      type="hidden"
+                      name="track_inventory"
+                      value="on"
+                    />
+                  )}
+                </div>
+              ) : (
+                <label className="flex items-center gap-3 rounded-xl border border-[#284239]/10 p-4">
+                  <input
+                    type="checkbox"
+                    name="track_inventory"
+                    defaultChecked={product.track_inventory}
+                  />
+                  <span className="text-sm font-semibold">
+                    Track Inventory
+                  </span>
+                </label>
+              )}
 
               <label className="flex items-center gap-3 rounded-xl border border-[#284239]/10 p-4">
                 <input

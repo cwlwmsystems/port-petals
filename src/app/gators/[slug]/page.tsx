@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import GatorOrderConfigurator from "@/components/GatorOrderConfigurator";
+import ProductImageGallery from "@/components/ProductImageGallery";
 import { getPublishedGatorBySlug } from "@/lib/gators";
 
 type GatorPageProps = {
@@ -75,10 +75,6 @@ export default async function GatorProductPage({
     notFound();
   }
 
-  const primaryImage =
-    product.images[0]?.publicUrl ??
-    "/collections/gators.jpg";
-
   const startingPrice = getStartingPrice(
     product.base_price,
     product.variants
@@ -132,39 +128,11 @@ export default async function GatorProductPage({
       <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8 lg:px-10">
         <div className="grid items-start gap-10 lg:grid-cols-[0.9fr_1.1fr] xl:gap-14">
           <div className="lg:sticky lg:top-8">
-            <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_50px_rgba(42,66,57,0.12)]">
-              <div className="relative aspect-[4/3]">
-                <Image
-                  src={primaryImage}
-                  alt={product.images[0]?.alt_text ?? product.name}
-                  fill
-                  priority
-                  unoptimized
-                  sizes="(max-width: 1023px) 100vw, 44vw"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-
-            {product.images.length > 1 && (
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                {product.images.slice(1, 4).map((image) => (
-                  <div
-                    key={image.id}
-                    className="relative aspect-square overflow-hidden rounded-xl border border-[#284239]/10 bg-white"
-                  >
-                    <Image
-                      src={image.publicUrl}
-                      alt={image.alt_text ?? product.name}
-                      fill
-                      unoptimized
-                      sizes="160px"
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <ProductImageGallery
+              images={product.images}
+              productName={product.name}
+              fallbackImage="/collections/gators.jpg"
+            />
           </div>
 
           <div>
