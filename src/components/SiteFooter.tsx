@@ -93,7 +93,24 @@ export default function SiteFooter() {
             © {new Date().getFullYear()} Port Petals. All rights reserved.
           </p>
 
-          <p>Port Allegany, Pennsylvania</p>
+          <div className="flex flex-col gap-1 sm:text-right">
+            <p>430 E Arnold Avenue, Port Allegany, PA 16743</p>
+            <p>
+              <a
+                href="tel:+18146421253"
+                className="transition hover:text-[#e76d61]"
+              >
+                814-642-1253
+              </a>
+              {" · "}
+              <a
+                href="mailto:PortPetals@yahoo.com"
+                className="transition hover:text-[#e76d61]"
+              >
+                PortPetals@yahoo.com
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

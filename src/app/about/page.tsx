@@ -65,7 +65,7 @@ export default function AboutPage() {
               Port Allegany, PA
             </h2>
             <p className="mt-4 leading-7 text-[#607068]">
-              Street address will be added once confirmed with the owner.
+              430 E Arnold Avenue, Port Allegany, PA 16743
             </p>
           </article>
 

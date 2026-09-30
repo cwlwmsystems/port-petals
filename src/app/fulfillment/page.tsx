@@ -64,7 +64,7 @@ export default function FulfillmentPolicyPage() {
             </p>
 
             <h2 className="mt-3 font-serif text-3xl font-semibold text-[#153f32]">
-              Delivery within approximately 10 miles
+              Local delivery rates
             </h2>
 
             <p className="mt-4 leading-7 text-[#607068]">
@@ -72,11 +72,39 @@ export default function FulfillmentPolicyPage() {
               approximately a 10-mile radius of Port Allegany, Pennsylvania.
             </p>
 
-            <p className="mt-4 leading-7 text-[#607068]">
-              Delivery availability may depend on the destination, order type,
-              requested date, and current shop capacity. An order is not
-              considered approved for delivery until Port Petals confirms the
-              address and delivery request.
+            <div className="mt-5 grid gap-3">
+              <div className="rounded-xl bg-[#f7f1e8] p-4">
+                <p className="font-semibold text-[#153f32]">
+                  Within 3 miles of Port Allegany
+                </p>
+                <p className="mt-1 text-sm text-[#607068]">
+                  Free local delivery
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-[#f7f1e8] p-4">
+                <p className="font-semibold text-[#153f32]">
+                  Over 3 miles and up to 8 miles
+                </p>
+                <p className="mt-1 text-sm text-[#607068]">
+                  $10 delivery fee
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-[#f7f1e8] p-4">
+                <p className="font-semibold text-[#153f32]">
+                  Smethport and Eldred
+                </p>
+                <p className="mt-1 text-sm text-[#607068]">
+                  $15 delivery fee
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-5 leading-7 text-[#607068]">
+              Delivery availability may still depend on the destination, order
+              type, requested date, and current shop capacity. Port Petals will
+              confirm the delivery request before the order is finalized.
             </p>
           </article>
 
