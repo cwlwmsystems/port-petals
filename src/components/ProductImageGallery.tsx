@@ -57,7 +57,7 @@ export default function ProductImageGallery({
             priority
             unoptimized
             sizes="(max-width: 1023px) 100vw, 44vw"
-            className="object-cover"
+            className="object-contain p-3"
           />
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function ProductImageGallery({
                     fill
                     unoptimized
                     sizes="112px"
-                    className="object-cover"
+                    className="object-contain p-1"
                   />
                 </button>
               );

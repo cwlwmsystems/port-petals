@@ -10,7 +10,7 @@ const categories = [
     tone: "from-[#f8d8d2] to-[#f5c7bf]",
     accent: "#df6255",
     icon: "✿",
-    image: "/collections/fresh-flowers.jpg",
+    image: "/heroes/flowers.jpg",
   },
   {
     name: "Candles",
@@ -20,7 +20,7 @@ const categories = [
     tone: "from-[#f7ead4] to-[#efd7b7]",
     accent: "#c88654",
     icon: "◈",
-    image: "/collections/candles.jpg",
+    image: "/heroes/candles.jpg",
   },
   {
     name: "Custom Items",
@@ -30,7 +30,7 @@ const categories = [
     tone: "from-[#e4f0df] to-[#cfe4c7]",
     accent: "#629e61",
     icon: "✦",
-    image: "/collections/customized-items.jpg",
+    image: "/heroes/custom.jpg",
   },
   {
     name: "Shirts",
@@ -40,7 +40,7 @@ const categories = [
     tone: "from-[#f4dde4] to-[#edc8d4]",
     accent: "#c96f8c",
     icon: "♡",
-    image: "/collections/shirts.jpg",
+    image: "/heroes/shirts.jpg",
   },
   {
     name: "Gator Gear",
@@ -50,7 +50,7 @@ const categories = [
     tone: "from-[#dfead8] to-[#c7dfbe]",
     accent: "#426c49",
     icon: "★",
-    image: "/collections/gators.jpg",
+    image: "/heroes/gator-gear.jpg",
   },
 ];
 

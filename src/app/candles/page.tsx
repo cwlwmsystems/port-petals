@@ -66,7 +66,7 @@ export default async function CandlesPage() {
           <div className="overflow-hidden rounded-[2rem] shadow-[0_20px_55px_rgba(42,66,57,0.15)]">
             <div className="relative aspect-[4/3]">
               <Image
-                src="/collections/candles.jpg"
+                src="/heroes/candles.jpg"
                 alt="Candles from Port Petals"
                 fill
                 priority
@@ -112,7 +112,7 @@ export default async function CandlesPage() {
                       fill
                       unoptimized
                       sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
-                      className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                      className="object-contain p-2 transition duration-500 group-hover:scale-[1.02]"
                     />
 
                     {product.featured && (
