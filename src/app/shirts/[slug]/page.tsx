@@ -95,6 +95,7 @@ export default async function ShirtPage({
   const shirtVariants = product.variants.map((variant) => ({
     id: variant.id,
     name: variant.name,
+    garmentType: variant.garment_type,
     size: variant.size,
     color: variant.color,
     price: variant.price ?? product.base_price ?? 0,

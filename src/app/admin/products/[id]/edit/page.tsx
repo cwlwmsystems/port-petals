@@ -10,6 +10,7 @@ import {
 import {
   createVariant,
   deleteVariant,
+  generateShirtVariants,
   setVariantActive,
   updateVariant,
 } from "./variant-actions";
@@ -79,6 +80,7 @@ export default async function EditProductPage({
       id,
       name,
       sku,
+      garment_type,
       size,
       color,
       price,
@@ -531,6 +533,125 @@ export default async function EditProductPage({
             inventory.
           </p>
 
+          {product.category === "shirts" && (
+            <form
+              action={generateShirtVariants.bind(null, id)}
+              className="mt-6 rounded-xl border border-[#e76d61]/20 bg-[#fff7f4] p-5"
+            >
+              <div>
+                <p className="text-lg font-semibold text-[#153f32]">
+                  Shirt Variant Generator
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-[#607068]">
+                  Choose the garment types, sizes, and colors offered for this
+                  design. Existing combinations will be skipped automatically.
+                </p>
+              </div>
+
+              <div className="mt-6 grid gap-6 lg:grid-cols-3">
+                <fieldset>
+                  <legend className="text-sm font-semibold text-[#153f32]">
+                    Garment Types
+                  </legend>
+
+                  <div className="mt-3 grid gap-2">
+                    {[
+                      ["t-shirt", "T-Shirt — $22"],
+                      ["crewneck", "Crewneck — $29"],
+                      ["hoodie", "Hoodie — $34"],
+                    ].map(([value, label]) => (
+                      <label
+                        key={value}
+                        className="flex items-center gap-3 rounded-lg border border-[#284239]/10 bg-white px-4 py-3"
+                      >
+                        <input
+                          type="checkbox"
+                          name="garment_types"
+                          value={value}
+                        />
+                        <span className="text-sm font-semibold">
+                          {label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <fieldset>
+                  <legend className="text-sm font-semibold text-[#153f32]">
+                    Sizes
+                  </legend>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {["S", "M", "L", "XL", "2XL", "3XL"].map(
+                      (size) => (
+                        <label
+                          key={size}
+                          className="flex items-center gap-3 rounded-lg border border-[#284239]/10 bg-white px-4 py-3"
+                        >
+                          <input
+                            type="checkbox"
+                            name="sizes"
+                            value={size}
+                          />
+                          <span className="text-sm font-semibold">
+                            {size}
+                          </span>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </fieldset>
+
+                <fieldset>
+                  <legend className="text-sm font-semibold text-[#153f32]">
+                    Colors
+                  </legend>
+
+                  <div className="mt-3 grid gap-2">
+                    {[
+                      "White",
+                      "Black",
+                      "Light Gray",
+                      "Dark Gray",
+                    ].map((color) => (
+                      <label
+                        key={color}
+                        className="flex items-center gap-3 rounded-lg border border-[#284239]/10 bg-white px-4 py-3"
+                      >
+                        <input
+                          type="checkbox"
+                          name="colors"
+                          value={color}
+                        />
+                        <span className="text-sm font-semibold">
+                          {color}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+
+              <div className="mt-6 rounded-lg bg-white p-4 text-sm leading-6 text-[#607068]">
+                <strong className="text-[#153f32]">
+                  Pricing is automatic:
+                </strong>{" "}
+                T-Shirts $22, Crewnecks $29, Hoodies $34.
+                Generated variants start with inventory tracking off.
+                You can enable inventory and enter quantities below if needed.
+              </div>
+
+              <button
+                type="submit"
+                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#e76d61] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
+              >
+                Generate Shirt Variants
+              </button>
+            </form>
+          )}
+
           <form
             action={createVariant.bind(null, id)}
             className="mt-6 rounded-xl border border-[#284239]/10 bg-[#faf7f1] p-5"
@@ -551,6 +672,24 @@ export default async function EditProductPage({
                   className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
                 />
               </label>
+
+              {product.category === "shirts" && (
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold">
+                    Garment Type
+                  </span>
+
+                  <select
+                    name="garment_type"
+                    className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
+                  >
+                    <option value="">Choose garment</option>
+                    <option value="t-shirt">T-Shirt</option>
+                    <option value="crewneck">Crewneck</option>
+                    <option value="hoodie">Hoodie</option>
+                  </select>
+                </label>
+              )}
 
               <label className="grid gap-2">
                 <span className="text-sm font-semibold">Size</span>
@@ -666,6 +805,25 @@ export default async function EditProductPage({
                           className="rounded-lg border border-[#284239]/15 px-3 py-2.5 outline-none focus:border-[#e76d61]"
                         />
                       </label>
+
+                      {product.category === "shirts" && (
+                        <label className="grid gap-2">
+                          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#718078]">
+                            Garment
+                          </span>
+
+                          <select
+                            name="garment_type"
+                            defaultValue={variant.garment_type ?? ""}
+                            className="rounded-lg border border-[#284239]/15 bg-white px-3 py-2.5 outline-none focus:border-[#e76d61]"
+                          >
+                            <option value="">None</option>
+                            <option value="t-shirt">T-Shirt</option>
+                            <option value="crewneck">Crewneck</option>
+                            <option value="hoodie">Hoodie</option>
+                          </select>
+                        </label>
+                      )}
 
                       <label className="grid gap-2">
                         <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#718078]">

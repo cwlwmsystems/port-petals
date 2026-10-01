@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 export type ShirtVariant = {
   id: string;
   name: string;
+  garment_type: string | null;
   size: string | null;
   color: string | null;
   price: number | null;
@@ -94,6 +95,7 @@ export async function getPublishedShirts(): Promise<ShirtProduct[]> {
       product_variants (
         id,
         name,
+        garment_type,
         size,
         color,
         price,
@@ -150,6 +152,7 @@ export async function getPublishedShirtBySlug(
       product_variants (
         id,
         name,
+        garment_type,
         size,
         color,
         price,
