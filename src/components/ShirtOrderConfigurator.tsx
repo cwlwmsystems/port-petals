@@ -20,7 +20,7 @@ type ShirtOrderConfiguratorProps = {
   baseTrackInventory: boolean;
   variants: ShirtVariantOption[];
   presetDesign: boolean;
-  customizableColors: boolean;
+  personalizable: boolean;
   pickupAvailable: boolean;
   deliveryAvailable: boolean;
 };
@@ -60,7 +60,7 @@ export default function ShirtOrderConfigurator({
   baseTrackInventory,
   variants,
   presetDesign,
-  customizableColors,
+  personalizable,
   pickupAvailable,
   deliveryAvailable,
 }: ShirtOrderConfiguratorProps) {
@@ -471,26 +471,52 @@ export default function ShirtOrderConfigurator({
         </div>
       )}
 
-      {customizableColors && (
-        <div className="mt-6">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#153f32]">
-              Tie-Dye Color Preference
-            </span>
+      {personalizable && (
+        <section className="mt-6 rounded-xl border border-[#284239]/10 bg-[#faf7f1] p-4">
+          <div>
+            <p className="text-sm font-semibold text-[#153f32]">
+              Personalization
+            </p>
 
-            <input
-              type="text"
-              name="tieDyeColors"
-              placeholder="Example: pink and purple, blue and green, black and orange"
-              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
-            />
-          </label>
+            <p className="mt-1 text-xs leading-5 text-[#718078]">
+              Enter the player name and number you would like added to
+              this sports shirt.
+            </p>
+          </div>
 
-          <p className="mt-2 text-xs leading-5 text-[#718078]">
-            Every custom tie-dye shirt is handmade and unique. Exact
-            patterns will vary.
-          </p>
-        </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-[#153f32]">
+                Player Name
+              </span>
+
+              <input
+                type="text"
+                name="playerName"
+                required
+                maxLength={30}
+                placeholder="Example: Easton"
+                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-[#153f32]">
+                Player Number
+              </span>
+
+              <input
+                type="text"
+                name="playerNumber"
+                required
+                maxLength={3}
+                inputMode="numeric"
+                placeholder="Example: 33"
+                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
+              />
+            </label>
+          </div>
+        </section>
       )}
 
       <fieldset className="mt-6">

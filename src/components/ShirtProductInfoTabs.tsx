@@ -13,14 +13,14 @@ type Tab =
 type ShirtProductInfoTabsProps = {
   description: string;
   presetDesign: boolean;
-  customizableColors: boolean;
+  personalizable: boolean;
   maker?: string;
 };
 
 export default function ShirtProductInfoTabs({
   description,
   presetDesign,
-  customizableColors,
+  personalizable,
   maker,
 }: ShirtProductInfoTabsProps) {
   const [activeTab, setActiveTab] =
@@ -72,8 +72,8 @@ export default function ShirtProductInfoTabs({
 
               {maker && (
                 <p className="mt-4 leading-7">
-                  Handmade tie-dye by {maker}. Every finished shirt is
-                  one of a kind.
+                  Made by {maker}. Each finished shirt is prepared
+                  with care by Port Petals.
                 </p>
               )}
             </div>
@@ -115,11 +115,11 @@ export default function ShirtProductInfoTabs({
                   </p>
                 )}
 
-                {customizableColors && (
+                {personalizable && (
                   <p>
-                    Tie-dye customers may request preferred colors.
-                    Because each shirt is dyed by hand, exact patterns
-                    and color placement will vary.
+                    Personalized sports shirts can include a player name
+                    and number. Enter the requested personalization when
+                    selecting the shirt options above.
                   </p>
                 )}
               </div>
@@ -193,7 +193,7 @@ export default function ShirtProductInfoTabs({
 
                 <details className="py-4">
                   <summary className="cursor-pointer font-semibold text-[#153f32]">
-                    Can I choose my tie-dye colors?
+                    Can I personalize my sports shirt?
                   </summary>
 
                   <p className="mt-3 leading-7">

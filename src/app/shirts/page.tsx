@@ -6,7 +6,7 @@ import { getPublishedShirts } from "@/lib/shirts";
 export const metadata: Metadata = {
   title: "Shirts",
   description:
-    "Shop screen-printed shirts and handmade tie-dye shirts from Port Petals in Port Allegany, Pennsylvania.",
+    "Shop sports shirts, screen-printed apparel, and personalized designs from Port Petals in Port Allegany, Pennsylvania.",
 };
 
 function formatPrice(price: number | null) {
@@ -38,8 +38,8 @@ function formatCollection(collection: string) {
   const labels: Record<string, string> = {
     "seasonal-screen-print": "Seasonal Screen Prints",
     "occasion-screen-print": "Occasion Screen Prints",
-    "ready-made-tie-dye": "Ready-Made Tie-Dye",
-    "custom-tie-dye": "Custom Tie-Dye",
+    "ready-made-tie-dye": "Ready-Made Shirts",
+    "custom-tie-dye": "Custom Shirts",
   };
 
   return labels[collection] ?? collection.replaceAll("-", " ");
@@ -64,12 +64,12 @@ export default async function ShirtsPage() {
             </p>
 
             <h1 className="mt-5 max-w-3xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
-              Printed favorites and one-of-a-kind tie-dye.
+              Sports favorites, printed designs, and personalized shirts.
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#52655d]">
-              Browse seasonal and occasion screen prints, ready-made tie-dye,
-              and custom tie-dye options from Port Petals.
+              Browse sports shirts, seasonal and occasion screen prints,
+              and personalized designs from Port Petals.
             </p>
           </div>
 

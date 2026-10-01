@@ -216,7 +216,7 @@ export default async function ShirtPage({
               baseTrackInventory={product.track_inventory}
               variants={shirtVariants}
               presetDesign={presetDesign}
-              customizableColors={product.customizable}
+              personalizable={product.customizable}
               pickupAvailable={product.pickup_available}
               deliveryAvailable={product.delivery_available}
             />
@@ -231,7 +231,7 @@ export default async function ShirtPage({
           product.name
         }
         presetDesign={presetDesign}
-        customizableColors={product.customizable}
+        personalizable={product.customizable}
         maker={product.maker ?? undefined}
       />
     </main>

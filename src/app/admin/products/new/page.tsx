@@ -109,7 +109,7 @@ export default async function NewProductPage() {
 
                   <span className="text-xs text-[#718078]">
                     Use a short identifier such as seasonal-screen-print,
-                    bouquets, or ready-made-tie-dye.
+                    bouquets, or sports-screen-print.
                   </span>
                 </label>
               </div>
