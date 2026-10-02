@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useCart } from "@/components/CartProvider";
 
 type ShirtVariantOption = {
   id: string;
@@ -14,7 +15,10 @@ type ShirtVariantOption = {
 };
 
 type ShirtOrderConfiguratorProps = {
+  productId: string;
+  productSlug: string;
   productName: string;
+  imageUrl: string | null;
   basePrice: number;
   baseQuantity: number | null;
   baseTrackInventory: boolean;
@@ -54,7 +58,10 @@ function formatGarmentType(value: string | null | undefined) {
 }
 
 export default function ShirtOrderConfigurator({
+  productId,
+  productSlug,
   productName,
+  imageUrl,
   basePrice,
   baseQuantity,
   baseTrackInventory,
@@ -64,6 +71,8 @@ export default function ShirtOrderConfigurator({
   pickupAvailable,
   deliveryAvailable,
 }: ShirtOrderConfiguratorProps) {
+  const { addItem } = useCart();
+
   const hasVariants = variants.length > 0;
 
   const structuredShirtVariants = variants.some(
@@ -87,6 +96,10 @@ export default function ShirtOrderConfigurator({
   const [selectedSize, setSelectedSize] = useState(
     firstVariant?.size ?? ""
   );
+
+  const [playerName, setPlayerName] = useState("");
+  const [playerNumber, setPlayerNumber] = useState("");
+  const [addedToCart, setAddedToCart] = useState(false);
 
   const [fulfillment, setFulfillment] =
     useState<FulfillmentType>("pickup");
@@ -208,6 +221,41 @@ export default function ShirtOrderConfigurator({
   }, [fulfillment, deliveryArea]);
 
   const estimatedTotal = selectedPrice + deliveryFee;
+
+  const personalizationComplete =
+    !personalizable ||
+    (playerName.trim() !== "" && playerNumber.trim() !== "");
+
+  const canAddToCart =
+    !soldOut &&
+    personalizationComplete &&
+    (!hasVariants || Boolean(selectedVariant));
+
+  function handleAddToCart() {
+    if (!canAddToCart) {
+      return;
+    }
+
+    addItem({
+      productId,
+      variantId: selectedVariant?.id ?? null,
+      productName,
+      slug: productSlug,
+      imageUrl,
+      unitPrice: selectedPrice,
+      garmentType: selectedVariant?.garmentType ?? null,
+      size: selectedVariant?.size ?? null,
+      color: selectedVariant?.color ?? null,
+      playerName: personalizable
+        ? playerName.trim()
+        : null,
+      playerNumber: personalizable
+        ? playerNumber.trim()
+        : null,
+    });
+
+    setAddedToCart(true);
+  }
 
   return (
     <div className="mt-8 border-t border-[#284239]/10 pt-7">
@@ -495,6 +543,11 @@ export default function ShirtOrderConfigurator({
                 name="playerName"
                 required
                 maxLength={30}
+                value={playerName}
+                onChange={(event) => {
+                  setPlayerName(event.target.value);
+                  setAddedToCart(false);
+                }}
                 placeholder="Example: Easton"
                 className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
               />
@@ -511,6 +564,11 @@ export default function ShirtOrderConfigurator({
                 required
                 maxLength={3}
                 inputMode="numeric"
+                value={playerNumber}
+                onChange={(event) => {
+                  setPlayerNumber(event.target.value);
+                  setAddedToCart(false);
+                }}
                 placeholder="Example: 33"
                 className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
               />
@@ -645,6 +703,34 @@ export default function ShirtOrderConfigurator({
         <p className="text-3xl font-semibold text-[#e76d61]">
           {formatPrice(estimatedTotal)}
         </p>
+      </div>
+
+      <div className="mt-5">
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={!canAddToCart}
+          className={`flex min-h-12 w-full items-center justify-center rounded-full px-6 py-3 font-semibold transition ${
+            canAddToCart
+              ? "bg-[#e76d61] text-white hover:bg-[#d85b50]"
+              : "cursor-not-allowed bg-[#d9d5ce] text-[#7a7a76]"
+          }`}
+        >
+          {soldOut ? "Currently Sold Out" : "Add to Cart"}
+        </button>
+
+        {personalizable && !personalizationComplete && (
+          <p className="mt-2 text-center text-xs text-[#a7473f]">
+            Enter the player name and number before adding this shirt
+            to your cart.
+          </p>
+        )}
+
+        {addedToCart && (
+          <p className="mt-3 text-center text-sm font-semibold text-[#31583b]">
+            Added to your cart.
+          </p>
+        )}
       </div>
 
       <details className="mt-5 rounded-xl border border-[#284239]/10 bg-white">

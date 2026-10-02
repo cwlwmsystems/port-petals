@@ -210,7 +210,13 @@ export default async function ShirtPage({
             </div>
 
             <ShirtOrderConfigurator
+              productId={product.id}
+              productSlug={product.slug}
               productName={product.name}
+              imageUrl={
+                product.images[0]?.publicUrl ??
+                "/collections/shirts.jpg"
+              }
               basePrice={product.base_price ?? 0}
               baseQuantity={product.quantity}
               baseTrackInventory={product.track_inventory}

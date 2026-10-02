@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import CartLink from "@/components/CartLink";
 
 export default function SiteHeader() {
   return (
@@ -46,12 +47,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            className="hidden rounded-full px-3 py-2 text-sm font-medium text-[#284239] transition hover:text-[#e76d61] sm:block"
-          >
-            Cart
-          </button>
+          <CartLink />
 
           <Link
             href="/"
