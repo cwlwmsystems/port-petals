@@ -145,6 +145,10 @@ export default function CartProvider({
         },
       ];
     });
+
+    window.dispatchEvent(
+      new CustomEvent("port-petals-cart-added")
+    );
   }
 
   function removeItem(lineId: string) {
