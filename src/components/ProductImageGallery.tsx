@@ -48,8 +48,8 @@ export default function ProductImageGallery({
 
   return (
     <div>
-      <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_50px_rgba(42,66,57,0.12)]">
-        <div className="relative aspect-[4/3]">
+      <div className="overflow-hidden rounded-[2rem] border border-[#284239]/10 bg-white shadow-[0_18px_50px_rgba(42,66,57,0.12)]">
+        <div className="relative aspect-[4/3] bg-[#f5f1ea]">
           <Image
             src={selectedImage.publicUrl}
             alt={selectedImage.alt_text ?? productName}
@@ -57,8 +57,10 @@ export default function ProductImageGallery({
             priority
             unoptimized
             sizes="(max-width: 1023px) 100vw, 44vw"
-            className="object-contain p-3"
+            className="object-cover"
           />
+
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/10 to-transparent" />
         </div>
       </div>
 
@@ -80,7 +82,7 @@ export default function ProductImageGallery({
                     image.alt_text ?? productName
                   }`}
                   aria-pressed={selected}
-                  className={`relative aspect-square w-24 shrink-0 overflow-hidden rounded-xl border-2 bg-white transition sm:w-28 ${
+                  className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-white transition sm:w-24 ${
                     selected
                       ? "border-[#e76d61] shadow-sm"
                       : "border-transparent hover:border-[#284239]/20"
@@ -91,8 +93,8 @@ export default function ProductImageGallery({
                     alt={image.alt_text ?? productName}
                     fill
                     unoptimized
-                    sizes="112px"
-                    className="object-contain p-1"
+                    sizes="96px"
+                    className="object-cover"
                   />
                 </button>
               );

@@ -114,6 +114,10 @@ export default function FlowerOrderConfigurator({
 
     const customization: Record<string, string> = {};
 
+    if (selectedOptionData) {
+      customization.Option = selectedOptionData.name;
+    }
+
     for (const key of [
       "preferredColors",
       "cardMessage",

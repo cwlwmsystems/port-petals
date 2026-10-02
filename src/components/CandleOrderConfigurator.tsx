@@ -113,6 +113,10 @@ export default function CandleOrderConfigurator({
     const formData = new FormData(event.currentTarget);
     const customization: Record<string, string> = {};
 
+    if (selectedOptionData) {
+      customization.Option = selectedOptionData.name;
+    }
+
     for (const key of [
       "preferredScent",
       "theme",

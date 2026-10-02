@@ -196,8 +196,7 @@ export default function ShirtProductInfoTabs({
                   </summary>
 
                   <p className="mt-3 leading-7">
-                    Yes. Preferred colors can be requested, but the
-                    finished pattern will be unique.
+                    Yes. Eligible sports shirts can be personalized with a player name and player number. Enter both when selecting your shirt options.
                   </p>
                 </details>
 
