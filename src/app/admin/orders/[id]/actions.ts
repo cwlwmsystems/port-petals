@@ -80,20 +80,54 @@ export async function updateOrderStatus(
     );
   }
 
+  if (nextStatus === "cancelled") {
+    const { data, error } = await supabase.rpc(
+      "cancel_order_and_restore_inventory",
+      {
+        p_order_id: orderId,
+      }
+    );
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!data?.ok) {
+      switch (data?.error) {
+        case "order_completed":
+          throw new Error(
+            "Completed orders cannot be cancelled."
+          );
+
+        case "order_refunded":
+          throw new Error(
+            "Refunded orders cannot be cancelled."
+          );
+
+        case "order_not_found":
+          throw new Error("Order not found.");
+
+        default:
+          throw new Error(
+            "Unable to cancel this order."
+          );
+      }
+    }
+
+    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath("/admin/orders");
+    return;
+  }
+
   const updates: {
     status: AllowedStatus;
     completed_at?: string;
-    cancelled_at?: string;
   } = {
     status: nextStatus,
   };
 
   if (nextStatus === "completed") {
     updates.completed_at = new Date().toISOString();
-  }
-
-  if (nextStatus === "cancelled") {
-    updates.cancelled_at = new Date().toISOString();
   }
 
   const { error: updateError } = await supabase
