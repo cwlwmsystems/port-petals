@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendOwnerPaidOrderEmail } from "@/lib/email/order-notifications";
 
 export const runtime = "nodejs";
 
@@ -202,6 +203,31 @@ export async function POST(request: Request) {
           "Square order could not be matched.",
       },
       { status: 404 }
+    );
+  }
+
+  // Payment completion is authoritative. Email is a
+  // secondary notification and must never cause a
+  // successfully paid order to fail its Square webhook.
+  try {
+    const notification =
+      await sendOwnerPaidOrderEmail({
+        squareOrderId: payment.order_id,
+      });
+
+    if (
+      !notification.sent &&
+      !notification.duplicate
+    ) {
+      console.error(
+        "Owner paid-order email was not sent:",
+        notification.error ?? "Unknown email error."
+      );
+    }
+  } catch (notificationError) {
+    console.error(
+      "Owner paid-order notification failed after payment completion:",
+      notificationError
     );
   }
 

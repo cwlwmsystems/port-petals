@@ -204,12 +204,12 @@ export async function sendOwnerPaidOrderEmail({
     const { data, error } =
       await resend.emails.send({
         from:
-          "Port Petals <onboarding@resend.dev>",
+          "Port Petals <orders@portpetals.com>",
 
         to: [recipient],
 
         replyTo:
-          order.customer_email || undefined,
+          "stacy@portpetals.com",
 
         subject:
           `New Paid Order — ${order.order_number}`,
