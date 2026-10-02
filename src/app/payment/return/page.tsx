@@ -22,12 +22,12 @@ export default async function PaymentReturnPage({
             </p>
 
             <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-              Order reference missing
+              We couldn't find your order confirmation
             </h1>
 
             <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
-              We could not determine which Port Petals
-              order to display.
+              We couldn't find the order details for this page.
+              If you completed payment, please contact Port Petals before trying again.
             </p>
 
             <Link

@@ -232,8 +232,10 @@ export default function CustomItemConfigurator({
                         }`}
                       >
                         {variant.quantity > 0
-                          ? `${variant.quantity} available`
-                          : "Sold out"}
+                          ? variant.quantity <= 3
+                            ? "Low Stock"
+                            : "In Stock"
+                          : "Sold Out"}
                       </span>
                     )}
                 </label>
@@ -255,8 +257,10 @@ export default function CustomItemConfigurator({
           >
             <span className="font-semibold">Availability:</span>{" "}
             {soldOut
-              ? "Currently sold out"
-              : `${baseQuantity} currently available`}
+              ? "Sold Out"
+              : baseQuantity !== null && baseQuantity <= 3
+                ? "Low Stock"
+                : "In Stock"}
           </div>
         )}
 
@@ -274,8 +278,10 @@ export default function CustomItemConfigurator({
               {selectedVariant?.name}:
             </span>{" "}
             {soldOut
-              ? "Currently sold out"
-              : `${selectedQuantity} currently available`}
+              ? "Sold Out"
+              : selectedQuantity !== null && selectedQuantity <= 3
+                ? "Low Stock"
+                : "In Stock"}
           </div>
         )}
 
@@ -527,7 +533,7 @@ export default function CustomItemConfigurator({
           className="inline-flex items-center justify-center rounded-xl bg-[#e76d61] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:bg-[#9b9b96]"
         >
           {soldOut
-            ? "Selected Option Sold Out"
+            ? "Sold Out"
             : "Add to Cart"}
         </button>
 

@@ -6,7 +6,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Pickup & Local Delivery",
   description:
-    "Read the Port Petals fulfillment policy for local pickup and delivery within approximately 10 miles of Port Allegany, Pennsylvania.",
+    "Pickup and local delivery information for Port Petals in Port Allegany, Pennsylvania.",
 };
 
 export default function FulfillmentPolicyPage() {
@@ -24,7 +24,7 @@ export default function FulfillmentPolicyPage() {
           </p>
 
           <h1 className="mt-4 max-w-3xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
-            Port Petals Fulfillment Policy
+            Pickup & Local Delivery
           </h1>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-[#52655d]">
@@ -119,8 +119,7 @@ export default function FulfillmentPolicyPage() {
 
             <p className="mt-4 leading-7 text-[#607068]">
               Port Petals does not currently ship orders by mail or commercial
-              carrier. Orders must be fulfilled through local pickup or an
-              approved local delivery.
+              carrier. Orders are available through local pickup or approved local delivery.
             </p>
           </article>
 
@@ -161,7 +160,7 @@ export default function FulfillmentPolicyPage() {
 
             <p className="mt-4 leading-7 text-[#607068]">
               Port Petals may contact the customer if additional information is
-              needed before confirming fulfillment.
+              needed before confirming the order.
             </p>
           </article>
         </div>

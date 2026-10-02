@@ -161,8 +161,10 @@ export default async function CandlePage({
                   product.quantity !== null && (
                     <p>
                       {product.quantity > 0
-                        ? `${product.quantity} currently available`
-                        : "Currently sold out"}
+                        ? product.quantity <= 3
+                          ? "Low Stock"
+                          : "In Stock"
+                        : "Sold Out"}
                     </p>
                   )}
               </div>

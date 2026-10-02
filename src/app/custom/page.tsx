@@ -119,7 +119,7 @@ export default async function CustomItemsPage() {
         {products.length === 0 ? (
           <div className="rounded-[1.8rem] border border-[#284239]/10 bg-white/70 p-10 text-center">
             <h2 className="font-serif text-3xl font-semibold text-[#153f32]">
-              Custom inventory is being updated
+              New custom creations are coming soon
             </h2>
 
             <p className="mt-4 text-[#607068]">

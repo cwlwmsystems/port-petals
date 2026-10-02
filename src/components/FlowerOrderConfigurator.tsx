@@ -205,8 +205,10 @@ export default function FlowerOrderConfigurator({
                       }`}
                     >
                       {option.quantity > 0
-                        ? `${option.quantity} available`
-                        : "Sold out"}
+                        ? option.quantity <= 3
+                          ? "Low Stock"
+                          : "In Stock"
+                        : "Sold Out"}
                     </span>
                   )}
               </label>
@@ -228,8 +230,10 @@ export default function FlowerOrderConfigurator({
               {selectedOption}:
             </span>{" "}
             {soldOut
-              ? "Currently sold out"
-              : `${selectedQuantity} currently available`}
+              ? "Sold Out"
+              : selectedQuantity !== null && selectedQuantity <= 3
+                ? "Low Stock"
+                : "In Stock"}
           </div>
         )}
 
@@ -431,7 +435,7 @@ export default function FlowerOrderConfigurator({
           className="inline-flex w-full items-center justify-center rounded-xl bg-[#e76d61] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:bg-[#9b9b96]"
         >
           {soldOut
-            ? "Selected Option Sold Out"
+            ? "Sold Out"
             : "Add to Cart"}
         </button>
 

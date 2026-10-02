@@ -114,17 +114,27 @@ export default function CheckoutClient() {
       const result = await response.json();
 
       if (!response.ok) {
+        console.error(
+          "Order creation failed:",
+          result.error ?? result
+        );
+
         throw new Error(
-          result.error ?? "Unable to create order."
+          "We couldn't prepare your order. Please review your information and try again."
         );
       }
 
       setCreatedOrder(result);
     } catch (caughtError) {
+      console.error(
+        "Order preparation error:",
+        caughtError
+      );
+
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Unable to create order."
+          : "We couldn't prepare your order. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -156,24 +166,35 @@ export default function CheckoutClient() {
       const result = await response.json();
 
       if (!response.ok) {
+        console.error(
+          "Payment setup failed:",
+          result.error ?? result
+        );
+
         throw new Error(
-          result.error ??
-            "Unable to start Square checkout."
+          "We couldn't open payment. Please try again."
         );
       }
 
       if (!result.checkoutUrl) {
+        console.error(
+          "Payment setup returned no checkout URL."
+        );
+
         throw new Error(
-          "Square did not return a checkout URL."
+          "We couldn't open payment. Please try again."
         );
       }
 
       window.location.href = result.checkoutUrl;
     } catch (caughtError) {
+      console.error(
+        "Payment setup error:",
+        caughtError
+      );
+
       setPaymentError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "Unable to start Square checkout."
+        "We couldn't open payment. Please try again."
       );
 
       setStartingPayment(false);
@@ -245,8 +266,7 @@ export default function CheckoutClient() {
             </div>
 
             <div className="mt-8 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
-              Your order has been saved. Continue to Square&apos;s
-              secure checkout to complete payment.
+              Your order details are ready. Continue to payment to complete your order.
             </div>
 
             {paymentError && (
@@ -262,8 +282,8 @@ export default function CheckoutClient() {
               className="mt-6 flex w-full items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {startingPayment
-                ? "Opening Secure Payment..."
-                : "Continue to Secure Payment"}
+                ? "Opening Payment..."
+                : "Continue to Payment"}
             </button>
 
             <Link
@@ -539,7 +559,7 @@ export default function CheckoutClient() {
               </div>
 
               <div className="mt-3 flex justify-between">
-                <span>Estimated delivery</span>
+                <span>Delivery</span>
                 <strong>
                   {formatPrice(
                     estimatedDeliveryFee
@@ -548,7 +568,7 @@ export default function CheckoutClient() {
               </div>
 
               <div className="mt-5 flex justify-between border-t border-[#284239]/10 pt-5 text-lg">
-                <span>Estimated total</span>
+                <span>Total</span>
                 <strong className="text-[#e76d61]">
                   {formatPrice(
                     subtotal +
@@ -570,13 +590,12 @@ export default function CheckoutClient() {
               className="mt-6 flex w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-3 font-semibold text-white transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting
-                ? "Validating Order..."
-                : "Create Order"}
+                ? "Preparing Your Order..."
+                : "Continue to Payment"}
             </button>
 
             <p className="mt-3 text-center text-xs leading-5 text-[#718078]">
-              Payment is not collected yet. Square checkout will be
-              connected next.
+              You will review your order total before completing payment.
             </p>
 
             <Link

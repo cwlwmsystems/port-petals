@@ -202,8 +202,10 @@ export default async function ShirtPage({
                 {totalAvailable !== null && (
                   <p>
                     {totalAvailable > 0
-                      ? `${totalAvailable} currently available`
-                      : "Currently sold out"}
+                      ? totalAvailable <= 3
+                        ? "Low Stock"
+                        : "In Stock"
+                      : "Sold Out"}
                   </p>
                 )}
               </div>

@@ -67,7 +67,7 @@ export default function SiteFooter() {
 
           <div>
             <h2 className="font-serif text-lg font-semibold text-[#153f32]">
-              Local Fulfillment
+              Pickup & Delivery
             </h2>
 
             <p className="mt-4 text-sm leading-6 text-[#607068]">
@@ -83,7 +83,7 @@ export default function SiteFooter() {
               href="/fulfillment"
               className="mt-5 inline-flex text-sm font-semibold text-[#284239] transition hover:text-[#e76d61]"
             >
-              View Fulfillment Policy →
+              View Pickup & Delivery Details →
             </Link>
           </div>
         </div>

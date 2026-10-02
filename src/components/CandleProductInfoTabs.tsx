@@ -138,7 +138,7 @@ export default function CandleProductInfoTabs({
 
                   <p className="mt-3 leading-7">
                     Yes. Scent preferences can be requested, but exact
-                    fragrance availability depends on current inventory.
+                    fragrance availability may vary.
                   </p>
                 </details>
 

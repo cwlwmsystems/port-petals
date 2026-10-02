@@ -77,7 +77,7 @@ export default function AboutPage() {
               Shop Hours
             </h2>
             <p className="mt-4 leading-7 text-[#607068]">
-              Business hours will be added once confirmed with the owner.
+              Please call ahead for current shop hours.
             </p>
           </article>
 
@@ -89,8 +89,7 @@ export default function AboutPage() {
               Get in Touch
             </h2>
             <p className="mt-4 leading-7 text-[#607068]">
-              Phone and email details will be added once confirmed with the
-              owner.
+              Call 814-642-1253 or email PortPetals@yahoo.com.
             </p>
           </article>
         </div>
@@ -216,17 +215,25 @@ export default function AboutPage() {
             </label>
 
             <div className="border-t border-[#284239]/10 pt-6">
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center rounded-full bg-[#e76d61] px-7 py-3.5 font-semibold text-white shadow-md shadow-[#e76d61]/15 transition hover:bg-[#d95d52] sm:w-auto"
-              >
-                Send Message
-              </button>
-
-              <p className="mt-4 text-xs leading-5 text-[#718078]">
-                Message delivery will be connected after the owner confirms
-                which email or system should receive website inquiries.
+              <p className="text-sm leading-6 text-[#607068]">
+                For questions or special requests, contact Port Petals directly.
               </p>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="tel:+18146421253"
+                  className="inline-flex items-center justify-center rounded-full bg-[#e76d61] px-7 py-3.5 font-semibold text-white shadow-md shadow-[#e76d61]/15 transition hover:bg-[#d95d52]"
+                >
+                  Call 814-642-1253
+                </a>
+
+                <a
+                  href="mailto:PortPetals@yahoo.com"
+                  className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-7 py-3.5 font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                >
+                  Email Port Petals
+                </a>
+              </div>
             </div>
           </form>
         </div>

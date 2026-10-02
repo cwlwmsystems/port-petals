@@ -470,8 +470,10 @@ export default function ShirtOrderConfigurator({
           >
             <span className="font-semibold">Availability:</span>{" "}
             {soldOut
-              ? "Currently sold out"
-              : `${baseQuantity} currently available`}
+              ? "Sold Out"
+              : baseQuantity !== null && baseQuantity <= 3
+                ? "Low Stock"
+                : "In Stock"}
           </div>
         )}
 
@@ -501,8 +503,10 @@ export default function ShirtOrderConfigurator({
               :
             </span>{" "}
             {soldOut
-              ? "Currently sold out"
-              : `${selectedQuantity} currently available`}
+              ? "Sold Out"
+              : selectedQuantity !== null && selectedQuantity <= 3
+                ? "Low Stock"
+                : "In Stock"}
           </div>
         )}
 
@@ -717,7 +721,7 @@ export default function ShirtOrderConfigurator({
               : "cursor-not-allowed bg-[#d9d5ce] text-[#7a7a76]"
           }`}
         >
-          {soldOut ? "Currently Sold Out" : "Add to Cart"}
+          {soldOut ? "Sold Out" : "Add to Cart"}
         </button>
 
         {personalizable && !personalizationComplete && (

@@ -60,9 +60,13 @@ export default function PaymentReturnClient({
         const result = await response.json();
 
         if (!response.ok) {
+          console.error(
+            "Payment confirmation failed:",
+            result.error ?? result
+          );
+
           throw new Error(
-            result.error ??
-              "Unable to confirm payment."
+            "We couldn't confirm your payment yet."
           );
         }
 
@@ -105,10 +109,13 @@ export default function PaymentReturnClient({
 
         setLoading(false);
 
+        console.error(
+          "Payment confirmation error:",
+          caughtError
+        );
+
         setError(
-          caughtError instanceof Error
-            ? caughtError.message
-            : "Unable to confirm payment."
+          "We couldn't confirm your payment yet."
         );
       }
     }
@@ -142,8 +149,7 @@ export default function PaymentReturnClient({
               </h1>
 
               <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
-                Square returned you to Port Petals. We are
-                confirming your payment.
+                We received your payment information and are confirming your order.
               </p>
 
               <div className="mx-auto mt-8 h-8 w-8 animate-spin rounded-full border-4 border-[#284239]/15 border-t-[#e76d61]" />
@@ -151,7 +157,7 @@ export default function PaymentReturnClient({
           ) : error ? (
             <>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-                Payment Status
+                Order Update
               </p>
 
               <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
@@ -190,7 +196,7 @@ export default function PaymentReturnClient({
                 </div>
 
                 <div className="mt-3 flex justify-between gap-4">
-                  <span>Fulfillment</span>
+                  <span>Pickup / Delivery</span>
                   <strong className="capitalize">
                     {order.fulfillmentType}
                   </strong>
@@ -234,8 +240,7 @@ export default function PaymentReturnClient({
               </div>
 
               <div className="mt-8 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
-                Your order is now in the Port Petals
-                system and payment has been confirmed.
+                Your payment is confirmed and your Port Petals order is ready for processing.
               </div>
             </>
           ) : order ? (
@@ -249,15 +254,12 @@ export default function PaymentReturnClient({
               </h1>
 
               <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
-                Square has returned you to Port Petals,
-                but we are still waiting for the secure
-                payment confirmation.
+                Your payment is still being confirmed. This usually takes only a moment.
               </p>
 
               <div className="mt-7 rounded-xl bg-[#fff4f1] p-4 text-sm leading-6 text-[#8c433b]">
                 Please do not submit another payment.
-                This page will continue checking the
-                existing order.
+                This page will continue checking your order.
               </div>
             </>
           ) : null}

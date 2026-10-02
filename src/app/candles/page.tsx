@@ -82,7 +82,7 @@ export default async function CandlesPage() {
         {products.length === 0 ? (
           <div className="rounded-[1.8rem] border border-[#284239]/10 bg-white/70 p-10 text-center">
             <h2 className="font-serif text-3xl font-semibold text-[#153f32]">
-              Candle inventory is being updated
+              New candle favorites are coming soon
             </h2>
 
             <p className="mt-4 text-[#607068]">
@@ -149,8 +149,10 @@ export default async function CandlesPage() {
                       product.quantity !== null && (
                         <p className="mt-3 text-sm text-[#718078]">
                           {product.quantity > 0
-                            ? `${product.quantity} available`
-                            : "Sold out"}
+                            ? product.quantity <= 3
+                              ? "Low Stock"
+                              : "In Stock"
+                            : "Sold Out"}
                         </p>
                       )}
 

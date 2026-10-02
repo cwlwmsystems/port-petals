@@ -197,8 +197,10 @@ export default async function GatorProductPage({
                 {totalAvailable !== null && (
                   <p>
                     {totalAvailable > 0
-                      ? `${totalAvailable} currently available`
-                      : "Currently sold out"}
+                      ? totalAvailable <= 3
+                        ? "Low Stock"
+                        : "In Stock"
+                      : "Sold Out"}
                   </p>
                 )}
               </div>
@@ -241,7 +243,7 @@ export default async function GatorProductPage({
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
-              Fulfillment
+              Pickup & Delivery
             </p>
 
             <div className="mt-3 space-y-1 text-sm leading-6 text-[#607068]">
@@ -262,7 +264,7 @@ export default async function GatorProductPage({
 
             <p className="mt-3 text-sm leading-6 text-[#607068]">
               {leadTime ??
-                "Availability depends on current inventory and product options."}
+                "Availability may vary by style and selected options."}
             </p>
           </div>
         </div>

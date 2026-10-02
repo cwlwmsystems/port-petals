@@ -223,18 +223,27 @@ export default function CustomOrderPage() {
             </label>
 
             <div className="border-t border-[#284239]/10 pt-6">
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center rounded-full bg-[#e76d61] px-7 py-3.5 font-semibold text-white shadow-md shadow-[#e76d61]/15 transition hover:bg-[#d95d52] sm:w-auto"
-              >
-                Submit Custom Order Request
-              </button>
-
-              <p className="mt-4 max-w-2xl text-xs leading-5 text-[#718078]">
-                This form is currently the customer-facing layout only.
-                Submission delivery will be connected after we decide how Port
-                Petals wants to receive and manage custom requests.
+              <p className="max-w-2xl text-sm leading-6 text-[#607068]">
+                Ready to discuss a custom order? Contact Port Petals directly
+                with your idea, preferred colors, wording, date, and any other
+                details.
               </p>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="tel:+18146421253"
+                  className="inline-flex items-center justify-center rounded-full bg-[#e76d61] px-7 py-3.5 font-semibold text-white shadow-md shadow-[#e76d61]/15 transition hover:bg-[#d95d52]"
+                >
+                  Call 814-642-1253
+                </a>
+
+                <a
+                  href="mailto:PortPetals@yahoo.com"
+                  className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-7 py-3.5 font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                >
+                  Email Port Petals
+                </a>
+              </div>
             </div>
           </form>
         </div>

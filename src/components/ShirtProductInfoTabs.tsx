@@ -91,10 +91,9 @@ export default function ShirtProductInfoTabs({
                 </p>
 
                 <p>
-                  Final availability depends on current blank-shirt
-                  inventory. If a requested size is unavailable, Port
-                  Petals will contact the customer before finalizing the
-                  order.
+                  Sizes and colors may vary by design. If a requested option is
+                  unavailable, Port Petals will contact you before the
+                  order is finalized.
                 </p>
               </div>
             </div>
@@ -208,8 +207,7 @@ export default function ShirtProductInfoTabs({
                   </summary>
 
                   <p className="mt-3 leading-7">
-                    No. Size and shirt-color availability depends on
-                    current inventory.
+                    No. Available sizes and colors may vary by design.
                   </p>
                 </details>
               </div>
