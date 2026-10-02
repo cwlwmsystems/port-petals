@@ -137,14 +137,20 @@ export async function sendOwnerPaidOrderEmail({
         item.garment_type,
         item.color,
         item.size,
-      ].filter(Boolean);
+      ]
+        .filter(Boolean)
+        .map(escapeEmailHtml);
 
       const personalization = [
         item.player_name
-          ? `Name: ${item.player_name}`
+          ? `Name: ${escapeEmailHtml(
+              item.player_name
+            )}`
           : null,
         item.player_number
-          ? `Number: ${item.player_number}`
+          ? `Number: ${escapeEmailHtml(
+              item.player_number
+            )}`
           : null,
       ].filter(Boolean);
 
@@ -153,14 +159,20 @@ export async function sendOwnerPaidOrderEmail({
       )
         .map(
           ([key, value]) =>
-            `${key}: ${String(value)}`
+            `${escapeEmailHtml(
+              key
+            )}: ${escapeEmailHtml(value)}`
         )
         .join("<br>");
 
       return `
         <div style="margin:0 0 18px;padding:16px;border:1px solid #e6e0d8;border-radius:12px;">
-          <strong>${item.product_name}</strong>
-          <div>Quantity: ${item.quantity}</div>
+          <strong>${escapeEmailHtml(
+            item.product_name
+          )}</strong>
+          <div>Quantity: ${escapeEmailHtml(
+            item.quantity
+          )}</div>
 
           ${
             details.length
@@ -197,6 +209,7 @@ export async function sendOwnerPaidOrderEmail({
           order.delivery_zip,
         ]
           .filter(Boolean)
+          .map(escapeEmailHtml)
           .join(", ")
       : null;
 
@@ -222,23 +235,33 @@ export async function sendOwnerPaidOrderEmail({
 
             <p>
               <strong>Order:</strong>
-              ${order.order_number}
+              ${escapeEmailHtml(
+                order.order_number
+              )}
             </p>
 
             <p>
               <strong>Customer:</strong>
-              ${order.customer_name}
+              ${escapeEmailHtml(
+                order.customer_name
+              )}
               <br>
               <strong>Email:</strong>
-              ${order.customer_email}
+              ${escapeEmailHtml(
+                order.customer_email
+              )}
               <br>
               <strong>Phone:</strong>
-              ${order.customer_phone}
+              ${escapeEmailHtml(
+                order.customer_phone
+              )}
             </p>
 
             <p>
               <strong>Fulfillment:</strong>
-              ${order.fulfillment_type}
+              ${escapeEmailHtml(
+                order.fulfillment_type
+              )}
               ${
                 deliveryAddress
                   ? `<br><strong>Delivery Address:</strong> ${deliveryAddress}`
@@ -293,7 +316,9 @@ export async function sendOwnerPaidOrderEmail({
                 ? `
                   <div style="margin-top:24px;">
                     <strong>Customer Notes</strong>
-                    <p>${order.notes}</p>
+                    <p>${escapeEmailHtml(
+                      order.notes
+                    )}</p>
                   </div>
                 `
                 : ""
