@@ -106,9 +106,7 @@ export default function CartLink() {
 
             {/* DRAWER */}
             <aside
-              onMouseEnter={cancelAutoClose}
               onPointerDown={cancelAutoClose}
-              onFocus={cancelAutoClose}
               className="absolute right-0 top-0 flex h-dvh w-full max-w-[440px] flex-col bg-[#fffaf3] shadow-[-24px_0_70px_rgba(20,38,31,0.25)]"
             >
               {/* HEADER */}
