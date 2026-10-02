@@ -83,6 +83,7 @@ export default async function CandlePage({
     ...(product.base_price !== null
       ? [
           {
+            id: null,
             name: "Standard",
             price: product.base_price,
             quantity: product.quantity,
@@ -91,6 +92,7 @@ export default async function CandlePage({
         ]
       : []),
     ...product.variants.map((variant) => ({
+      id: variant.id,
       name: variant.name,
       price: variant.price ?? product.base_price ?? 0,
       quantity: variant.quantity,
@@ -167,7 +169,14 @@ export default async function CandlePage({
             </div>
 
             <CandleOrderConfigurator
+              productId={product.id}
+              productSlug={product.slug}
               productName={product.name}
+              imageUrl={
+                product.images.find((image) => image.is_primary)?.publicUrl ??
+                product.images[0]?.publicUrl ??
+                null
+              }
               options={configuratorOptions}
               pickupAvailable={product.pickup_available}
               deliveryAvailable={product.delivery_available}

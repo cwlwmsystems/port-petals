@@ -1,6 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
+import { useCart } from "@/components/CartProvider";
 
 type CustomItemVariant = {
   id: string;
@@ -13,7 +18,10 @@ type CustomItemVariant = {
 };
 
 type CustomItemConfiguratorProps = {
+  productId: string;
+  productSlug: string;
   productName: string;
+  imageUrl: string | null;
   basePrice: number;
   baseQuantity: number | null;
   baseTrackInventory: boolean;
@@ -39,7 +47,10 @@ function formatPrice(price: number) {
 }
 
 export default function CustomItemConfigurator({
+  productId,
+  productSlug,
   productName,
+  imageUrl,
   basePrice,
   baseQuantity,
   baseTrackInventory,
@@ -48,6 +59,9 @@ export default function CustomItemConfigurator({
   deliveryAvailable,
   personalizationAvailable,
 }: CustomItemConfiguratorProps) {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+
   const hasVariants = variants.length > 0;
 
   const [selectedVariantId, setSelectedVariantId] = useState(
@@ -98,8 +112,62 @@ export default function CustomItemConfigurator({
 
   const estimatedTotal = selectedPrice + deliveryFee;
 
+  function handleAddToCart(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    if (soldOut) {
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const customization: Record<string, string> = {};
+
+    if (selectedVariant) {
+      customization.Option = selectedVariant.name;
+    }
+
+    for (const [field, label] of [
+      ["personalization", "Personalization"],
+      ["number", "Number"],
+      ["year", "Year"],
+      ["theme", "Colors / Theme"],
+      ["idea", "Design Idea"],
+      ["recipientName", "Recipient Name"],
+      ["deliveryAddress", "Delivery Address"],
+      ["specialInstructions", "Special Instructions"],
+    ]) {
+      const value = String(
+        formData.get(field) ?? ""
+      ).trim();
+
+      if (value) {
+        customization[label] = value;
+      }
+    }
+
+    addItem({
+      productId,
+      variantId: selectedVariant?.id ?? null,
+      productName,
+      slug: productSlug,
+      productPath: `/custom/${productSlug}`,
+      imageUrl,
+      unitPrice: selectedPrice,
+      size: selectedVariant?.size ?? null,
+      color: selectedVariant?.color ?? null,
+      customization,
+    });
+
+    setAdded(true);
+  }
+
   return (
-    <div className="mt-8 border-t border-[#284239]/10 pt-7">
+    <form
+      onSubmit={handleAddToCart}
+      className="mt-8 border-t border-[#284239]/10 pt-7"
+    >
       {hasVariants && (
         <fieldset>
           <legend className="text-sm font-semibold text-[#153f32]">
@@ -453,32 +521,33 @@ export default function CustomItemConfigurator({
       </details>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        <a
-          href="/custom/request"
-          aria-disabled={soldOut}
-          className={`inline-flex items-center justify-center rounded-xl px-7 py-4 text-base font-semibold text-white shadow-md transition ${
-            soldOut
-              ? "pointer-events-none bg-[#9b9b96]"
-              : "bg-[#e76d61] hover:bg-[#d85b50]"
-          }`}
+        <button
+          type="submit"
+          disabled={soldOut}
+          className="inline-flex items-center justify-center rounded-xl bg-[#e76d61] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:bg-[#9b9b96]"
         >
           {soldOut
             ? "Selected Option Sold Out"
-            : "Start Custom Request"}
-        </a>
+            : "Add to Cart"}
+        </button>
 
         <a
-          href="tel:+18146421253"
+          href="/custom/request"
           className="inline-flex items-center justify-center rounded-xl border border-[#284239]/15 bg-white px-7 py-4 text-base font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
         >
-          Call 814-642-1253
+          Start Custom Request
         </a>
       </div>
 
+      {added && (
+        <p className="mt-3 text-center text-sm font-semibold text-[#36594c]">
+          Added to cart.
+        </p>
+      )}
+
       <p className="mt-3 text-center text-xs leading-5 text-[#718078]">
-        Custom orders are confirmed after Port Petals reviews the requested
-        design, materials, availability, and final price.
+        Custom details entered above will be included with your order.
       </p>
-    </div>
+    </form>
   );
 }

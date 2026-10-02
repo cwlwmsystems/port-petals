@@ -205,7 +205,14 @@ export default async function GatorProductPage({
             </div>
 
             <GatorOrderConfigurator
+              productId={product.id}
+              productSlug={product.slug}
               productName={product.name}
+              imageUrl={
+                product.images.find((image) => image.is_primary)?.publicUrl ??
+                product.images[0]?.publicUrl ??
+                null
+              }
               basePrice={product.base_price ?? 0}
               baseQuantity={product.quantity}
               baseTrackInventory={product.track_inventory}

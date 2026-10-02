@@ -241,6 +241,7 @@ export default function ShirtOrderConfigurator({
       variantId: selectedVariant?.id ?? null,
       productName,
       slug: productSlug,
+      productPath: `/shirts/${productSlug}`,
       imageUrl,
       unitPrice: selectedPrice,
       garmentType: selectedVariant?.garmentType ?? null,
@@ -798,26 +799,6 @@ export default function ShirtOrderConfigurator({
         </div>
       </details>
 
-      <div className="mt-6">
-        <a
-          href="tel:+18146421253"
-          aria-disabled={soldOut}
-          className={`inline-flex w-full items-center justify-center rounded-xl px-7 py-4 text-base font-semibold text-white shadow-md transition ${
-            soldOut
-              ? "pointer-events-none bg-[#9b9b96]"
-              : "bg-[#e76d61] hover:bg-[#d85b50]"
-          }`}
-        >
-          {soldOut
-            ? "Selected Size Sold Out"
-            : "Call to Order · 814-642-1253"}
-        </a>
-
-        <p className="mt-3 text-center text-xs leading-5 text-[#718078]">
-          Online checkout will replace this button when Square ordering is
-          connected.
-        </p>
-      </div>
     </div>
   );
 }

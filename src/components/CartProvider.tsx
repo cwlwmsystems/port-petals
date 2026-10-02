@@ -16,6 +16,7 @@ export type CartItemInput = {
   variantId: string | null;
   productName: string;
   slug: string;
+  productPath?: string;
   imageUrl: string | null;
 
   unitPrice: number;
@@ -98,6 +99,11 @@ export default function CartProvider({
       return;
     }
 
+    if (items.length === 0) {
+      window.localStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify(items)
@@ -169,6 +175,7 @@ export default function CartProvider({
   }
 
   function clearCart() {
+    window.localStorage.removeItem(STORAGE_KEY);
     setItems([]);
   }
 

@@ -122,7 +122,7 @@ export default function CartPageClient() {
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <Link
-                            href={`/shirts/${item.slug}`}
+                            href={item.productPath ?? `/shirts/${item.slug}`}
                             className="font-serif text-xl font-semibold text-[#153f32] transition hover:text-[#e76d61]"
                           >
                             {item.productName}

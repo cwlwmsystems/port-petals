@@ -1,6 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
+import { useCart } from "@/components/CartProvider";
 
 type GatorVariantOption = {
   id: string;
@@ -13,7 +18,10 @@ type GatorVariantOption = {
 };
 
 type GatorOrderConfiguratorProps = {
+  productId: string;
+  productSlug: string;
   productName: string;
+  imageUrl: string | null;
   basePrice: number;
   baseQuantity: number | null;
   baseTrackInventory: boolean;
@@ -39,7 +47,10 @@ function formatPrice(price: number) {
 }
 
 export default function GatorOrderConfigurator({
+  productId,
+  productSlug,
   productName,
+  imageUrl,
   basePrice,
   baseQuantity,
   baseTrackInventory,
@@ -48,6 +59,9 @@ export default function GatorOrderConfigurator({
   pickupAvailable,
   deliveryAvailable,
 }: GatorOrderConfiguratorProps) {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+
   const hasVariants = variants.length > 0;
 
   const [selectedVariantId, setSelectedVariantId] = useState(
@@ -98,8 +112,60 @@ export default function GatorOrderConfigurator({
 
   const estimatedTotal = selectedPrice + deliveryFee;
 
+  function handleAddToCart(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    if (soldOut) {
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const customization: Record<string, string> = {};
+
+    if (selectedVariant) {
+      customization.Option = selectedVariant.name;
+    }
+
+    for (const [field, label] of [
+      ["personalization", "Personalization"],
+      ["number", "Number"],
+      ["designNotes", "Color / Design Notes"],
+      ["recipientName", "Recipient Name"],
+      ["deliveryAddress", "Delivery Address"],
+      ["specialInstructions", "Special Instructions"],
+    ]) {
+      const value = String(
+        formData.get(field) ?? ""
+      ).trim();
+
+      if (value) {
+        customization[label] = value;
+      }
+    }
+
+    addItem({
+      productId,
+      variantId: selectedVariant?.id ?? null,
+      productName,
+      slug: productSlug,
+      productPath: `/gators/${productSlug}`,
+      imageUrl,
+      unitPrice: selectedPrice,
+      size: selectedVariant?.size ?? null,
+      color: selectedVariant?.color ?? null,
+      customization,
+    });
+
+    setAdded(true);
+  }
+
   return (
-    <div className="mt-8 border-t border-[#284239]/10 pt-7">
+    <form
+      onSubmit={handleAddToCart}
+      className="mt-8 border-t border-[#284239]/10 pt-7"
+    >
       {hasVariants && (
         <fieldset>
           <legend className="text-sm font-semibold text-[#153f32]">
@@ -425,25 +491,22 @@ export default function GatorOrderConfigurator({
       </details>
 
       <div className="mt-6">
-        <a
-          href="tel:+18146421253"
-          aria-disabled={soldOut}
-          className={`inline-flex w-full items-center justify-center rounded-xl px-7 py-4 text-base font-semibold text-white shadow-md transition ${
-            soldOut
-              ? "pointer-events-none bg-[#9b9b96]"
-              : "bg-[#e76d61] hover:bg-[#d85b50]"
-          }`}
+        <button
+          type="submit"
+          disabled={soldOut}
+          className="inline-flex w-full items-center justify-center rounded-xl bg-[#e76d61] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:bg-[#9b9b96]"
         >
           {soldOut
             ? "Selected Option Sold Out"
-            : "Call to Order · 814-642-1253"}
-        </a>
+            : "Add to Cart"}
+        </button>
 
-        <p className="mt-3 text-center text-xs leading-5 text-[#718078]">
-          Online checkout will replace this button when Square ordering is
-          connected.
-        </p>
+        {added && (
+          <p className="mt-3 text-center text-sm font-semibold text-[#36594c]">
+            Added to cart.
+          </p>
+        )}
       </div>
-    </div>
+    </form>
   );
 }
