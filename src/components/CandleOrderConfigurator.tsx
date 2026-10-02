@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useMemo,
   useState,
@@ -449,9 +450,18 @@ export default function CandleOrderConfigurator({
         </button>
 
         {added && (
-          <p className="mt-3 text-center text-sm font-semibold text-[#36594c]">
-            Added to cart.
-          </p>
+          <div className="mt-3 flex items-center justify-center gap-3 text-sm font-semibold">
+            <span className="text-[#36594c]">
+              Added to cart.
+            </span>
+
+            <Link
+              href="/cart"
+              className="text-[#e76d61] underline underline-offset-4 transition hover:text-[#d85b50]"
+            >
+              Go to Cart →
+            </Link>
+          </div>
         )}
       </div>
     </form>

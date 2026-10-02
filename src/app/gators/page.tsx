@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getPublishedGatorGear } from "@/lib/gators";
+import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
   title: "Gator Gear",
@@ -150,80 +151,40 @@ export default async function GatorsPage() {
                       "/collections/gators.jpg";
 
                     return (
-                      <article
-                        key={product.id}
-                        className="group flex h-full flex-col overflow-hidden rounded-[1.8rem] border border-[#284239]/10 bg-white/70 shadow-[0_12px_35px_rgba(42,66,57,0.08)] transition duration-300 hover:-translate-y-1"
-                      >
-                        <div className="relative h-64 overflow-hidden">
-                          <Image
-                            src={primaryImage}
-                            alt={product.images[0]?.alt_text ?? product.name}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
-                            className="object-contain p-2 transition duration-500 group-hover:scale-[1.02]"
-                          />
-
-                          {product.featured && (
-                            <span className="absolute left-4 top-4 rounded-full bg-[#fffaf3]/95 px-3 py-1.5 text-xs font-semibold text-[#e76d61]">
-                              Port Petals Favorite
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex flex-1 flex-col p-6">
-                          <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
-                            {product.name}
-                          </h3>
-
-                          {product.short_description && (
-                            <p className="mt-3 leading-6 text-[#607068]">
-                              {product.short_description}
-                            </p>
-                          )}
-
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {product.ready_made && (
-                              <span className="rounded-full bg-[#edf1f6] px-3 py-1 text-xs font-semibold text-[#536578]">
-                                Ready-Made
-                              </span>
-                            )}
-
-                            {product.customizable && (
-                              <span className="rounded-full bg-[#f8e1dc] px-3 py-1 text-xs font-semibold text-[#b9564c]">
-                                Customizable
-                              </span>
-                            )}
-
-                            {product.made_to_order && (
-                              <span className="rounded-full bg-[#edf3e7] px-3 py-1 text-xs font-semibold text-[#36594c]">
-                                Made to Order
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="mt-5">
-                            <p className="text-sm text-[#718078]">
-                              {product.variants.length > 0
-                                ? "Starting at"
-                                : "Price"}
-                            </p>
-
-                            <p className="mt-1 text-lg font-semibold text-[#e76d61]">
-                              {formatPrice(startingPrice)}
-                            </p>
-                          </div>
-
-                          <div className="mt-auto pt-6">
-                            <Link
-                              href={`/gators/${product.slug}`}
-                              className="inline-flex w-full items-center justify-center rounded-full border border-[#284239]/15 bg-white px-6 py-3 font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-                            >
-                              View Details
-                            </Link>
-                          </div>
-                        </div>
-                      </article>
+                        <StoreProductCard
+                          key={product.id}
+                          href={`/gators/${product.slug}`}
+                          productId={product.id}
+                          slug={product.slug}
+                          name={product.name}
+                          shortDescription={product.short_description}
+                          imageUrl={primaryImage}
+                          imageAlt={
+                            product.images[0]?.alt_text ??
+                            product.name
+                          }
+                          startingPrice={startingPrice}
+                          featured={product.featured}
+                          maker={
+                            "maker" in product
+                              ? product.maker
+                              : null
+                          }
+                          readyMade={product.ready_made}
+                          customizable={product.customizable}
+                          madeToOrder={product.made_to_order}
+                          leadTimeDays={product.lead_time_days}
+                          basePrice={product.base_price}
+                          trackInventory={product.track_inventory}
+                          quantity={product.quantity}
+                          variants={
+                            product.variants.map((variant) => ({
+                              quantity: variant.quantity,
+                              trackInventory:
+                                variant.track_inventory,
+                            }))
+                          }
+                        />
                     );
                   })}
                 </div>

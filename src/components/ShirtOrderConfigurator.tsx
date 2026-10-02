@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useCart } from "@/components/CartProvider";
 
@@ -732,9 +733,18 @@ export default function ShirtOrderConfigurator({
         )}
 
         {addedToCart && (
-          <p className="mt-3 text-center text-sm font-semibold text-[#31583b]">
-            Added to your cart.
-          </p>
+          <div className="mt-3 flex items-center justify-center gap-3 text-sm font-semibold">
+            <span className="text-[#31583b]">
+              Added to your cart.
+            </span>
+
+            <Link
+              href="/cart"
+              className="text-[#e76d61] underline underline-offset-4 transition hover:text-[#d85b50]"
+            >
+              Go to Cart →
+            </Link>
+          </div>
         )}
       </div>
 

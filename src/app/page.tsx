@@ -1,5 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import SeasonalCallout from "@/components/SeasonalCallout";
+import NewWebsiteNotice from "@/components/NewWebsiteNotice";
+import HomeFeaturedProducts from "@/components/HomeFeaturedProducts";
 
 const categories = [
   {
@@ -99,7 +102,7 @@ export default function Home() {
                 href="/custom"
                 className="inline-flex items-center justify-center rounded-full border border-[#e76d61] bg-white/60 px-7 py-3.5 font-semibold text-[#284239] backdrop-blur transition hover:bg-white"
               >
-                Request Something Custom
+                Ask About a Custom Order
               </a>
             </div>
           </div>
@@ -138,6 +141,12 @@ export default function Home() {
           }}
         />
       </section>
+
+      <SeasonalCallout />
+
+      <NewWebsiteNotice />
+
+
 
       <section id="shop" className="mx-auto max-w-7xl px-5 pb-20 pt-12 sm:px-8 lg:px-10">
         <div className="text-center">
@@ -228,6 +237,183 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Why Shop Port Petals */}
+      <section className="border-y border-[#284239]/10 bg-[#fffaf3]">
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+          <div className="text-center">
+            <div className="mb-3 flex items-center justify-center gap-4">
+              <span className="h-px w-12 bg-[#e76d61]" />
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#36594c]">
+                Why Port Petals
+              </p>
+              <span className="h-px w-12 bg-[#e76d61]" />
+            </div>
+
+            <h2 className="font-serif text-4xl font-semibold tracking-[-0.03em] text-[#163f32] sm:text-5xl">
+              Local, personal & made with care.
+            </h2>
+
+            <p className="mx-auto mt-4 max-w-2xl leading-7 text-[#617068]">
+              Port Petals brings together fresh flowers, gifts, handmade
+              creations, personalized items, and hometown favorites right here
+              in Port Allegany.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-[1.6rem] border border-[#284239]/10 bg-white p-6 shadow-[0_10px_30px_rgba(42,66,57,0.06)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f8e1dc] text-xl text-[#e76d61]">
+                ♥
+              </div>
+
+              <h3 className="mt-5 font-serif text-2xl font-semibold text-[#153f32]">
+                Locally Owned
+              </h3>
+
+              <p className="mt-3 text-sm leading-6 text-[#607068]">
+                Shop local and support a Port Allegany small business serving
+                the community with flowers, gifts, and creative finds.
+              </p>
+            </div>
+
+            <div className="rounded-[1.6rem] border border-[#284239]/10 bg-white p-6 shadow-[0_10px_30px_rgba(42,66,57,0.06)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#edf3e7] text-xl text-[#36594c]">
+                ✦
+              </div>
+
+              <h3 className="mt-5 font-serif text-2xl font-semibold text-[#153f32]">
+                Personal Touches
+              </h3>
+
+              <p className="mt-3 text-sm leading-6 text-[#607068]">
+                Many Port Petals creations can be personalized or made with
+                your occasion, colors, names, and ideas in mind.
+              </p>
+            </div>
+
+            <div className="rounded-[1.6rem] border border-[#284239]/10 bg-white p-6 shadow-[0_10px_30px_rgba(42,66,57,0.06)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f7ead4] text-xl text-[#c88654]">
+                ✿
+              </div>
+
+              <h3 className="mt-5 font-serif text-2xl font-semibold text-[#153f32]">
+                Something for Every Occasion
+              </h3>
+
+              <p className="mt-3 text-sm leading-6 text-[#607068]">
+                From everyday flowers and gifts to school spirit, holidays,
+                celebrations, and special occasions.
+              </p>
+            </div>
+
+            <div className="rounded-[1.6rem] border border-[#284239]/10 bg-white p-6 shadow-[0_10px_30px_rgba(42,66,57,0.06)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#edf1f6] text-xl text-[#536578]">
+                →
+              </div>
+
+              <h3 className="mt-5 font-serif text-2xl font-semibold text-[#153f32]">
+                Pickup & Local Delivery
+              </h3>
+
+              <p className="mt-3 text-sm leading-6 text-[#607068]">
+                Order online and choose convenient pickup in Port Allegany or
+                eligible local delivery during checkout.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How Ordering Works */}
+      <section className="relative overflow-hidden bg-[#f7f1e8]">
+        <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-[#efa99f]/15 blur-[100px]" />
+        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-[#c9e2ba]/25 blur-[100px]" />
+
+        <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+          <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#e76d61]">
+                Ordering Made Easy
+              </p>
+
+              <h2 className="mt-4 font-serif text-4xl font-semibold tracking-[-0.03em] text-[#153f32] sm:text-5xl">
+                From Port Petals to you in just a few steps.
+              </h2>
+
+              <p className="mt-5 max-w-xl leading-7 text-[#607068]">
+                The new Port Petals website makes it easier to browse current
+                products, choose what works for you, and place your order
+                online.
+              </p>
+
+              <a
+                href="#shop"
+                className="mt-7 inline-flex items-center justify-center rounded-full bg-[#e76d61] px-7 py-3.5 font-semibold text-white shadow-lg shadow-[#e76d61]/15 transition hover:-translate-y-0.5 hover:bg-[#d95d52]"
+              >
+                Start Shopping →
+              </a>
+            </div>
+
+            <div className="grid gap-5">
+              <div className="group grid grid-cols-[auto_1fr] gap-5 rounded-[1.6rem] border border-[#284239]/10 bg-white/80 p-6 shadow-[0_10px_30px_rgba(42,66,57,0.06)] transition hover:-translate-y-1">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e76d61] font-serif text-xl font-semibold text-white">
+                  1
+                </div>
+
+                <div>
+                  <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
+                    Browse & Choose
+                  </h3>
+
+                  <p className="mt-2 leading-6 text-[#607068]">
+                    Explore flowers, candles, custom items, shirts, and Gator
+                    Gear. Choose available options and personalization when
+                    offered.
+                  </p>
+                </div>
+              </div>
+
+              <div className="group grid grid-cols-[auto_1fr] gap-5 rounded-[1.6rem] border border-[#284239]/10 bg-white/80 p-6 shadow-[0_10px_30px_rgba(42,66,57,0.06)] transition hover:-translate-y-1">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#36594c] font-serif text-xl font-semibold text-white">
+                  2
+                </div>
+
+                <div>
+                  <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
+                    Choose Pickup or Delivery
+                  </h3>
+
+                  <p className="mt-2 leading-6 text-[#607068]">
+                    Pick up your order at Port Petals or select eligible local
+                    delivery and enter the needed delivery information.
+                  </p>
+                </div>
+              </div>
+
+              <div className="group grid grid-cols-[auto_1fr] gap-5 rounded-[1.6rem] border border-[#284239]/10 bg-white/80 p-6 shadow-[0_10px_30px_rgba(42,66,57,0.06)] transition hover:-translate-y-1">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#c88654] font-serif text-xl font-semibold text-white">
+                  3
+                </div>
+
+                <div>
+                  <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
+                    Complete Your Order
+                  </h3>
+
+                  <p className="mt-2 leading-6 text-[#607068]">
+                    Review your order, complete payment online, and Port Petals
+                    will take it from there.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <HomeFeaturedProducts />
 
     </main>
   );

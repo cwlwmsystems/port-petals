@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useMemo,
   useState,
@@ -541,7 +542,7 @@ export default function CustomItemConfigurator({
           href="/custom/request"
           className="inline-flex items-center justify-center rounded-xl border border-[#284239]/15 bg-white px-7 py-4 text-base font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
         >
-          Start Custom Request
+          Ask About a Custom Order
         </a>
       </div>
 
