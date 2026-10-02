@@ -17,12 +17,33 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.portpetals.com"),
   title: {
     default: "Port Petals | Flowers, Gifts & Gator Gear in Port Allegany, PA",
     template: "%s | Port Petals",
   },
   description:
     "Port Petals is a flower and craft shop in Port Allegany, Pennsylvania offering fresh flowers, candles, custom gifts, shirts, and Port Allegany Gator gear.",
+  applicationName: "Port Petals",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "Port Petals",
+    title: "Port Petals | Flowers, Gifts & Gator Gear in Port Allegany, PA",
+    description:
+      "Fresh flowers, candles, custom gifts, shirts, and Port Allegany Gator gear from Port Petals in Port Allegany, Pennsylvania.",
+    url: "https://www.portpetals.com",
+  },
+  twitter: {
+    card: "summary",
+    title: "Port Petals | Flowers, Gifts & Gator Gear",
+    description:
+      "Fresh flowers, candles, custom gifts, shirts, and Port Allegany Gator gear from Port Petals.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

@@ -6,6 +6,15 @@ import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/custom",
+  },
+  openGraph: {
+    title: "Custom Items",
+    description:
+      "Browse personalized gifts, sports designs, seasonal decor, tumblers, woodcrafts, and custom items from Port Petals in Port Allegany, Pennsylvania.",
+    url: "/custom",
+  },
   title: "Custom Items",
   description:
     "Browse personalized gifts, sports designs, seasonal decor, tumblers, woodcrafts, and custom items from Port Petals in Port Allegany, Pennsylvania.",

@@ -6,6 +6,15 @@ import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/candles",
+  },
+  openGraph: {
+    title: "Candles",
+    description:
+      "Shop candle bouquets, wax melts, candle tarts, and giftable candle favorites from Port Petals in Port Allegany, Pennsylvania.",
+    url: "/candles",
+  },
   title: "Candles",
   description:
     "Shop candle bouquets, wax melts, candle tarts, and giftable candle favorites from Port Petals in Port Allegany, Pennsylvania.",

@@ -6,6 +6,15 @@ import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/gators",
+  },
+  openGraph: {
+    title: "Gator Gear",
+    description:
+      "Shop Port Allegany Gator gear, sports gifts, apparel, personalized items, and hometown favorites from Port Petals.",
+    url: "/gators",
+  },
   title: "Gator Gear",
   description:
     "Shop Port Allegany Gator gear, apparel, accessories, and personalized gifts from Port Petals in Port Allegany, Pennsylvania.",

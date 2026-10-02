@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SeasonalCallout from "@/components/SeasonalCallout";
 import NewWebsiteNotice from "@/components/NewWebsiteNotice";
 import HomeFeaturedProducts from "@/components/HomeFeaturedProducts";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 const categories = [
   {

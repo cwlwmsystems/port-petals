@@ -6,6 +6,15 @@ import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/shirts",
+  },
+  openGraph: {
+    title: "Shirts",
+    description:
+      "Shop printed shirts, sports apparel, seasonal designs, and personalized shirts from Port Petals in Port Allegany, Pennsylvania.",
+    url: "/shirts",
+  },
   title: "Shirts",
   description:
     "Shop printed shirts, sports apparel, seasonal designs, and personalized shirts from Port Petals in Port Allegany, Pennsylvania.",

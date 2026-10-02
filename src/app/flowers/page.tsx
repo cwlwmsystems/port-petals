@@ -6,6 +6,15 @@ import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/flowers",
+  },
+  openGraph: {
+    title: "Fresh Flowers",
+    description:
+      "Shop fresh flowers, seasonal arrangements, bouquets, and Homecoming and Prom flowers from Port Petals in Port Allegany, Pennsylvania.",
+    url: "/flowers",
+  },
   title: "Fresh Flowers",
   description:
     "Shop fresh flower arrangements, bouquets, seasonal flowers, and prom or homecoming flowers from Port Petals in Port Allegany, Pennsylvania.",

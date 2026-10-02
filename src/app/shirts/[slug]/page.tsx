@@ -64,12 +64,46 @@ export async function generateMetadata({
     };
   }
 
+  const description =
+    product.short_description ??
+    product.description ??
+    "Shirt from Port Petals.";
+
+  const canonical = "/shirts/${slug}";
+  const primaryImage = product.images[0]?.publicUrl;
+
   return {
     title: product.name,
-    description:
-      product.short_description ??
-      product.description ??
-      "Shirt from Port Petals.",
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: "website",
+      title: product.name,
+      description,
+      url: canonical,
+      images: primaryImage
+        ? [
+            {
+              url: primaryImage,
+              alt:
+                product.images[0]?.alt_text ??
+                product.name,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: primaryImage
+        ? "summary_large_image"
+        : "summary",
+      title: product.name,
+      description,
+      images: primaryImage
+        ? [primaryImage]
+        : undefined,
+    },
   };
 }
 
