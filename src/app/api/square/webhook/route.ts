@@ -1,7 +1,10 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendOwnerPaidOrderEmail } from "@/lib/email/order-notifications";
+import {
+  sendCustomerPaidOrderEmail,
+  sendOwnerPaidOrderEmail,
+} from "@/lib/email/order-notifications";
 
 export const runtime = "nodejs";
 
@@ -227,6 +230,29 @@ export async function POST(request: Request) {
   } catch (notificationError) {
     console.error(
       "Owner paid-order notification failed after payment completion:",
+      notificationError
+    );
+  }
+
+  try {
+    const customerNotification =
+      await sendCustomerPaidOrderEmail({
+        squareOrderId: payment.order_id,
+      });
+
+    if (
+      !customerNotification.sent &&
+      !customerNotification.duplicate
+    ) {
+      console.error(
+        "Customer paid-order email was not sent:",
+        customerNotification.error ??
+          "Unknown email error."
+      );
+    }
+  } catch (notificationError) {
+    console.error(
+      "Customer paid-order confirmation failed after payment completion:",
       notificationError
     );
   }
