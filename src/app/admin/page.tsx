@@ -26,12 +26,58 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const { count: productCount } = await supabase
-    .from("products")
-    .select("*", {
-      count: "exact",
-      head: true,
-    });
+  const [
+    productCountResult,
+    paidCountResult,
+    preparingCountResult,
+    readyCountResult,
+  ] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*", {
+        count: "exact",
+        head: true,
+      }),
+
+    supabase
+      .from("orders")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq("status", "paid"),
+
+    supabase
+      .from("orders")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq("status", "preparing"),
+
+    supabase
+      .from("orders")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq("status", "ready"),
+  ]);
+
+  const productCount =
+    productCountResult.count ?? 0;
+
+  const paidCount =
+    paidCountResult.count ?? 0;
+
+  const preparingCount =
+    preparingCountResult.count ?? 0;
+
+  const readyCount =
+    readyCountResult.count ?? 0;
+
+  const activeOrderCount =
+    paidCount + preparingCount + readyCount;
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] px-5 py-12 text-[#284239] sm:px-8">
@@ -43,7 +89,7 @@ export default async function AdminPage() {
             </p>
 
             <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-              Product Manager
+              Store Manager
             </h1>
 
             <p className="mt-3 text-[#607068]">
@@ -65,6 +111,56 @@ export default async function AdminPage() {
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <Link
+            href="/admin/orders"
+            className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#e76d61]/30"
+          >
+            <p className="text-sm font-semibold text-[#607068]">
+              Orders
+            </p>
+
+            <p className="mt-3 text-4xl font-semibold text-[#153f32]">
+              {activeOrderCount}
+            </p>
+
+            <p className="mt-2 text-sm text-[#718078]">
+              Active orders requiring attention
+            </p>
+
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-[#e6f2e3] px-3 py-3 text-center">
+                <p className="text-xl font-semibold text-[#31583b]">
+                  {paidCount}
+                </p>
+                <p className="mt-1 text-xs font-semibold text-[#31583b]">
+                  Paid
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-[#fff0d9] px-3 py-3 text-center">
+                <p className="text-xl font-semibold text-[#7a5725]">
+                  {preparingCount}
+                </p>
+                <p className="mt-1 text-xs font-semibold text-[#7a5725]">
+                  Preparing
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-[#dfeff4] px-3 py-3 text-center">
+                <p className="text-xl font-semibold text-[#315b68]">
+                  {readyCount}
+                </p>
+                <p className="mt-1 text-xs font-semibold text-[#315b68]">
+                  Ready
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-5 text-sm font-semibold text-[#e76d61]">
+              Manage Orders →
+            </p>
+          </Link>
+
+          <Link
             href="/admin/products"
             className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#e76d61]/30"
           >
@@ -73,7 +169,7 @@ export default async function AdminPage() {
             </p>
 
             <p className="mt-3 text-4xl font-semibold text-[#153f32]">
-              {productCount ?? 0}
+              {productCount}
             </p>
 
             <p className="mt-2 text-sm text-[#718078]">
@@ -87,20 +183,6 @@ export default async function AdminPage() {
 
           <section className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
             <p className="text-sm font-semibold text-[#607068]">
-              Inventory
-            </p>
-
-            <p className="mt-3 font-serif text-2xl font-semibold text-[#153f32]">
-              Manage Stock
-            </p>
-
-            <p className="mt-2 text-sm leading-6 text-[#718078]">
-              Product quantities and variants will be managed here.
-            </p>
-          </section>
-
-          <section className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
               Storefront
             </p>
 
@@ -109,7 +191,11 @@ export default async function AdminPage() {
             </p>
 
             <p className="mt-2 text-sm leading-6 text-[#718078]">
-              Published products will automatically appear on the website.
+              Published products automatically appear on the website.
+            </p>
+
+            <p className="mt-5 text-sm font-semibold text-[#607068]">
+              Product publishing controls the live catalog.
             </p>
           </section>
         </div>
