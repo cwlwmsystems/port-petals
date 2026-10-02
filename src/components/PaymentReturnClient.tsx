@@ -28,6 +28,9 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
+const MAX_ATTEMPTS = 20;
+const POLL_INTERVAL_MS = 2000;
+
 export default function PaymentReturnClient({
   orderId,
 }: PaymentReturnClientProps) {
@@ -37,7 +40,8 @@ export default function PaymentReturnClient({
     useState<ConfirmationOrder | null>(null);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [finishedChecking, setFinishedChecking] =
+    useState(false);
 
   const cartCleared = useRef(false);
 
@@ -46,12 +50,31 @@ export default function PaymentReturnClient({
     let timer: ReturnType<typeof setTimeout> | null = null;
     let attempts = 0;
 
+    function scheduleNextCheck() {
+      if (cancelled) {
+        return;
+      }
+
+      attempts += 1;
+
+      if (attempts >= MAX_ATTEMPTS) {
+        setLoading(false);
+        setFinishedChecking(true);
+        return;
+      }
+
+      timer = setTimeout(
+        checkOrder,
+        POLL_INTERVAL_MS
+      );
+    }
+
     async function checkOrder() {
       try {
         const response = await fetch(
           `/api/orders/status?orderId=${encodeURIComponent(
             orderId
-          )}`,
+          )}&t=${Date.now()}`,
           {
             cache: "no-store",
           }
@@ -61,13 +84,12 @@ export default function PaymentReturnClient({
 
         if (!response.ok) {
           console.error(
-            "Payment confirmation failed:",
+            "Payment confirmation check failed:",
             result.error ?? result
           );
 
-          throw new Error(
-            "We couldn't confirm your payment yet."
-          );
+          scheduleNextCheck();
+          return;
         }
 
         if (cancelled) {
@@ -79,11 +101,12 @@ export default function PaymentReturnClient({
 
         setOrder(nextOrder);
         setLoading(false);
-        setError("");
 
         if (
           nextOrder.paymentStatus === "paid"
         ) {
+          setFinishedChecking(true);
+
           if (!cartCleared.current) {
             clearCart();
             cartCleared.current = true;
@@ -92,31 +115,21 @@ export default function PaymentReturnClient({
           return;
         }
 
-        attempts += 1;
-
-        // Poll for roughly 30 seconds while the Square
-        // webhook finishes processing.
-        if (attempts < 15) {
-          timer = setTimeout(
-            checkOrder,
-            2000
-          );
-        }
+        scheduleNextCheck();
       } catch (caughtError) {
         if (cancelled) {
           return;
         }
-
-        setLoading(false);
 
         console.error(
           "Payment confirmation error:",
           caughtError
         );
 
-        setError(
-          "We couldn't confirm your payment yet."
-        );
+        // A temporary network/API failure should not stop
+        // confirmation polling. Square may still be
+        // completing the webhook in the background.
+        scheduleNextCheck();
       }
     }
 
@@ -134,45 +147,14 @@ export default function PaymentReturnClient({
   const paid =
     order?.paymentStatus === "paid";
 
+  const stillChecking =
+    !paid && !finishedChecking;
+
   return (
     <main className="min-h-[70vh] bg-[#f7f1e8] text-[#284239]">
       <section className="mx-auto max-w-3xl px-5 py-16 sm:px-8">
         <div className="rounded-3xl border border-[#284239]/10 bg-white p-8 text-center shadow-sm sm:p-10">
-          {loading && !order ? (
-            <>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-                Confirming Payment
-              </p>
-
-              <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-                Just a moment
-              </h1>
-
-              <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
-                We received your payment information and are confirming your order.
-              </p>
-
-              <div className="mx-auto mt-8 h-8 w-8 animate-spin rounded-full border-4 border-[#284239]/15 border-t-[#e76d61]" />
-            </>
-          ) : error ? (
-            <>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-                Order Update
-              </p>
-
-              <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-                We&apos;re checking your order
-              </h1>
-
-              <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
-                {error}
-              </p>
-
-              <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#607068]">
-                Please do not submit another payment.
-              </p>
-            </>
-          ) : order && paid ? (
+          {paid && order ? (
             <>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
                 Payment Confirmed
@@ -233,6 +215,7 @@ export default function PaymentReturnClient({
 
                 <div className="mt-4 flex justify-between gap-4 border-t border-[#284239]/10 pt-4 text-lg">
                   <span>Total Paid</span>
+
                   <strong className="text-[#e76d61]">
                     {formatPrice(order.total)}
                   </strong>
@@ -240,29 +223,78 @@ export default function PaymentReturnClient({
               </div>
 
               <div className="mt-8 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
-                Your payment is confirmed and your Port Petals order is ready for processing.
+                Your payment is confirmed and your
+                Port Petals order is ready for
+                processing.
               </div>
             </>
-          ) : order ? (
+          ) : stillChecking ? (
             <>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
                 Confirming Payment
               </p>
 
               <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-                {order.orderNumber}
+                {order?.orderNumber ??
+                  "Just a moment"}
               </h1>
 
               <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
-                Your payment is still being confirmed. This usually takes only a moment.
+                Your payment was submitted successfully.
+                We&apos;re waiting for Square to finish
+                confirming your order.
+              </p>
+
+              <div className="mx-auto mt-8 h-8 w-8 animate-spin rounded-full border-4 border-[#284239]/15 border-t-[#e76d61]" />
+
+              <div className="mt-7 rounded-xl bg-[#fff4f1] p-4 text-sm leading-6 text-[#8c433b]">
+                Please do not submit another payment.
+                This page will update automatically
+                when confirmation arrives.
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Order Received
+              </p>
+
+              <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
+                We&apos;re still confirming your payment
+              </h1>
+
+              {order?.orderNumber && (
+                <p className="mt-4 font-semibold text-[#153f32]">
+                  Order {order.orderNumber}
+                </p>
+              )}
+
+              <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
+                Square has not finished reporting the
+                final payment status yet. Your order
+                may still be processing.
               </p>
 
               <div className="mt-7 rounded-xl bg-[#fff4f1] p-4 text-sm leading-6 text-[#8c433b]">
                 Please do not submit another payment.
-                This page will continue checking your order.
+                If you received a Square payment
+                confirmation, your payment may already
+                be complete.
               </div>
+
+              <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-[#607068]">
+                If you have questions, contact Port
+                Petals at{" "}
+                <a
+                  href="tel:+18146421253"
+                  className="font-semibold text-[#e76d61]"
+                >
+                  814-642-1253
+                </a>
+                .
+              </p>
             </>
-          ) : null}
+          )}
 
           <div className="mt-8">
             <Link
