@@ -102,9 +102,12 @@ export default function PaymentReturnClient({
         setOrder(nextOrder);
         setLoading(false);
 
-        if (
-          nextOrder.paymentStatus === "paid"
-        ) {
+        const paymentConfirmed =
+          nextOrder.paymentStatus?.toLowerCase() === "paid" ||
+          nextOrder.status?.toLowerCase() === "paid" ||
+          Boolean(nextOrder.paidAt);
+
+        if (paymentConfirmed) {
           setFinishedChecking(true);
 
           if (!cartCleared.current) {
@@ -145,7 +148,9 @@ export default function PaymentReturnClient({
   }, [orderId, clearCart]);
 
   const paid =
-    order?.paymentStatus === "paid";
+    order?.paymentStatus?.toLowerCase() === "paid" ||
+    order?.status?.toLowerCase() === "paid" ||
+    Boolean(order?.paidAt);
 
   const stillChecking =
     !paid && !finishedChecking;
