@@ -43,6 +43,12 @@ export default function CheckoutClient() {
   const [createdOrder, setCreatedOrder] =
     useState<CreatedOrder | null>(null);
 
+  const [startingPayment, setStartingPayment] =
+    useState(false);
+
+  const [paymentError, setPaymentError] =
+    useState("");
+
   const estimatedDeliveryFee =
     fulfillmentType !== "delivery"
       ? 0
@@ -125,6 +131,55 @@ export default function CheckoutClient() {
     }
   }
 
+  async function handleSquarePayment() {
+    if (!createdOrder || startingPayment) {
+      return;
+    }
+
+    setPaymentError("");
+    setStartingPayment(true);
+
+    try {
+      const response = await fetch(
+        "/api/square/checkout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orderId: createdOrder.orderId,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ??
+            "Unable to start Square checkout."
+        );
+      }
+
+      if (!result.checkoutUrl) {
+        throw new Error(
+          "Square did not return a checkout URL."
+        );
+      }
+
+      window.location.href = result.checkoutUrl;
+    } catch (caughtError) {
+      setPaymentError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Unable to start Square checkout."
+      );
+
+      setStartingPayment(false);
+    }
+  }
+
   if (items.length === 0 && !createdOrder) {
     return (
       <main className="min-h-[65vh] bg-[#f7f1e8] text-[#284239]">
@@ -189,14 +244,31 @@ export default function CheckoutClient() {
               </div>
             </div>
 
-            <div className="mt-8 rounded-xl bg-[#fff4f1] p-4 text-sm leading-6 text-[#8c433b]">
-              Square payment integration is the next step. This order
-              is currently marked as awaiting payment.
+            <div className="mt-8 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
+              Your order has been saved. Continue to Square&apos;s
+              secure checkout to complete payment.
             </div>
+
+            {paymentError && (
+              <div className="mt-4 rounded-xl bg-[#fff0ed] p-4 text-sm leading-6 text-[#a7473f]">
+                {paymentError}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleSquarePayment}
+              disabled={startingPayment}
+              className="mt-6 flex w-full items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {startingPayment
+                ? "Opening Secure Payment..."
+                : "Continue to Secure Payment"}
+            </button>
 
             <Link
               href="/cart"
-              className="mt-6 inline-flex rounded-full border border-[#284239]/15 px-6 py-3 font-semibold"
+              className="mt-4 inline-flex rounded-full border border-[#284239]/15 px-6 py-3 font-semibold"
             >
               Return to Cart
             </Link>
