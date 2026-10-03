@@ -7,51 +7,88 @@ type OrderStatusActionsProps = {
   orderId: string;
   currentStatus: string;
   paymentStatus: string;
+  fulfillmentType: string;
 };
 
-const nextStatuses: Record<string, string | null> = {
-  paid: "preparing",
-  preparing: "ready",
-  ready: "completed",
-  completed: null,
-  cancelled: null,
-  refunded: null,
-  awaiting_payment: null,
-  pending: null,
-};
+type OrderStatus =
+  | "paid"
+  | "preparing"
+  | "ready"
+  | "out_for_delivery"
+  | "completed"
+  | "cancelled";
 
-function formatLabel(value: string) {
-  return value
+function getNextStatus({
+  currentStatus,
+  fulfillmentType,
+}: {
+  currentStatus: string;
+  fulfillmentType: string;
+}): OrderStatus | null {
+  switch (currentStatus) {
+    case "paid":
+      return "preparing";
+
+    case "preparing":
+      return fulfillmentType === "delivery"
+        ? "out_for_delivery"
+        : "ready";
+
+    case "ready":
+    case "out_for_delivery":
+      return "completed";
+
+    default:
+      return null;
+  }
+}
+
+function formatStatusLabel(
+  status: string,
+  fulfillmentType: string
+) {
+  if (
+    status === "ready" &&
+    fulfillmentType === "pickup"
+  ) {
+    return "Ready for Pickup";
+  }
+
+  if (status === "out_for_delivery") {
+    return "Out for Delivery";
+  }
+
+  return status
     .replaceAll("_", " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+    .replace(/\b\w/g, (letter) =>
+      letter.toUpperCase()
+    );
 }
 
 export default function OrderStatusActions({
   orderId,
   currentStatus,
   paymentStatus,
+  fulfillmentType,
 }: OrderStatusActionsProps) {
   const [isPending, startTransition] =
     useTransition();
 
   const [error, setError] = useState("");
 
-  const nextStatus =
-    nextStatuses[currentStatus] ?? null;
+  const nextStatus = getNextStatus({
+    currentStatus,
+    fulfillmentType,
+  });
 
-  function changeStatus(status: string) {
+  function changeStatus(status: OrderStatus) {
     setError("");
 
     startTransition(async () => {
       try {
         await updateOrderStatus(
           orderId,
-          status as
-            | "paid"
-            | "preparing"
-            | "ready"
-            | "completed"
-            | "cancelled"
+          status
         );
       } catch (caughtError) {
         setError(
@@ -77,7 +114,10 @@ export default function OrderStatusActions({
       <p className="mt-2 text-sm leading-6 text-[#607068]">
         Current status:{" "}
         <strong className="text-[#153f32]">
-          {formatLabel(currentStatus)}
+          {formatStatusLabel(
+            currentStatus,
+            fulfillmentType
+          )}
         </strong>
       </p>
 
@@ -100,7 +140,10 @@ export default function OrderStatusActions({
           >
             {isPending
               ? "Updating..."
-              : `Mark ${formatLabel(nextStatus)}`}
+              : `Mark ${formatStatusLabel(
+                  nextStatus,
+                  fulfillmentType
+                )}`}
           </button>
         )}
 
@@ -109,9 +152,10 @@ export default function OrderStatusActions({
           type="button"
           disabled={isPending}
           onClick={() => {
-            const confirmed = window.confirm(
-              "Cancel this order? This does not automatically refund a Square payment."
-            );
+            const confirmed =
+              window.confirm(
+                "Cancel this order? This does not automatically refund a Square payment."
+              );
 
             if (confirmed) {
               changeStatus("cancelled");

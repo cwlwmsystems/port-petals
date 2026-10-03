@@ -49,6 +49,8 @@ function statusClasses(status: string) {
       return "bg-[#fff0d9] text-[#7a5725]";
     case "ready":
       return "bg-[#dfeff4] text-[#315b68]";
+    case "out_for_delivery":
+      return "bg-[#e6edf7] text-[#365b7a]";
     case "completed":
       return "bg-[#e5ebe7] text-[#3f584b]";
     case "awaiting_payment":
@@ -425,6 +427,7 @@ export default async function AdminOrderDetailPage({
               orderId={order.id}
               currentStatus={order.status}
               paymentStatus={order.payment_status}
+              fulfillmentType={order.fulfillment_type}
             />
 
             <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">

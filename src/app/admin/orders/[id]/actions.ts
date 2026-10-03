@@ -3,17 +3,87 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { sendCustomerOrderStatusEmail } from "@/lib/email/order-notifications";
 
 const allowedStatuses = [
   "paid",
   "preparing",
   "ready",
+  "out_for_delivery",
   "completed",
   "cancelled",
 ] as const;
 
 type AllowedStatus =
   (typeof allowedStatuses)[number];
+
+function getExpectedNextStatus({
+  currentStatus,
+  fulfillmentType,
+}: {
+  currentStatus: string;
+  fulfillmentType: string;
+}): AllowedStatus | null {
+  switch (currentStatus) {
+    case "paid":
+      return "preparing";
+
+    case "preparing":
+      return fulfillmentType === "delivery"
+        ? "out_for_delivery"
+        : "ready";
+
+    case "ready":
+      return fulfillmentType === "pickup"
+        ? "completed"
+        : null;
+
+    case "out_for_delivery":
+      return fulfillmentType === "delivery"
+        ? "completed"
+        : null;
+
+    default:
+      return null;
+  }
+}
+
+async function sendStatusEmailSafely({
+  orderId,
+  status,
+}: {
+  orderId: string;
+  status:
+    | "preparing"
+    | "ready"
+    | "out_for_delivery"
+    | "completed"
+    | "cancelled";
+}) {
+  try {
+    const notification =
+      await sendCustomerOrderStatusEmail({
+        orderId,
+        status,
+      });
+
+    if (
+      !notification.sent &&
+      !notification.duplicate
+    ) {
+      console.error(
+        "Order-status email was not sent:",
+        notification.error ??
+          "Unknown email error."
+      );
+    }
+  } catch (notificationError) {
+    console.error(
+      "Order-status notification failed:",
+      notificationError
+    );
+  }
+}
 
 export async function updateOrderStatus(
   orderId: string,
@@ -51,7 +121,9 @@ export async function updateOrderStatus(
   const { data: order, error: orderError } =
     await supabase
       .from("orders")
-      .select("id, status, payment_status")
+      .select(
+        "id, status, payment_status, fulfillment_type"
+      )
       .eq("id", orderId)
       .maybeSingle();
 
@@ -114,9 +186,30 @@ export async function updateOrderStatus(
       }
     }
 
-    revalidatePath(`/admin/orders/${orderId}`);
+    await sendStatusEmailSafely({
+      orderId,
+      status: "cancelled",
+    });
+
+    revalidatePath(
+      `/admin/orders/${orderId}`
+    );
     revalidatePath("/admin/orders");
+
     return;
+  }
+
+  const expectedNextStatus =
+    getExpectedNextStatus({
+      currentStatus: order.status,
+      fulfillmentType:
+        order.fulfillment_type,
+    });
+
+  if (nextStatus !== expectedNextStatus) {
+    throw new Error(
+      "That status change is not valid for this order."
+    );
   }
 
   const updates: {
@@ -127,32 +220,37 @@ export async function updateOrderStatus(
   };
 
   if (nextStatus === "completed") {
-    updates.completed_at = new Date().toISOString();
+    updates.completed_at =
+      new Date().toISOString();
   }
 
-  const { error: updateError } = await supabase
-    .from("orders")
-    .update(updates)
-    .eq("id", orderId);
+  const { error: updateError } =
+    await supabase
+      .from("orders")
+      .update(updates)
+      .eq("id", orderId);
 
   if (updateError) {
     throw new Error(updateError.message);
   }
 
-  const { error: eventError } = await supabase
-    .from("order_events")
-    .insert({
-      order_id: orderId,
-      event_type: `order_${nextStatus}`,
-      message: `Order status changed to ${nextStatus.replaceAll(
-        "_",
-        " "
-      )}.`,
-      metadata: {
-        previous_status: order.status,
-        new_status: nextStatus,
-      },
-    });
+  const { error: eventError } =
+    await supabase
+      .from("order_events")
+      .insert({
+        order_id: orderId,
+        event_type: `order_${nextStatus}`,
+        message: `Order status changed to ${nextStatus.replaceAll(
+          "_",
+          " "
+        )}.`,
+        metadata: {
+          previous_status: order.status,
+          new_status: nextStatus,
+          fulfillment_type:
+            order.fulfillment_type,
+        },
+      });
 
   if (eventError) {
     console.error(
@@ -161,6 +259,20 @@ export async function updateOrderStatus(
     );
   }
 
-  revalidatePath(`/admin/orders/${orderId}`);
+  if (
+    nextStatus === "preparing" ||
+    nextStatus === "ready" ||
+    nextStatus === "out_for_delivery" ||
+    nextStatus === "completed"
+  ) {
+    await sendStatusEmailSafely({
+      orderId,
+      status: nextStatus,
+    });
+  }
+
+  revalidatePath(
+    `/admin/orders/${orderId}`
+  );
   revalidatePath("/admin/orders");
 }
