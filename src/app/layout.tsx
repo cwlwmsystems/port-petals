@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import CartProvider from "@/components/CartProvider";
@@ -62,6 +63,7 @@ export default function RootLayout({
           {children}
           <SiteFooter />
         </CartProvider>
+        <Analytics />
       </body>
     </html>
   );
