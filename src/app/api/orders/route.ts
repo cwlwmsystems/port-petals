@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getEarliestFulfillmentDate } from "@/lib/orders/fulfillment-date";
 
 type CheckoutItem = {
   productId: string;
@@ -245,6 +246,7 @@ export async function POST(request: Request) {
     }> = [];
 
     let subtotal = 0;
+    let requiredLeadTimeDays = 0;
 
     for (const requestedItem of body.items) {
       const quantity = Number(requestedItem.quantity);
@@ -269,6 +271,7 @@ export async function POST(request: Request) {
             slug,
             base_price,
             status,
+            lead_time_days,
             track_inventory,
             quantity,
             product_images (
@@ -290,6 +293,11 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
+
+      requiredLeadTimeDays = Math.max(
+        requiredLeadTimeDays,
+        Number(product.lead_time_days ?? 0)
+      );
 
       let variantId: string | null = null;
       let variantName: string | null = null;
@@ -428,6 +436,32 @@ export async function POST(request: Request) {
             : {},
         image_url: imageUrl,
       });
+    }
+
+    const earliestFulfillmentDate =
+      getEarliestFulfillmentDate(
+        requiredLeadTimeDays
+      );
+
+    if (
+      requestedFulfillmentDate <
+      earliestFulfillmentDate
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            `The earliest available ${
+              body.fulfillmentType === "pickup"
+                ? "pickup"
+                : "delivery"
+            } date for this order is ${earliestFulfillmentDate}.`,
+          code:
+            "FULFILLMENT_DATE_TOO_SOON",
+          earliestFulfillmentDate,
+          requiredLeadTimeDays,
+        },
+        { status: 400 }
+      );
     }
 
     const taxAmount = 0;

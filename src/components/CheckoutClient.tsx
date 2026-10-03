@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+  type FormEvent,
+} from "react";
 import { useCart } from "@/components/CartProvider";
 
 type FulfillmentType = "pickup" | "delivery";
@@ -48,6 +52,111 @@ export default function CheckoutClient() {
 
   const [paymentError, setPaymentError] =
     useState("");
+
+  const [
+    requiredLeadTimeDays,
+    setRequiredLeadTimeDays,
+  ] = useState(0);
+
+  const [
+    earliestFulfillmentDate,
+    setEarliestFulfillmentDate,
+  ] = useState("");
+
+  const [
+    loadingLeadTime,
+    setLoadingLeadTime,
+  ] = useState(true);
+
+  const [
+    leadTimeError,
+    setLeadTimeError,
+  ] = useState("");
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setRequiredLeadTimeDays(0);
+      setEarliestFulfillmentDate("");
+      setLoadingLeadTime(false);
+      return;
+    }
+
+    const controller =
+      new AbortController();
+
+    async function loadLeadTime() {
+      setLoadingLeadTime(true);
+      setLeadTimeError("");
+
+      try {
+        const response = await fetch(
+          "/api/orders/lead-time",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify({
+              productIds: items.map(
+                (item) => item.productId
+              ),
+            }),
+            signal: controller.signal,
+          }
+        );
+
+        const result =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            "Unable to determine available dates."
+          );
+        }
+
+        setRequiredLeadTimeDays(
+          Number(
+            result.requiredLeadTimeDays ??
+              0
+          )
+        );
+
+        setEarliestFulfillmentDate(
+          String(
+            result.earliestFulfillmentDate ??
+              ""
+          )
+        );
+      } catch (error) {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+
+        console.error(
+          "Unable to load fulfillment lead time:",
+          error
+        );
+
+        setLeadTimeError(
+          "Available dates could not be loaded. Please refresh and try again."
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoadingLeadTime(false);
+        }
+      }
+    }
+
+    void loadLeadTime();
+
+    return () => {
+      controller.abort();
+    };
+  }, [items]);
 
   const estimatedDeliveryFee =
     fulfillmentType !== "delivery"
@@ -440,17 +549,45 @@ export default function CheckoutClient() {
                     required
                     type="date"
                     name="requestedFulfillmentDate"
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                    min={
+                      earliestFulfillmentDate ||
+                      undefined
+                    }
+                    disabled={
+                      loadingLeadTime ||
+                      Boolean(leadTimeError)
+                    }
+                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61] disabled:cursor-not-allowed disabled:bg-[#f2f0ec]"
                   />
 
-                  <span className="text-xs leading-5 text-[#718078]">
-                    Choose the date you would like your
-                    order {fulfillmentType === "pickup"
-                      ? "ready for pickup"
-                      : "delivered"}.
-                    Port Petals will contact you if any
-                    adjustment is needed.
-                  </span>
+                  {loadingLeadTime ? (
+                    <span className="text-xs leading-5 text-[#718078]">
+                      Checking the earliest available
+                      date...
+                    </span>
+                  ) : leadTimeError ? (
+                    <span className="text-xs leading-5 text-[#a7473f]">
+                      {leadTimeError}
+                    </span>
+                  ) : requiredLeadTimeDays > 0 ? (
+                    <span className="text-xs leading-5 text-[#718078]">
+                      This order requires at least{" "}
+                      {requiredLeadTimeDays} full
+                      preparation day
+                      {requiredLeadTimeDays === 1
+                        ? ""
+                        : "s"}
+                      . Earlier dates are unavailable.
+                    </span>
+                  ) : (
+                    <span className="text-xs leading-5 text-[#718078]">
+                      Choose the date you would like your
+                      order{" "}
+                      {fulfillmentType === "pickup"
+                        ? "ready for pickup"
+                        : "delivered"}.
+                    </span>
+                  )}
                 </label>
               </div>
 
@@ -616,7 +753,11 @@ export default function CheckoutClient() {
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={
+                submitting ||
+                loadingLeadTime ||
+                Boolean(leadTimeError)
+              }
               className="mt-6 flex w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-3 font-semibold text-white transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting
