@@ -16,6 +16,7 @@ type CheckoutRequest = {
   customerPhone: string;
 
   fulfillmentType: "pickup" | "delivery";
+  requestedFulfillmentDate: string;
 
   deliveryArea?:
     | ""
@@ -76,6 +77,12 @@ export async function POST(request: Request) {
     const customerPhone = cleanText(body.customerPhone, 50);
     const notes = cleanText(body.notes, 1000);
 
+    const requestedFulfillmentDate =
+      cleanText(
+        body.requestedFulfillmentDate,
+        10
+      );
+
     if (!customerName) {
       return NextResponse.json(
         { error: "Customer name is required." },
@@ -103,6 +110,60 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "Choose pickup or delivery." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(
+        requestedFulfillmentDate
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Please choose a valid pickup or delivery date.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const easternToday = new Intl.DateTimeFormat(
+      "en-CA",
+      {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }
+    )
+      .formatToParts(new Date())
+      .reduce<Record<string, string>>(
+        (parts, part) => {
+          if (
+            part.type === "year" ||
+            part.type === "month" ||
+            part.type === "day"
+          ) {
+            parts[part.type] = part.value;
+          }
+
+          return parts;
+        },
+        {}
+      );
+
+    const today =
+      `${easternToday.year}-` +
+      `${easternToday.month}-` +
+      `${easternToday.day}`;
+
+    if (requestedFulfillmentDate < today) {
+      return NextResponse.json(
+        {
+          error:
+            "Pickup or delivery date cannot be in the past.",
+        },
         { status: 400 }
       );
     }
@@ -401,6 +462,9 @@ export async function POST(request: Request) {
           customer_phone: customerPhone,
 
           fulfillment_type: body.fulfillmentType,
+
+          requested_fulfillment_date:
+            requestedFulfillmentDate,
 
           delivery_area:
             body.fulfillmentType === "delivery"

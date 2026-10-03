@@ -100,6 +100,7 @@ export default async function AdminOrderDetailPage({
       customer_email,
       customer_phone,
       fulfillment_type,
+      requested_fulfillment_date,
       delivery_area,
       delivery_address,
       delivery_city,

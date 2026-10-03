@@ -48,6 +48,23 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+function formatFulfillmentDate(
+  value: string | null
+) {
+  if (!value) {
+    return "Not set";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(
+    new Date(`${value}T12:00:00Z`)
+  );
+}
+
 function statusClasses(status: string) {
   switch (status) {
     case "paid":
@@ -127,6 +144,7 @@ export default async function AdminOrdersPage({
       customer_email,
       customer_phone,
       fulfillment_type,
+      requested_fulfillment_date,
       total,
       created_at,
       paid_at
@@ -320,8 +338,16 @@ export default async function AdminOrdersPage({
                           </div>
                         </td>
 
-                        <td className="px-6 py-5 capitalize">
-                          {order.fulfillment_type}
+                        <td className="px-6 py-5">
+                          <div className="capitalize">
+                            {order.fulfillment_type}
+                          </div>
+
+                          <div className="mt-1 text-xs text-[#718078]">
+                            {formatFulfillmentDate(
+                              order.requested_fulfillment_date
+                            )}
+                          </div>
                         </td>
 
                         <td className="px-6 py-5">
@@ -410,7 +436,18 @@ export default async function AdminOrdersPage({
                     </div>
 
                     <div className="mt-3 text-xs text-[#718078]">
-                      {formatDate(order.created_at)}
+                      Requested{" "}
+                      {order.fulfillment_type === "pickup"
+                        ? "pickup"
+                        : "delivery"}
+                      :{" "}
+                      {formatFulfillmentDate(
+                        order.requested_fulfillment_date
+                      )}
+                    </div>
+
+                    <div className="mt-1 text-xs text-[#718078]">
+                      Ordered {formatDate(order.created_at)}
                     </div>
                   </Link>
                 ))}

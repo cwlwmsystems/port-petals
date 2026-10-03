@@ -19,6 +19,49 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+function formatFulfillmentDate(
+  value: string | null
+) {
+  if (!value) {
+    return "Not set";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(
+    new Date(`${value}T12:00:00Z`)
+  );
+}
+
+function getEasternDateKey(date: Date) {
+  const parts =
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(date);
+
+  const values = Object.fromEntries(
+    parts
+      .filter((part) =>
+        ["year", "month", "day"].includes(
+          part.type
+        )
+      )
+      .map((part) => [
+        part.type,
+        part.value,
+      ])
+  );
+
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 function statusLabel(
   status: string,
   fulfillmentType: string
@@ -58,6 +101,79 @@ function statusClasses(status: string) {
   }
 }
 
+type ActiveOrder = {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  fulfillment_type: string;
+  requested_fulfillment_date: string | null;
+  status: string;
+  total: number | string | null;
+  created_at: string;
+};
+
+function OrderRow({
+  order,
+}: {
+  order: ActiveOrder;
+}) {
+  return (
+    <Link
+      href={`/admin/orders/${order.id}`}
+      className="grid gap-4 p-5 transition hover:bg-[#faf7f1] sm:grid-cols-[1.25fr_1fr_auto] sm:items-center"
+    >
+      <div>
+        <p className="font-semibold text-[#153f32]">
+          {order.order_number}
+        </p>
+
+        <p className="mt-1 text-sm text-[#607068]">
+          {order.customer_name}
+        </p>
+
+        <p className="mt-1 text-xs text-[#718078]">
+          Ordered {formatDate(order.created_at)}
+        </p>
+      </div>
+
+      <div>
+        <div className="flex flex-wrap gap-2">
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClasses(
+              order.status
+            )}`}
+          >
+            {statusLabel(
+              order.status,
+              order.fulfillment_type
+            )}
+          </span>
+
+          <span className="rounded-full bg-[#edf1f6] px-3 py-1 text-xs font-semibold capitalize text-[#536578]">
+            {order.fulfillment_type}
+          </span>
+        </div>
+
+        <p className="mt-2 text-xs font-medium text-[#607068]">
+          {formatFulfillmentDate(
+            order.requested_fulfillment_date
+          )}
+        </p>
+      </div>
+
+      <div className="sm:text-right">
+        <p className="font-semibold text-[#153f32]">
+          {formatPrice(order.total)}
+        </p>
+
+        <p className="mt-1 text-sm font-semibold text-[#e76d61]">
+          Open →
+        </p>
+      </div>
+    </Link>
+  );
+}
+
 export default async function AdminPage() {
   const supabase = await createClient();
 
@@ -84,16 +200,20 @@ export default async function AdminPage() {
 
   const now = new Date();
 
-  const startOfToday = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate()
+  const todayKey = getEasternDateKey(now);
+
+  const tomorrowDate = new Date(
+    now.getTime() + 24 * 60 * 60 * 1000
   );
 
-  const startOfTomorrow = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() + 1
+  const tomorrowKey =
+    getEasternDateKey(tomorrowDate);
+
+  // Pull a narrow recent payment window, then determine
+  // "today" using America/New_York below. This avoids
+  // hard-coding EDT/EST offsets.
+  const recentPaymentCutoff = new Date(
+    now.getTime() - 48 * 60 * 60 * 1000
   );
 
   const [
@@ -150,11 +270,7 @@ export default async function AdminPage() {
       .eq("payment_status", "paid")
       .gte(
         "paid_at",
-        startOfToday.toISOString()
-      )
-      .lt(
-        "paid_at",
-        startOfTomorrow.toISOString()
+        recentPaymentCutoff.toISOString()
       ),
 
     supabase
@@ -164,6 +280,7 @@ export default async function AdminPage() {
         order_number,
         customer_name,
         fulfillment_type,
+        requested_fulfillment_date,
         status,
         total,
         created_at
@@ -174,10 +291,16 @@ export default async function AdminPage() {
         "ready",
         "out_for_delivery",
       ])
+      .order(
+        "requested_fulfillment_date",
+        {
+          ascending: true,
+          nullsFirst: false,
+        }
+      )
       .order("created_at", {
         ascending: true,
-      })
-      .limit(12),
+      }),
   ]);
 
   const productCount =
@@ -202,7 +325,13 @@ export default async function AdminPage() {
     outForDeliveryCount;
 
   const todayPaidOrders =
-    todayPaidOrdersResult.data ?? [];
+    (todayPaidOrdersResult.data ?? []).filter(
+      (order) =>
+        Boolean(order.paid_at) &&
+        getEasternDateKey(
+          new Date(order.paid_at)
+        ) === todayKey
+    );
 
   const todayOrderCount =
     todayPaidOrders.length;
@@ -215,7 +344,58 @@ export default async function AdminPage() {
     );
 
   const activeOrders =
-    activeOrdersResult.data ?? [];
+    (activeOrdersResult.data ??
+      []) as ActiveOrder[];
+
+  const todayOrders = activeOrders.filter(
+    (order) =>
+      order.requested_fulfillment_date ===
+      todayKey
+  );
+
+  const todayPickups = todayOrders.filter(
+    (order) =>
+      order.fulfillment_type === "pickup"
+  );
+
+  const todayDeliveries =
+    todayOrders.filter(
+      (order) =>
+        order.fulfillment_type ===
+        "delivery"
+    );
+
+  const overdueOrders = activeOrders.filter(
+    (order) =>
+      Boolean(
+        order.requested_fulfillment_date
+      ) &&
+      order.requested_fulfillment_date! <
+        todayKey
+  );
+
+  const tomorrowOrders =
+    activeOrders.filter(
+      (order) =>
+        order.requested_fulfillment_date ===
+        tomorrowKey
+    );
+
+  const upcomingOrders =
+    activeOrders.filter(
+      (order) =>
+        Boolean(
+          order.requested_fulfillment_date
+        ) &&
+        order.requested_fulfillment_date! >
+          tomorrowKey
+    );
+
+  const undatedOrders =
+    activeOrders.filter(
+      (order) =>
+        !order.requested_fulfillment_date
+    );
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
@@ -257,18 +437,64 @@ export default async function AdminPage() {
           </div>
         </div>
 
+        {overdueOrders.length > 0 && (
+          <section className="mt-8 rounded-[1.75rem] border border-[#a7473f]/20 bg-[#fff0ed] p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a7473f]">
+                  Needs Immediate Attention
+                </p>
+
+                <h2 className="mt-1 font-serif text-2xl font-semibold text-[#7e332e]">
+                  {overdueOrders.length}{" "}
+                  {overdueOrders.length === 1
+                    ? "overdue order"
+                    : "overdue orders"}
+                </h2>
+              </div>
+            </div>
+
+            <div className="mt-5 overflow-hidden rounded-2xl bg-white">
+              <div className="divide-y divide-[#284239]/10">
+                {overdueOrders.map(
+                  (order) => (
+                    <OrderRow
+                      key={order.id}
+                      order={order}
+                    />
+                  )
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
             <p className="text-sm font-semibold text-[#607068]">
-              Needs Attention
+              Pickups Today
             </p>
 
             <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {activeOrderCount}
+              {todayPickups.length}
             </p>
 
             <p className="mt-1 text-sm text-[#718078]">
-              Active orders
+              Scheduled for today
+            </p>
+          </div>
+
+          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
+            <p className="text-sm font-semibold text-[#607068]">
+              Deliveries Today
+            </p>
+
+            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
+              {todayDeliveries.length}
+            </p>
+
+            <p className="mt-1 text-sm text-[#718078]">
+              Scheduled for today
             </p>
           </div>
 
@@ -282,7 +508,7 @@ export default async function AdminPage() {
             </p>
 
             <p className="mt-1 text-sm text-[#718078]">
-              Confirmed orders today
+              New confirmed orders
             </p>
           </div>
 
@@ -299,23 +525,97 @@ export default async function AdminPage() {
               Paid order revenue
             </p>
           </div>
+        </section>
 
-          <Link
-            href="/admin/products"
-            className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#e76d61]/30"
-          >
-            <p className="text-sm font-semibold text-[#607068]">
-              Products
+        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
+              Today
             </p>
 
-            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {productCount}
-            </p>
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+              Today's Fulfillment
+            </h2>
+          </div>
 
-            <p className="mt-1 text-sm text-[#e76d61]">
-              Manage catalog →
-            </p>
-          </Link>
+          {todayOrders.length === 0 ? (
+            <div className="mt-5 rounded-2xl bg-[#f7f1e8] p-6 text-center">
+              <p className="font-semibold text-[#153f32]">
+                Nothing scheduled for today.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10">
+              <div className="divide-y divide-[#284239]/10">
+                {todayOrders.map((order) => (
+                  <OrderRow
+                    key={order.id}
+                    order={order}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
+        <section className="mt-6 grid gap-6 lg:grid-cols-2">
+          <div className="overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
+            <div className="border-b border-[#284239]/10 px-6 py-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Next
+              </p>
+
+              <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+                Tomorrow
+              </h2>
+            </div>
+
+            {tomorrowOrders.length === 0 ? (
+              <div className="p-6 text-sm text-[#718078]">
+                No orders scheduled for tomorrow.
+              </div>
+            ) : (
+              <div className="divide-y divide-[#284239]/10">
+                {tomorrowOrders.map(
+                  (order) => (
+                    <OrderRow
+                      key={order.id}
+                      order={order}
+                    />
+                  )
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
+            <div className="border-b border-[#284239]/10 px-6 py-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Planning
+              </p>
+
+              <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+                Upcoming
+              </h2>
+            </div>
+
+            {upcomingOrders.length === 0 ? (
+              <div className="p-6 text-sm text-[#718078]">
+                No later orders currently scheduled.
+              </div>
+            ) : (
+              <div className="divide-y divide-[#284239]/10">
+                {upcomingOrders
+                  .slice(0, 8)
+                  .map((order) => (
+                    <OrderRow
+                      key={order.id}
+                      order={order}
+                    />
+                  ))}
+              </div>
+            )}
+          </div>
         </section>
 
         <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
@@ -326,8 +626,12 @@ export default async function AdminPage() {
               </p>
 
               <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
-                Orders Requiring Attention
+                Active Orders
               </h2>
+
+              <p className="mt-1 text-sm text-[#718078]">
+                {activeOrderCount} currently in fulfillment.
+              </p>
             </div>
 
             <Link
@@ -346,6 +650,7 @@ export default async function AdminPage() {
               <p className="text-3xl font-semibold text-[#31583b]">
                 {paidCount}
               </p>
+
               <p className="mt-1 text-sm font-semibold text-[#31583b]">
                 New / Paid
               </p>
@@ -358,6 +663,7 @@ export default async function AdminPage() {
               <p className="text-3xl font-semibold text-[#7a5725]">
                 {preparingCount}
               </p>
+
               <p className="mt-1 text-sm font-semibold text-[#7a5725]">
                 Preparing
               </p>
@@ -370,6 +676,7 @@ export default async function AdminPage() {
               <p className="text-3xl font-semibold text-[#315b68]">
                 {readyCount}
               </p>
+
               <p className="mt-1 text-sm font-semibold text-[#315b68]">
                 Ready for Pickup
               </p>
@@ -382,6 +689,7 @@ export default async function AdminPage() {
               <p className="text-3xl font-semibold text-[#365b7a]">
                 {outForDeliveryCount}
               </p>
+
               <p className="mt-1 text-sm font-semibold text-[#365b7a]">
                 Out for Delivery
               </p>
@@ -389,82 +697,48 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
-          <div className="border-b border-[#284239]/10 px-6 py-5">
-            <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
-              Active Order Queue
-            </h2>
+        {undatedOrders.length > 0 && (
+          <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
+            <div className="border-b border-[#284239]/10 px-6 py-5">
+              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+                Active Orders Without a Date
+              </h2>
 
-            <p className="mt-1 text-sm text-[#718078]">
-              Oldest active orders are shown first.
-            </p>
-          </div>
-
-          {activeOrders.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <p className="font-semibold text-[#153f32]">
-                No active orders.
-              </p>
-
-              <p className="mt-2 text-sm text-[#718078]">
-                New paid orders will appear here.
+              <p className="mt-1 text-sm text-[#718078]">
+                These were created before fulfillment-date scheduling was added.
               </p>
             </div>
-          ) : (
+
             <div className="divide-y divide-[#284239]/10">
-              {activeOrders.map((order) => (
-                <Link
+              {undatedOrders.map((order) => (
+                <OrderRow
                   key={order.id}
-                  href={`/admin/orders/${order.id}`}
-                  className="grid gap-4 p-5 transition hover:bg-[#faf7f1] sm:grid-cols-[1.2fr_1fr_auto] sm:items-center"
-                >
-                  <div>
-                    <p className="font-semibold text-[#153f32]">
-                      {order.order_number}
-                    </p>
-
-                    <p className="mt-1 text-sm text-[#607068]">
-                      {order.customer_name}
-                    </p>
-
-                    <p className="mt-1 text-xs text-[#718078]">
-                      Created{" "}
-                      {formatDate(
-                        order.created_at
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClasses(
-                        order.status
-                      )}`}
-                    >
-                      {statusLabel(
-                        order.status,
-                        order.fulfillment_type
-                      )}
-                    </span>
-
-                    <span className="rounded-full bg-[#edf1f6] px-3 py-1 text-xs font-semibold capitalize text-[#536578]">
-                      {order.fulfillment_type}
-                    </span>
-                  </div>
-
-                  <div className="sm:text-right">
-                    <p className="font-semibold text-[#153f32]">
-                      {formatPrice(order.total)}
-                    </p>
-
-                    <p className="mt-1 text-sm font-semibold text-[#e76d61]">
-                      Open →
-                    </p>
-                  </div>
-                </Link>
+                  order={order}
+                />
               ))}
             </div>
-          )}
+          </section>
+        )}
+
+        <section className="mt-6">
+          <Link
+            href="/admin/products"
+            className="flex items-center justify-between rounded-[1.5rem] border border-[#284239]/10 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#e76d61]/30"
+          >
+            <div>
+              <p className="text-sm font-semibold text-[#607068]">
+                Products
+              </p>
+
+              <p className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+                {productCount} catalog records
+              </p>
+            </div>
+
+            <span className="font-semibold text-[#e76d61]">
+              Manage Products →
+            </span>
+          </Link>
         </section>
       </div>
     </main>

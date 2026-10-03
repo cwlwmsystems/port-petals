@@ -84,6 +84,10 @@ export default function CheckoutClient() {
           customerPhone: formData.get("customerPhone"),
 
           fulfillmentType,
+          requestedFulfillmentDate:
+            formData.get(
+              "requestedFulfillmentDate"
+            ),
           deliveryArea,
 
           deliveryAddress:
@@ -420,6 +424,32 @@ export default function CheckoutClient() {
 
                   <span className="mt-1 block text-sm text-[#607068]">
                     Delivery fee depends on destination
+                  </span>
+                </label>
+              </div>
+
+              <div className="mt-5">
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold">
+                    {fulfillmentType === "pickup"
+                      ? "Requested Pickup Date *"
+                      : "Requested Delivery Date *"}
+                  </span>
+
+                  <input
+                    required
+                    type="date"
+                    name="requestedFulfillmentDate"
+                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  />
+
+                  <span className="text-xs leading-5 text-[#718078]">
+                    Choose the date you would like your
+                    order {fulfillmentType === "pickup"
+                      ? "ready for pickup"
+                      : "delivered"}.
+                    Port Petals will contact you if any
+                    adjustment is needed.
                   </span>
                 </label>
               </div>

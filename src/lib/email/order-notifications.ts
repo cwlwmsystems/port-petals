@@ -8,6 +8,23 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
+function formatFulfillmentDate(
+  value: string | null
+) {
+  if (!value) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(
+    new Date(`${value}T12:00:00Z`)
+  );
+}
+
 type SendOwnerPaidOrderEmailArgs = {
   squareOrderId: string;
 };
@@ -36,6 +53,7 @@ export async function sendOwnerPaidOrderEmail({
         customer_email,
         customer_phone,
         fulfillment_type,
+        requested_fulfillment_date,
         delivery_address,
         delivery_city,
         delivery_state,
@@ -262,6 +280,29 @@ export async function sendOwnerPaidOrderEmail({
               ${escapeEmailHtml(
                 order.fulfillment_type
               )}
+
+              ${
+                formatFulfillmentDate(
+                  order.requested_fulfillment_date
+                )
+                  ? `
+                    <br>
+                    <strong>
+                      Requested ${
+                        order.fulfillment_type === "pickup"
+                          ? "Pickup"
+                          : "Delivery"
+                      } Date:
+                    </strong>
+                    ${escapeEmailHtml(
+                      formatFulfillmentDate(
+                        order.requested_fulfillment_date
+                      )
+                    )}
+                  `
+                  : ""
+              }
+
               ${
                 deliveryAddress
                   ? `<br><strong>Delivery Address:</strong> ${deliveryAddress}`
@@ -423,6 +464,7 @@ export async function sendCustomerPaidOrderEmail({
         customer_email,
         customer_phone,
         fulfillment_type,
+        requested_fulfillment_date,
         delivery_address,
         delivery_city,
         delivery_state,
@@ -670,6 +712,29 @@ export async function sendCustomerPaidOrderEmail({
                 ${escapeEmailHtml(
                   order.fulfillment_type
                 )}
+
+                ${
+                  formatFulfillmentDate(
+                    order.requested_fulfillment_date
+                  )
+                    ? `
+                      <br>
+                      <strong>
+                        Requested ${
+                          order.fulfillment_type === "pickup"
+                            ? "Pickup"
+                            : "Delivery"
+                        } Date:
+                      </strong>
+                      ${escapeEmailHtml(
+                        formatFulfillmentDate(
+                          order.requested_fulfillment_date
+                        )
+                      )}
+                    `
+                    : ""
+                }
+
                 ${
                   deliveryAddress
                     ? `<br><strong>Delivery Address:</strong> ${deliveryAddress}`
