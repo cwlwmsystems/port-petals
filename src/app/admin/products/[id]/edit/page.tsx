@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { setProductStatus, updateProduct } from "./actions";
+import {
+  duplicateProduct,
+  setProductStatus,
+  updateProduct,
+} from "./actions";
 import {
   deleteProductImage,
   setPrimaryProductImage,
@@ -106,7 +110,72 @@ export default async function EditProductPage({
     0
   );
 
-  const updateAction = updateProduct.bind(null, id);
+  const updateAction =
+    updateProduct.bind(null, id);
+
+  const storefrontPath =
+    product.category === "flowers"
+      ? `/flowers/${product.slug}`
+      : product.category === "candles"
+        ? `/candles/${product.slug}`
+        : product.category === "custom"
+          ? `/custom/${product.slug}`
+          : product.category === "shirts"
+            ? `/shirts/${product.slug}`
+            : product.category === "gators"
+              ? `/gators/${product.slug}`
+              : null;
+
+  const activeVariants =
+    variants.filter(
+      (variant) => variant.active
+    );
+
+  const hasVariantPrice =
+    activeVariants.some(
+      (variant) =>
+        variant.price !== null
+    );
+
+  const publishWarnings: string[] =
+    [];
+
+  if (images.length === 0) {
+    publishWarnings.push(
+      "Add at least one product image."
+    );
+  }
+
+  if (
+    product.base_price === null &&
+    !hasVariantPrice
+  ) {
+    publishWarnings.push(
+      "Set a base price or variant price."
+    );
+  }
+
+  if (
+    !product.pickup_available &&
+    !product.delivery_available
+  ) {
+    publishWarnings.push(
+      "Enable pickup or delivery."
+    );
+  }
+
+  if (
+    (product.made_to_order ||
+      product.customizable) &&
+    product.lead_time_days === null
+  ) {
+    publishWarnings.push(
+      "Set a preparation lead time."
+    );
+  }
+
+  const readyToPublish =
+    publishWarnings.length === 0;
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
@@ -129,6 +198,172 @@ export default async function EditProductPage({
         <p className="mt-3 text-[#607068]">
           Update product details, availability, inventory, and storefront status.
         </p>
+
+        <section className="mt-8 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                    product.status === "published"
+                      ? "bg-[#e6f2e3] text-[#31583b]"
+                      : product.status === "draft"
+                        ? "bg-[#f4ead8] text-[#775d2f]"
+                        : product.status === "sold_out"
+                          ? "bg-[#f8e1dc] text-[#a7473f]"
+                          : "bg-[#edf1f6] text-[#536578]"
+                  }`}
+                >
+                  {product.status
+                    .replaceAll("_", " ")
+                    .replace(
+                      /\b\w/g,
+                      (letter: string) =>
+                        letter.toUpperCase()
+                    )}
+                </span>
+
+                <span className="rounded-full bg-[#edf1f6] px-3 py-1.5 text-xs font-semibold text-[#536578]">
+                  {product.category}
+                </span>
+
+                {product.lead_time_days !== null && (
+                  <span className="rounded-full bg-[#edf3e7] px-3 py-1.5 text-xs font-semibold text-[#36594c]">
+                    {product.lead_time_days}-day lead time
+                  </span>
+                )}
+              </div>
+
+              <h2 className="mt-4 font-serif text-3xl font-semibold text-[#153f32]">
+                {product.name}
+              </h2>
+
+              <p className="mt-2 text-sm text-[#718078]">
+                Collection:{" "}
+                <strong className="text-[#52655d]">
+                  {product.collection}
+                </strong>
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {storefrontPath &&
+                product.status === "published" && (
+                  <Link
+                    href={storefrontPath}
+                    target="_blank"
+                    className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                  >
+                    View Storefront ↗
+                  </Link>
+                )}
+
+              <form
+                action={duplicateProduct.bind(
+                  null,
+                  id
+                )}
+              >
+                <button
+                  type="submit"
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                >
+                  Duplicate Product
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div
+            className={`mt-6 rounded-xl border p-4 ${
+              readyToPublish
+                ? "border-[#31583b]/15 bg-[#edf3e7]"
+                : "border-[#d79b58]/20 bg-[#fff5e8]"
+            }`}
+          >
+            {readyToPublish ? (
+              <>
+                <p className="font-semibold text-[#31583b]">
+                  Ready to publish
+                </p>
+
+                <p className="mt-1 text-sm leading-6 text-[#52655d]">
+                  This product has the minimum information required to appear on the storefront.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold text-[#8a5b28]">
+                  Before publishing
+                </p>
+
+                <ul className="mt-2 space-y-1 text-sm text-[#775d2f]">
+                  {publishWarnings.map(
+                    (warning) => (
+                      <li key={warning}>
+                        • {warning}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </>
+            )}
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {product.status !== "published" && (
+              <form
+                action={setProductStatus.bind(
+                  null,
+                  id,
+                  "published"
+                )}
+              >
+                <button
+                  type="submit"
+                  disabled={!readyToPublish}
+                  className="rounded-xl bg-[#31583b] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Publish
+                </button>
+              </form>
+            )}
+
+            {product.status === "published" && (
+              <form
+                action={setProductStatus.bind(
+                  null,
+                  id,
+                  "hidden"
+                )}
+              >
+                <button
+                  type="submit"
+                  className="rounded-xl border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold"
+                >
+                  Hide from Storefront
+                </button>
+              </form>
+            )}
+
+            {product.status !== "draft" && (
+              <form
+                action={setProductStatus.bind(
+                  null,
+                  id,
+                  "draft"
+                )}
+              >
+                <button
+                  type="submit"
+                  className="rounded-xl border border-[#284239]/15 bg-[#f7f1e8] px-5 py-2.5 text-sm font-semibold"
+                >
+                  Move to Draft
+                </button>
+              </form>
+            )}
+          </div>
+        </section>
 
         <form
           action={updateAction}
@@ -975,7 +1210,8 @@ export default async function EditProductPage({
             <form action={setProductStatus.bind(null, id, "published")}>
               <button
                 type="submit"
-                className="rounded-xl bg-[#31583b] px-5 py-3 text-sm font-semibold text-white"
+                disabled={!readyToPublish}
+                className="rounded-xl bg-[#31583b] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Publish
               </button>
