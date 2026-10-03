@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import BulkCatalogControls from "./BulkCatalogControls";
+import { bulkUpdateProducts } from "./actions";
 
 type AdminProductsPageProps = {
   searchParams: Promise<{
@@ -11,6 +13,7 @@ type AdminProductsPageProps = {
     inventory?: string;
     sort?: string;
     view?: string;
+    bulk_error?: string;
   }>;
 };
 
@@ -117,6 +120,9 @@ export default async function AdminProductsPage({
     params.view === "cards"
       ? "cards"
       : "table";
+
+  const bulkError =
+    params.bulk_error?.trim() ?? "";
 
   const supabase = await createClient();
 
@@ -620,6 +626,25 @@ export default async function AdminProductsPage({
           </Link>
         </div>
 
+        {bulkError && (
+          <section className="mt-6 rounded-[1.25rem] border border-[#d79b58]/25 bg-[#fff5e8] p-5">
+            <p className="font-semibold text-[#8a5b28]">
+              Bulk action could not be completed
+            </p>
+
+            <p className="mt-2 text-sm leading-6 text-[#775d2f]">
+              {bulkError}
+            </p>
+
+            <Link
+              href="/admin/products"
+              className="mt-3 inline-flex text-sm font-semibold text-[#a36b2c] transition hover:text-[#e76d61]"
+            >
+              Dismiss
+            </Link>
+          </section>
+        )}
+
         <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
             <p className="text-sm font-semibold text-[#607068]">
@@ -931,6 +956,17 @@ export default async function AdminProductsPage({
           </div>
         </div>
 
+        <form
+          id="bulk-product-form"
+          action={bulkUpdateProducts}
+        />
+
+        <BulkCatalogControls
+          productIds={products.map(
+            (product) => product.id
+          )}
+        />
+
         {products.length === 0 ? (
           <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-10 text-center shadow-sm">
             <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
@@ -963,8 +999,20 @@ export default async function AdminProductsPage({
                 return (
                   <article
                     key={product.id}
-                    className="overflow-hidden rounded-[1.6rem] border border-[#284239]/10 bg-white shadow-sm"
+                    className="relative overflow-hidden rounded-[1.6rem] border border-[#284239]/10 bg-white shadow-sm"
                   >
+                    <label className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-lg border border-[#284239]/15 bg-white shadow-sm">
+                      <input
+                        type="checkbox"
+                        form="bulk-product-form"
+                        name="product_ids"
+                        value={product.id}
+                        data-product-selector="true"
+                        className="h-4 w-4"
+                        aria-label={`Select ${product.name}`}
+                      />
+                    </label>
+
                     <div
                       className="h-52 bg-[#f3eee6] bg-contain bg-center bg-no-repeat"
                       style={
@@ -1148,6 +1196,10 @@ export default async function AdminProductsPage({
               <table className="w-full min-w-[1100px] text-left">
                 <thead className="border-b border-[#284239]/10 bg-[#faf7f1]">
                   <tr className="text-xs uppercase tracking-[0.12em] text-[#718078]">
+                    <th className="w-12 px-5 py-4 font-semibold">
+                      Select
+                    </th>
+
                     <th className="px-5 py-4 font-semibold">
                       Product
                     </th>
@@ -1186,6 +1238,18 @@ export default async function AdminProductsPage({
                           key={product.id}
                           className="align-middle transition hover:bg-[#fffdf9]"
                         >
+                          <td className="px-5 py-4">
+                            <input
+                              type="checkbox"
+                              form="bulk-product-form"
+                              name="product_ids"
+                              value={product.id}
+                              data-product-selector="true"
+                              className="h-4 w-4"
+                              aria-label={`Select ${product.name}`}
+                            />
+                          </td>
+
                           <td className="px-5 py-4">
                             <div className="flex min-w-[280px] items-center gap-4">
                               <div
