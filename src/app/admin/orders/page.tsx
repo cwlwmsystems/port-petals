@@ -15,7 +15,8 @@ const statusLabels: Record<string, string> = {
   awaiting_payment: "Awaiting Payment",
   paid: "Paid",
   preparing: "Preparing",
-  ready: "Ready",
+  ready: "Ready for Pickup",
+  out_for_delivery: "Out for Delivery",
   completed: "Completed",
   cancelled: "Cancelled",
   refunded: "Refunded",
@@ -55,6 +56,8 @@ function statusClasses(status: string) {
       return "bg-[#fff0d9] text-[#7a5725]";
     case "ready":
       return "bg-[#dfeff4] text-[#315b68]";
+    case "out_for_delivery":
+      return "bg-[#e6edf7] text-[#365b7a]";
     case "completed":
       return "bg-[#e5ebe7] text-[#3f584b]";
     case "awaiting_payment":
@@ -210,7 +213,10 @@ export default async function AdminOrdersPage({
                 <option value="awaiting_payment">Awaiting Payment</option>
                 <option value="paid">Paid</option>
                 <option value="preparing">Preparing</option>
-                <option value="ready">Ready</option>
+                <option value="ready">Ready for Pickup</option>
+                <option value="out_for_delivery">
+                  Out for Delivery
+                </option>
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
                 <option value="refunded">Refunded</option>
