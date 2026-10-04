@@ -138,7 +138,7 @@ export default function StoreProductCard({
         className="absolute inset-0 z-10 rounded-[1.8rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e76d61] focus-visible:ring-offset-2"
       />
 
-      <div className="relative h-64 overflow-hidden">
+      <div className="relative h-56 overflow-hidden sm:h-64">
         <Image
           src={imageUrl}
           alt={imageAlt}
@@ -161,13 +161,13 @@ export default function StoreProductCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-6">
-        <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <h3 className="font-serif text-xl font-semibold leading-snug text-[#153f32] sm:text-2xl">
           {name}
         </h3>
 
         {shortDescription && (
-          <p className="mt-3 line-clamp-3 leading-6 text-[#607068]">
+          <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#607068] sm:line-clamp-3 sm:text-base">
             {shortDescription}
           </p>
         )}
@@ -234,7 +234,44 @@ export default function StoreProductCard({
             </p>
           )}
 
-        <div className="mt-auto pt-5 text-sm font-semibold text-[#36594c]">
+        {/* Mobile actions */}
+        <div className="relative z-20 mt-auto pt-5 lg:hidden">
+          {canQuickAdd ? (
+            <button
+              type="button"
+              onClick={handleQuickAdd}
+              className="flex min-h-12 w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
+            >
+              {added
+                ? "Added to Cart ✓"
+                : "Add to Cart"}
+            </button>
+          ) : (
+            <Link
+              href={href}
+              className={`flex min-h-12 w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold ${
+                soldOut
+                  ? "border border-[#284239]/15 bg-white text-[#284239]"
+                  : "bg-[#e76d61] text-white"
+              }`}
+            >
+              {soldOut
+                ? "View Product"
+                : "Choose Options"}
+            </Link>
+          )}
+
+          {added && (
+            <Link
+              href="/cart"
+              className="mt-3 flex min-h-10 items-center justify-center text-sm font-semibold text-[#e76d61] underline underline-offset-4"
+            >
+              Go to Cart →
+            </Link>
+          )}
+        </div>
+
+        <div className="mt-auto hidden pt-5 text-sm font-semibold text-[#36594c] lg:block">
           View product →
         </div>
       </div>

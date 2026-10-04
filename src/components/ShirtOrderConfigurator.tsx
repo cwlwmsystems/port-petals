@@ -45,7 +45,9 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
-function formatGarmentType(value: string | null | undefined) {
+function formatGarmentType(
+  value: string | null | undefined
+) {
   switch (value) {
     case "t-shirt":
       return "T-Shirt";
@@ -82,25 +84,24 @@ export default function ShirtOrderConfigurator({
 
   const firstVariant = variants[0];
 
-  const [selectedVariantId, setSelectedVariantId] = useState(
-    firstVariant?.id ?? ""
-  );
+  const [selectedVariantId, setSelectedVariantId] =
+    useState(firstVariant?.id ?? "");
 
-  const [selectedGarmentType, setSelectedGarmentType] = useState(
-    firstVariant?.garmentType ?? ""
-  );
+  const [selectedGarmentType, setSelectedGarmentType] =
+    useState(firstVariant?.garmentType ?? "");
 
-  const [selectedColor, setSelectedColor] = useState(
-    firstVariant?.color ?? ""
-  );
+  const [selectedColor, setSelectedColor] =
+    useState(firstVariant?.color ?? "");
 
-  const [selectedSize, setSelectedSize] = useState(
-    firstVariant?.size ?? ""
-  );
+  const [selectedSize, setSelectedSize] =
+    useState(firstVariant?.size ?? "");
 
   const [playerName, setPlayerName] = useState("");
-  const [playerNumber, setPlayerNumber] = useState("");
-  const [addedToCart, setAddedToCart] = useState(false);
+  const [playerNumber, setPlayerNumber] =
+    useState("");
+
+  const [addedToCart, setAddedToCart] =
+    useState(false);
 
   const [fulfillment, setFulfillment] =
     useState<FulfillmentType>("pickup");
@@ -123,12 +124,19 @@ export default function ShirtOrderConfigurator({
         continue;
       }
 
-      const existing = map.get(variant.garmentType);
+      const existing = map.get(
+        variant.garmentType
+      );
 
-      if (!existing || variant.price < existing.price) {
+      if (
+        !existing ||
+        variant.price < existing.price
+      ) {
         map.set(variant.garmentType, {
           value: variant.garmentType,
-          label: formatGarmentType(variant.garmentType),
+          label: formatGarmentType(
+            variant.garmentType
+          ),
           price: variant.price,
         });
       }
@@ -144,10 +152,14 @@ export default function ShirtOrderConfigurator({
           .filter(
             (variant) =>
               !structuredShirtVariants ||
-              variant.garmentType === selectedGarmentType
+              variant.garmentType ===
+                selectedGarmentType
           )
           .map((variant) => variant.color)
-          .filter((color): color is string => Boolean(color))
+          .filter(
+            (color): color is string =>
+              Boolean(color)
+          )
       )
     );
   }, [
@@ -163,12 +175,17 @@ export default function ShirtOrderConfigurator({
           .filter(
             (variant) =>
               (!structuredShirtVariants ||
-                variant.garmentType === selectedGarmentType) &&
+                variant.garmentType ===
+                  selectedGarmentType) &&
               (!selectedColor ||
-                variant.color === selectedColor)
+                variant.color ===
+                  selectedColor)
           )
           .map((variant) => variant.size)
-          .filter((size): size is string => Boolean(size))
+          .filter(
+            (size): size is string =>
+              Boolean(size)
+          )
       )
     );
   }, [
@@ -178,18 +195,22 @@ export default function ShirtOrderConfigurator({
     selectedColor,
   ]);
 
-  const selectedVariant = structuredShirtVariants
-    ? variants.find(
-        (variant) =>
-          variant.garmentType === selectedGarmentType &&
-          variant.color === selectedColor &&
-          variant.size === selectedSize
-      )
-    : variants.find(
-        (variant) => variant.id === selectedVariantId
-      );
+  const selectedVariant =
+    structuredShirtVariants
+      ? variants.find(
+          (variant) =>
+            variant.garmentType ===
+              selectedGarmentType &&
+            variant.color === selectedColor &&
+            variant.size === selectedSize
+        )
+      : variants.find(
+          (variant) =>
+            variant.id === selectedVariantId
+        );
 
-  const selectedPrice = selectedVariant?.price ?? basePrice;
+  const selectedPrice =
+    selectedVariant?.price ?? basePrice;
 
   const selectedTracksInventory = hasVariants
     ? selectedVariant?.trackInventory ?? false
@@ -221,33 +242,43 @@ export default function ShirtOrderConfigurator({
     }
   }, [fulfillment, deliveryArea]);
 
-  const estimatedTotal = selectedPrice + deliveryFee;
+  const estimatedTotal =
+    selectedPrice + deliveryFee;
 
   const personalizationComplete =
     !personalizable ||
-    (playerName.trim() !== "" && playerNumber.trim() !== "");
+    (playerName.trim() !== "" &&
+      playerNumber.trim() !== "");
 
-  const canAddToCart =
+  const readyToAdd =
     !soldOut &&
     personalizationComplete &&
-    (!hasVariants || Boolean(selectedVariant));
+    (!hasVariants ||
+      Boolean(selectedVariant)) &&
+    (fulfillment !== "delivery" ||
+      deliveryArea !== "");
 
   function handleAddToCart() {
-    if (!canAddToCart) {
+    if (!readyToAdd) {
       return;
     }
 
     addItem({
       productId,
-      variantId: selectedVariant?.id ?? null,
+      variantId:
+        selectedVariant?.id ?? null,
       productName,
       slug: productSlug,
       productPath: `/shirts/${productSlug}`,
       imageUrl,
       unitPrice: selectedPrice,
-      garmentType: selectedVariant?.garmentType ?? null,
-      size: selectedVariant?.size ?? null,
-      color: selectedVariant?.color ?? null,
+      garmentType:
+        selectedVariant?.garmentType ??
+        null,
+      size:
+        selectedVariant?.size ?? null,
+      color:
+        selectedVariant?.color ?? null,
       playerName: personalizable
         ? playerName.trim()
         : null,
@@ -260,204 +291,288 @@ export default function ShirtOrderConfigurator({
   }
 
   return (
-    <div className="mt-8 border-t border-[#284239]/10 pt-7">
-      {hasVariants && structuredShirtVariants && (
-        <div className="space-y-5">
-          <fieldset>
-            <legend className="text-sm font-semibold text-[#153f32]">
-              What kind of shirt would you like?
-            </legend>
+    <div className="mt-7 border-t border-[#284239]/10 pt-6 sm:mt-8 sm:pt-7">
+      {hasVariants &&
+        structuredShirtVariants && (
+          <section>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+              Step 1
+            </p>
 
-            <div className="mt-2 flex flex-wrap gap-2">
-              {garmentOptions.map((garment) => {
-                const selected =
-                  selectedGarmentType === garment.value;
+            <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+              Choose your shirt
+            </h2>
 
-                return (
-                  <button
-                    key={garment.value}
-                    type="button"
-                    onClick={() => {
-                      const firstMatch = variants.find(
-                        (variant) =>
-                          variant.garmentType ===
-                          garment.value
+            <div className="mt-4 space-y-6">
+              <fieldset>
+                <legend className="text-sm font-semibold text-[#153f32]">
+                  Shirt Type
+                </legend>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  {garmentOptions.map(
+                    (garment) => {
+                      const selected =
+                        selectedGarmentType ===
+                        garment.value;
+
+                      return (
+                        <button
+                          key={garment.value}
+                          type="button"
+                          onClick={() => {
+                            const firstMatch =
+                              variants.find(
+                                (variant) =>
+                                  variant.garmentType ===
+                                  garment.value
+                              );
+
+                            setSelectedGarmentType(
+                              garment.value
+                            );
+
+                            if (firstMatch) {
+                              setSelectedColor(
+                                firstMatch.color ??
+                                  ""
+                              );
+                              setSelectedSize(
+                                firstMatch.size ??
+                                  ""
+                              );
+                            }
+
+                            setAddedToCart(
+                              false
+                            );
+                          }}
+                          className={`min-h-[72px] rounded-2xl border px-4 py-3 text-left transition active:scale-[0.99] ${
+                            selected
+                              ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
+                              : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
+                          }`}
+                        >
+                          <span className="block font-semibold text-[#153f32]">
+                            {garment.label}
+                          </span>
+
+                          <span className="mt-1 block text-sm text-[#e76d61]">
+                            From{" "}
+                            {formatPrice(
+                              garment.price
+                            )}
+                          </span>
+                        </button>
                       );
-
-                      setSelectedGarmentType(
-                        garment.value
-                      );
-
-                      if (firstMatch) {
-                        setSelectedColor(
-                          firstMatch.color ?? ""
-                        );
-                        setSelectedSize(
-                          firstMatch.size ?? ""
-                        );
-                      }
-                    }}
-                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                      selected
-                        ? "border-[#e76d61] bg-[#fff4f1] text-[#b94f45]"
-                        : "border-[#284239]/15 bg-white text-[#284239] hover:border-[#e76d61]/50"
-                    }`}
-                  >
-                    {garment.label}{" "}
-                    <span className="font-normal">
-                      {formatPrice(garment.price)}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend className="text-sm font-semibold text-[#153f32]">
-              Choose a color
-            </legend>
-
-            <div className="mt-2 flex flex-wrap gap-2">
-              {colorOptions.map((color) => {
-                const selected =
-                  selectedColor === color;
-
-                return (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => {
-                      const firstMatch = variants.find(
-                        (variant) =>
-                          variant.garmentType ===
-                            selectedGarmentType &&
-                          variant.color === color
-                      );
-
-                      setSelectedColor(color);
-
-                      if (firstMatch) {
-                        setSelectedSize(
-                          firstMatch.size ?? ""
-                        );
-                      }
-                    }}
-                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                      selected
-                        ? "border-[#e76d61] bg-[#fff4f1] text-[#b94f45]"
-                        : "border-[#284239]/15 bg-white text-[#284239] hover:border-[#e76d61]/50"
-                    }`}
-                  >
-                    {color}
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend className="text-sm font-semibold text-[#153f32]">
-              Choose a size
-            </legend>
-
-            <div className="mt-2 flex flex-wrap gap-2">
-              {sizeOptions.map((size) => {
-                const variant = variants.find(
-                  (item) =>
-                    item.garmentType ===
-                      selectedGarmentType &&
-                    item.color === selectedColor &&
-                    item.size === size
-                );
-
-                const optionSoldOut =
-                  variant?.trackInventory === true &&
-                  variant.quantity !== null &&
-                  variant.quantity <= 0;
-
-                const selected =
-                  selectedSize === size;
-
-                return (
-                  <button
-                    key={size}
-                    type="button"
-                    disabled={optionSoldOut}
-                    onClick={() =>
-                      setSelectedSize(size)
                     }
-                    className={`min-w-12 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                      optionSoldOut
-                        ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] text-[#8a948e] opacity-60"
-                        : selected
-                          ? "border-[#e76d61] bg-[#fff4f1] text-[#b94f45]"
-                          : "border-[#284239]/15 bg-white text-[#284239] hover:border-[#e76d61]/50"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
-        </div>
-      )}
-
-      {hasVariants && !structuredShirtVariants && (
-        <fieldset>
-          <legend className="text-sm font-semibold text-[#153f32]">
-            Choose Size / Option
-          </legend>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            {variants.map((variant) => {
-              const selected =
-                selectedVariantId === variant.id;
-
-              const variantSoldOut =
-                variant.trackInventory &&
-                variant.quantity !== null &&
-                variant.quantity <= 0;
-
-              return (
-                <label
-                  key={variant.id}
-                  className={`rounded-full border px-4 py-2 text-sm transition ${
-                    variantSoldOut
-                      ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
-                      : selected
-                        ? "cursor-pointer border-[#e76d61] bg-[#fff4f1]"
-                        : "cursor-pointer border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="shirtVariant"
-                    value={variant.id}
-                    checked={selected}
-                    disabled={variantSoldOut}
-                    onChange={() =>
-                      setSelectedVariantId(variant.id)
-                    }
-                    className="sr-only"
-                  />
-
-                  <span className="font-semibold">
-                    {variant.size || variant.name}
-                  </span>
-
-                  {variant.color && (
-                    <span className="ml-2 text-xs text-[#718078]">
-                      {variant.color}
-                    </span>
                   )}
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
-      )}
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend className="text-sm font-semibold text-[#153f32]">
+                  Color
+                </legend>
+
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {colorOptions.map(
+                    (color) => {
+                      const selected =
+                        selectedColor === color;
+
+                      return (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => {
+                            const firstMatch =
+                              variants.find(
+                                (variant) =>
+                                  variant.garmentType ===
+                                    selectedGarmentType &&
+                                  variant.color ===
+                                    color
+                              );
+
+                            setSelectedColor(
+                              color
+                            );
+
+                            if (firstMatch) {
+                              setSelectedSize(
+                                firstMatch.size ??
+                                  ""
+                              );
+                            }
+
+                            setAddedToCart(
+                              false
+                            );
+                          }}
+                          className={`min-h-12 rounded-xl border px-4 py-3 text-sm font-semibold transition active:scale-[0.99] ${
+                            selected
+                              ? "border-[#e76d61] bg-[#fff4f1] text-[#b94f45]"
+                              : "border-[#284239]/15 bg-white text-[#284239]"
+                          }`}
+                        >
+                          {color}
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend className="text-sm font-semibold text-[#153f32]">
+                  Size
+                </legend>
+
+                <div className="mt-3 grid grid-cols-3 gap-3 sm:flex sm:flex-wrap">
+                  {sizeOptions.map(
+                    (size) => {
+                      const variant =
+                        variants.find(
+                          (item) =>
+                            item.garmentType ===
+                              selectedGarmentType &&
+                            item.color ===
+                              selectedColor &&
+                            item.size === size
+                        );
+
+                      const optionSoldOut =
+                        variant?.trackInventory ===
+                          true &&
+                        variant.quantity !==
+                          null &&
+                        variant.quantity <= 0;
+
+                      const selected =
+                        selectedSize === size;
+
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          disabled={
+                            optionSoldOut
+                          }
+                          onClick={() => {
+                            setSelectedSize(
+                              size
+                            );
+                            setAddedToCart(
+                              false
+                            );
+                          }}
+                          className={`min-h-12 min-w-12 rounded-xl border px-4 py-3 text-sm font-semibold transition active:scale-[0.99] ${
+                            optionSoldOut
+                              ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] text-[#8a948e] opacity-60"
+                              : selected
+                                ? "border-[#e76d61] bg-[#fff4f1] text-[#b94f45]"
+                                : "border-[#284239]/15 bg-white text-[#284239]"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              </fieldset>
+            </div>
+          </section>
+        )}
+
+      {hasVariants &&
+        !structuredShirtVariants && (
+          <section>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+              Step 1
+            </p>
+
+            <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+              Choose your option
+            </h2>
+
+            <fieldset className="mt-4">
+              <legend className="sr-only">
+                Choose Size or Option
+              </legend>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {variants.map(
+                  (variant) => {
+                    const selected =
+                      selectedVariantId ===
+                      variant.id;
+
+                    const variantSoldOut =
+                      variant.trackInventory &&
+                      variant.quantity !==
+                        null &&
+                      variant.quantity <= 0;
+
+                    return (
+                      <label
+                        key={variant.id}
+                        className={`flex min-h-[76px] cursor-pointer items-center justify-between rounded-2xl border px-4 py-4 transition active:scale-[0.99] ${
+                          variantSoldOut
+                            ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
+                            : selected
+                              ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
+                              : "border-[#284239]/15 bg-white"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="shirtVariant"
+                          value={variant.id}
+                          checked={selected}
+                          disabled={
+                            variantSoldOut
+                          }
+                          onChange={() => {
+                            setSelectedVariantId(
+                              variant.id
+                            );
+                            setAddedToCart(
+                              false
+                            );
+                          }}
+                          className="sr-only"
+                        />
+
+                        <span>
+                          <span className="block font-semibold text-[#153f32]">
+                            {variant.size ||
+                              variant.name}
+                          </span>
+
+                          {variant.color && (
+                            <span className="mt-1 block text-xs text-[#718078]">
+                              {
+                                variant.color
+                              }
+                            </span>
+                          )}
+                        </span>
+
+                        <span className="text-lg font-semibold text-[#e76d61]">
+                          {formatPrice(
+                            variant.price
+                          )}
+                        </span>
+                      </label>
+                    );
+                  }
+                )}
+              </div>
+            </fieldset>
+          </section>
+        )}
 
       {!hasVariants &&
         baseTrackInventory &&
@@ -469,10 +584,12 @@ export default function ShirtOrderConfigurator({
                 : "bg-[#edf3e7] text-[#36594c]"
             }`}
           >
-            <span className="font-semibold">Availability:</span>{" "}
+            <span className="font-semibold">
+              Availability:
+            </span>{" "}
             {soldOut
               ? "Sold Out"
-              : baseQuantity !== null && baseQuantity <= 3
+              : baseQuantity <= 3
                 ? "Low Stock"
                 : "In Stock"}
           </div>
@@ -482,7 +599,7 @@ export default function ShirtOrderConfigurator({
         selectedTracksInventory &&
         selectedQuantity !== null && (
           <div
-            className={`mt-5 rounded-xl px-4 py-3 text-sm ${
+            className={`mt-4 rounded-xl px-4 py-3 text-sm ${
               soldOut
                 ? "bg-[#fff0ed] text-[#a7473f]"
                 : "bg-[#edf3e7] text-[#36594c]"
@@ -492,7 +609,8 @@ export default function ShirtOrderConfigurator({
               {structuredShirtVariants
                 ? [
                     formatGarmentType(
-                      selectedVariant?.garmentType
+                      selectedVariant
+                        ?.garmentType
                     ),
                     selectedVariant?.color,
                     selectedVariant?.size,
@@ -505,43 +623,47 @@ export default function ShirtOrderConfigurator({
             </span>{" "}
             {soldOut
               ? "Sold Out"
-              : selectedQuantity !== null && selectedQuantity <= 3
+              : selectedQuantity <= 3
                 ? "Low Stock"
                 : "In Stock"}
           </div>
         )}
 
       {presetDesign && (
-        <div className="mt-6 rounded-xl bg-[#f5efe6] p-4">
+        <div className="mt-6 rounded-2xl bg-[#f5efe6] p-4">
           <p className="text-sm font-semibold text-[#153f32]">
             Preset Screen-Printed Design
           </p>
 
           <p className="mt-2 text-sm leading-6 text-[#607068]">
-            This shirt uses one of Port Petals&apos; available preset
-            screen-print designs. Custom artwork is not currently offered
-            through the online catalog.
+            This shirt uses one of Port
+            Petals&apos; available preset
+            screen-print designs. Custom artwork
+            is not currently offered through the
+            online catalog.
           </p>
         </div>
       )}
 
       {personalizable && (
-        <section className="mt-6 rounded-xl border border-[#284239]/10 bg-[#faf7f1] p-4">
-          <div>
-            <p className="text-sm font-semibold text-[#153f32]">
-              Personalization
-            </p>
+        <section className="mt-7 border-t border-[#284239]/10 pt-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+            Step 2
+          </p>
 
-            <p className="mt-1 text-xs leading-5 text-[#718078]">
-              Enter the player name and number you would like added to
-              this sports shirt.
-            </p>
-          </div>
+          <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+            Add player details
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-[#607068]">
+            Both fields are required for this
+            personalized shirt.
+          </p>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[#153f32]">
-                Player Name
+                Player Name *
               </span>
 
               <input
@@ -551,17 +673,19 @@ export default function ShirtOrderConfigurator({
                 maxLength={30}
                 value={playerName}
                 onChange={(event) => {
-                  setPlayerName(event.target.value);
+                  setPlayerName(
+                    event.target.value
+                  );
                   setAddedToCart(false);
                 }}
                 placeholder="Example: Easton"
-                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
+                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none placeholder:text-[#8a948e] focus:border-[#e76d61]"
               />
             </label>
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[#153f32]">
-                Player Number
+                Player Number *
               </span>
 
               <input
@@ -572,247 +696,230 @@ export default function ShirtOrderConfigurator({
                 inputMode="numeric"
                 value={playerNumber}
                 onChange={(event) => {
-                  setPlayerNumber(event.target.value);
+                  setPlayerNumber(
+                    event.target.value
+                  );
                   setAddedToCart(false);
                 }}
                 placeholder="Example: 33"
-                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none transition placeholder:text-[#8a948e] focus:border-[#e76d61]"
+                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none placeholder:text-[#8a948e] focus:border-[#e76d61]"
               />
             </label>
           </div>
         </section>
       )}
 
-      <fieldset className="mt-6">
-        <legend className="text-sm font-semibold text-[#153f32]">
-          Pickup or Delivery
-        </legend>
+      <section className="mt-7 border-t border-[#284239]/10 pt-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+          {personalizable
+            ? "Step 3"
+            : hasVariants
+              ? "Step 2"
+              : "Step 1"}
+        </p>
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {pickupAvailable && (
-            <label
-              className={`cursor-pointer rounded-xl border px-4 py-3 transition ${
-                fulfillment === "pickup"
-                  ? "border-[#e76d61] bg-[#fff4f1]"
-                  : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-              }`}
-            >
-              <input
-                type="radio"
-                name="fulfillment"
-                value="pickup"
-                checked={fulfillment === "pickup"}
-                onChange={() => {
-                  setFulfillment("pickup");
-                  setDeliveryArea("");
+        <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+          Pickup or delivery
+        </h2>
+
+        <fieldset className="mt-4">
+          <legend className="sr-only">
+            Pickup or Delivery
+          </legend>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {pickupAvailable && (
+              <label
+                className={`flex min-h-[86px] cursor-pointer items-center rounded-2xl border px-4 py-4 transition active:scale-[0.99] ${
+                  fulfillment === "pickup"
+                    ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
+                    : "border-[#284239]/15 bg-white"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="fulfillment"
+                  value="pickup"
+                  checked={
+                    fulfillment === "pickup"
+                  }
+                  onChange={() => {
+                    setFulfillment("pickup");
+                    setDeliveryArea("");
+                    setAddedToCart(false);
+                  }}
+                  className="sr-only"
+                />
+
+                <span>
+                  <span className="block font-semibold text-[#153f32]">
+                    Pickup
+                  </span>
+
+                  <span className="mt-1 block text-sm leading-5 text-[#607068]">
+                    430 E Arnold Avenue
+                    <br />
+                    Port Allegany
+                  </span>
+                </span>
+              </label>
+            )}
+
+            {deliveryAvailable && (
+              <label
+                className={`flex min-h-[86px] cursor-pointer items-center rounded-2xl border px-4 py-4 transition active:scale-[0.99] ${
+                  fulfillment === "delivery"
+                    ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
+                    : "border-[#284239]/15 bg-white"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="fulfillment"
+                  value="delivery"
+                  checked={
+                    fulfillment ===
+                    "delivery"
+                  }
+                  onChange={() => {
+                    setFulfillment(
+                      "delivery"
+                    );
+                    setAddedToCart(false);
+                  }}
+                  className="sr-only"
+                />
+
+                <span>
+                  <span className="block font-semibold text-[#153f32]">
+                    Local Delivery
+                  </span>
+
+                  <span className="mt-1 block text-sm leading-5 text-[#607068]">
+                    Delivery fee based on
+                    destination
+                  </span>
+                </span>
+              </label>
+            )}
+          </div>
+        </fieldset>
+
+        {fulfillment === "delivery" && (
+          <div className="mt-4 rounded-2xl bg-[#f5efe6] p-4">
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-[#153f32]">
+                Delivery Area *
+              </span>
+
+              <select
+                name="deliveryArea"
+                required
+                value={deliveryArea}
+                onChange={(event) => {
+                  setDeliveryArea(
+                    event.target
+                      .value as DeliveryArea
+                  );
+                  setAddedToCart(false);
                 }}
-                className="sr-only"
-              />
+                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+              >
+                <option value="">
+                  Choose delivery area
+                </option>
 
-              <span className="font-semibold text-[#153f32]">
-                Pickup
-              </span>
+                <option value="within-3">
+                  Within 3 miles — Free
+                </option>
 
-              <span className="mt-1 block text-xs leading-5 text-[#607068]">
-                430 E Arnold Avenue
-              </span>
+                <option value="three-to-eight">
+                  Over 3 miles and up to 8 miles
+                  — $10
+                </option>
+
+                <option value="smethport-eldred">
+                  Smethport or Eldred — $15
+                </option>
+              </select>
             </label>
-          )}
+          </div>
+        )}
+      </section>
 
-          {deliveryAvailable && (
-            <label
-              className={`cursor-pointer rounded-xl border px-4 py-3 transition ${
-                fulfillment === "delivery"
-                  ? "border-[#e76d61] bg-[#fff4f1]"
-                  : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-              }`}
-            >
-              <input
-                type="radio"
-                name="fulfillment"
-                value="delivery"
-                checked={fulfillment === "delivery"}
-                onChange={() => setFulfillment("delivery")}
-                className="sr-only"
-              />
+      <section className="mt-7 rounded-2xl border border-[#284239]/10 bg-[#fffaf3] p-4 sm:p-5">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#718078]">
+              Estimated Total
+            </p>
 
-              <span className="font-semibold text-[#153f32]">
-                Local Delivery
-              </span>
+            {selectedVariant && (
+              <p className="mt-1 text-xs leading-5 text-[#718078]">
+                {structuredShirtVariants
+                  ? [
+                      formatGarmentType(
+                        selectedVariant.garmentType
+                      ),
+                      selectedVariant.color,
+                      selectedVariant.size,
+                    ]
+                      .filter(Boolean)
+                      .join(" / ")
+                  : selectedVariant.size ||
+                    selectedVariant.name}
+              </p>
+            )}
+          </div>
 
-              <span className="mt-1 block text-xs leading-5 text-[#607068]">
-                Delivery fee based on destination
-              </span>
-            </label>
-          )}
-        </div>
-      </fieldset>
-
-      {fulfillment === "delivery" && (
-        <div className="mt-5 rounded-xl bg-[#f5efe6] p-4">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#153f32]">
-              Delivery Area *
-            </span>
-
-            <select
-              name="deliveryArea"
-              required
-              value={deliveryArea}
-              onChange={(event) =>
-                setDeliveryArea(
-                  event.target.value as DeliveryArea
-                )
-              }
-              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
-            >
-              <option value="">Choose delivery area</option>
-              <option value="within-3">
-                Within 3 miles — Free
-              </option>
-              <option value="three-to-eight">
-                Over 3 miles and up to 8 miles — $10
-              </option>
-              <option value="smethport-eldred">
-                Smethport or Eldred — $15
-              </option>
-            </select>
-          </label>
-        </div>
-      )}
-
-      <div className="mt-6 flex items-end justify-between gap-6 border-y border-[#284239]/10 py-5">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#718078]">
-            Estimated Total
+          <p className="shrink-0 text-2xl font-semibold text-[#e76d61] sm:text-3xl">
+            {formatPrice(estimatedTotal)}
           </p>
+        </div>
 
-          {selectedVariant && (
-            <p className="mt-1 text-xs text-[#718078]">
-              Selected:{" "}
-              {structuredShirtVariants
-                ? [
-                    formatGarmentType(
-                      selectedVariant.garmentType
-                    ),
-                    selectedVariant.color,
-                    selectedVariant.size,
-                  ]
-                    .filter(Boolean)
-                    .join(" / ")
-                : selectedVariant.size ||
-                  selectedVariant.name}
+        {personalizable &&
+          !personalizationComplete && (
+            <p className="mt-3 rounded-xl bg-[#fff0ed] px-4 py-3 text-sm leading-5 text-[#a7473f]">
+              Enter the player name and number
+              before adding this shirt to your
+              cart.
             </p>
           )}
-        </div>
 
-        <p className="text-3xl font-semibold text-[#e76d61]">
-          {formatPrice(estimatedTotal)}
-        </p>
-      </div>
+        {fulfillment === "delivery" &&
+          deliveryArea === "" && (
+            <p className="mt-3 rounded-xl bg-[#fff0ed] px-4 py-3 text-sm leading-5 text-[#a7473f]">
+              Choose a delivery area before
+              adding this shirt to your cart.
+            </p>
+          )}
 
-      <div className="mt-5">
         <button
           type="button"
           onClick={handleAddToCart}
-          disabled={!canAddToCart}
-          className={`flex min-h-12 w-full items-center justify-center rounded-full px-6 py-3 font-semibold transition ${
-            canAddToCart
-              ? "bg-[#e76d61] text-white hover:bg-[#d85b50]"
-              : "cursor-not-allowed bg-[#d9d5ce] text-[#7a7a76]"
-          }`}
+          disabled={!readyToAdd}
+          className="mt-4 flex min-h-14 w-full items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#d85b50] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#d9d5ce] disabled:text-[#7a7a76] disabled:shadow-none"
         >
-          {soldOut ? "Sold Out" : "Add to Cart"}
+          {soldOut
+            ? "Sold Out"
+            : "Add to Cart"}
         </button>
 
-        {personalizable && !personalizationComplete && (
-          <p className="mt-2 text-center text-xs text-[#a7473f]">
-            Enter the player name and number before adding this shirt
-            to your cart.
-          </p>
-        )}
-
         {addedToCart && (
-          <div className="mt-3 flex items-center justify-center gap-3 text-sm font-semibold">
-            <span className="text-[#31583b]">
+          <div className="mt-4 rounded-xl bg-[#edf3e7] p-4 text-center">
+            <p className="text-sm font-semibold text-[#31583b]">
               Added to your cart.
-            </span>
+            </p>
 
             <Link
               href="/cart"
-              className="text-[#e76d61] underline underline-offset-4 transition hover:text-[#d85b50]"
+              className="mt-2 inline-flex min-h-10 items-center justify-center text-sm font-semibold text-[#e76d61] underline underline-offset-4"
             >
               Go to Cart →
             </Link>
           </div>
         )}
-      </div>
-
-      <details className="mt-5 rounded-xl border border-[#284239]/10 bg-white">
-        <summary className="cursor-pointer px-5 py-4 font-semibold text-[#153f32]">
-          Additional Details
-        </summary>
-
-        <div className="grid gap-5 border-t border-[#284239]/10 p-5">
-          {presetDesign && !structuredShirtVariants && (
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold">
-                Preferred Shirt Color
-              </span>
-
-              <input
-                type="text"
-                name="shirtColor"
-                placeholder="Example: black, white, gray"
-                className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-              />
-            </label>
-          )}
-
-          {fulfillment === "delivery" && (
-            <>
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold">
-                  Recipient Name
-                </span>
-
-                <input
-                  type="text"
-                  name="recipientName"
-                  className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-                />
-              </label>
-
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold">
-                  Delivery Address
-                </span>
-
-                <input
-                  type="text"
-                  name="deliveryAddress"
-                  placeholder="Street address, city, state, ZIP"
-                  className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-                />
-              </label>
-            </>
-          )}
-
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold">
-              Special Instructions
-            </span>
-
-            <textarea
-              name="specialInstructions"
-              rows={4}
-              placeholder={`Anything Port Petals should know about your ${productName}?`}
-              className="resize-y rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-            />
-          </label>
-        </div>
-      </details>
-
+      </section>
     </div>
   );
 }

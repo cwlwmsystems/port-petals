@@ -35,25 +35,36 @@ export default function CartPageClient() {
     clearCart,
   } = useCart();
 
+  function handleClearCart() {
+    const confirmed = window.confirm(
+      "Remove all items from your cart?"
+    );
+
+    if (confirmed) {
+      clearCart();
+    }
+  }
+
   if (items.length === 0) {
     return (
       <main className="min-h-[65vh] bg-[#f7f1e8] text-[#284239]">
-        <section className="mx-auto max-w-4xl px-5 py-20 text-center sm:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+        <section className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-8 sm:py-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
             Your Cart
           </p>
 
-          <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32] sm:text-5xl">
+          <h1 className="mt-3 font-serif text-3xl font-semibold text-[#153f32] sm:text-5xl">
             Your cart is empty
           </h1>
 
-          <p className="mx-auto mt-4 max-w-xl leading-7 text-[#607068]">
-            Browse Port Petals products and add your favorites here.
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#607068] sm:text-base sm:leading-7">
+            Browse Port Petals products and add
+            something special to your order.
           </p>
 
           <Link
             href="/"
-            className="mt-8 inline-flex rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
+            className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
           >
             Continue Shopping
           </Link>
@@ -64,36 +75,40 @@ export default function CartPageClient() {
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:px-10">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-12 lg:px-10">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61] sm:text-sm">
               Your Cart
             </p>
 
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32] sm:text-5xl">
+            <h1 className="mt-2 font-serif text-3xl font-semibold text-[#153f32] sm:text-5xl">
               Review your order
             </h1>
 
-            <p className="mt-3 text-sm text-[#607068]">
-              {itemCount} item{itemCount === 1 ? "" : "s"} in your cart
+            <p className="mt-2 text-sm text-[#607068]">
+              {itemCount} item
+              {itemCount === 1 ? "" : "s"} in
+              your cart
             </p>
           </div>
 
           <button
             type="button"
-            onClick={clearCart}
-            className="text-sm font-semibold text-[#a7473f] transition hover:text-[#7d302a]"
+            onClick={handleClearCart}
+            className="min-h-10 shrink-0 px-2 text-sm font-semibold text-[#a7473f] transition hover:text-[#7d302a]"
           >
             Clear Cart
           </button>
         </div>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_360px]">
+        <div className="mt-7 grid gap-6 sm:mt-10 lg:grid-cols-[1fr_360px] lg:gap-8">
           <div className="space-y-4">
             {items.map((item) => {
               const details = [
-                formatGarmentType(item.garmentType),
+                formatGarmentType(
+                  item.garmentType
+                ),
                 item.color,
                 item.size,
               ].filter(Boolean);
@@ -103,168 +118,216 @@ export default function CartPageClient() {
                   key={item.lineId}
                   className="rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-5"
                 >
-                  <div className="flex gap-4">
-                    <div className="h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-[#f5efe6]">
-                      {item.imageUrl ? (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.productName}
-                          className="h-full w-full object-contain p-1"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center px-2 text-center text-xs text-[#718078]">
-                          Port Petals
-                        </div>
+                  <div className="grid grid-cols-[88px_1fr] gap-4 sm:grid-cols-[112px_1fr]">
+                    <Link
+                      href={
+                        item.productPath ??
+                        `/shirts/${item.slug}`
+                      }
+                      aria-label={`View ${item.productName}`}
+                      className="block"
+                    >
+                      <div className="aspect-square w-full overflow-hidden rounded-xl bg-[#f5efe6]">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.productName}
+                            className="h-full w-full object-contain p-1"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center px-2 text-center text-xs text-[#718078]">
+                            Port Petals
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+
+                    <div className="min-w-0">
+                      <Link
+                        href={
+                          item.productPath ??
+                          `/shirts/${item.slug}`
+                        }
+                        className="font-serif text-lg font-semibold leading-snug text-[#153f32] transition hover:text-[#e76d61] sm:text-xl"
+                      >
+                        {item.productName}
+                      </Link>
+
+                      {details.length > 0 && (
+                        <p className="mt-1 text-sm leading-5 text-[#607068]">
+                          {details.join(" / ")}
+                        </p>
+                      )}
+
+                      <p className="mt-2 text-base font-semibold text-[#e76d61]">
+                        {formatPrice(
+                          item.unitPrice *
+                            item.quantity
+                        )}
+                      </p>
+
+                      {item.quantity > 1 && (
+                        <p className="mt-0.5 text-xs text-[#718078]">
+                          {formatPrice(
+                            item.unitPrice
+                          )}{" "}
+                          each
+                        </p>
                       )}
                     </div>
+                  </div>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <Link
-                            href={item.productPath ?? `/shirts/${item.slug}`}
-                            className="font-serif text-xl font-semibold text-[#153f32] transition hover:text-[#e76d61]"
-                          >
-                            {item.productName}
-                          </Link>
+                  {(item.playerName ||
+                    item.playerNumber ||
+                    Object.keys(
+                      item.customization ?? {}
+                    ).length > 0) && (
+                    <div className="mt-4 rounded-xl bg-[#faf7f1] p-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#718078]">
+                        Item Details
+                      </p>
 
-                          {details.length > 0 && (
-                            <p className="mt-1 text-sm text-[#607068]">
-                              {details.join(" / ")}
-                            </p>
-                          )}
+                      <div className="mt-2 space-y-1 text-sm leading-5 text-[#607068]">
+                        {item.playerName && (
+                          <p>
+                            Name:{" "}
+                            <strong className="font-semibold text-[#284239]">
+                              {item.playerName}
+                            </strong>
+                          </p>
+                        )}
 
-                          {(item.playerName ||
-                            item.playerNumber) && (
-                            <div className="mt-2 text-sm text-[#607068]">
-                              {item.playerName && (
-                                <p>
-                                  Name:{" "}
-                                  <strong className="text-[#284239]">
-                                    {item.playerName}
-                                  </strong>
-                                </p>
-                              )}
+                        {item.playerNumber && (
+                          <p>
+                            Number:{" "}
+                            <strong className="font-semibold text-[#284239]">
+                              {item.playerNumber}
+                            </strong>
+                          </p>
+                        )}
 
-                              {item.playerNumber && (
-                                <p>
-                                  Number:{" "}
-                                  <strong className="text-[#284239]">
-                                    {item.playerNumber}
-                                  </strong>
-                                </p>
-                              )}
-                            </div>
-                          )}
-
-                          {Object.entries(
-                            item.customization ?? {}
-                          ).map(([key, value]) => (
+                        {Object.entries(
+                          item.customization ?? {}
+                        ).map(
+                          ([key, value]) => (
                             <p
                               key={key}
-                              className="mt-1 text-sm text-[#607068]"
+                              className="break-words"
                             >
                               {key}:{" "}
-                              <strong className="text-[#284239]">
+                              <strong className="font-semibold text-[#284239]">
                                 {value}
                               </strong>
                             </p>
-                          ))}
-                        </div>
-
-                        <p className="font-semibold text-[#e76d61]">
-                          {formatPrice(
-                            item.unitPrice * item.quantity
-                          )}
-                        </p>
+                          )
+                        )}
                       </div>
+                    </div>
+                  )}
 
-                      <div className="mt-5 flex flex-wrap items-center gap-3">
-                        <div className="inline-flex items-center overflow-hidden rounded-full border border-[#284239]/15 bg-white">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setQuantity(
-                                item.lineId,
-                                item.quantity - 1
-                              )
-                            }
-                            className="h-9 w-10 font-semibold transition hover:bg-[#f5efe6]"
-                            aria-label={`Decrease ${item.productName} quantity`}
-                          >
-                            −
-                          </button>
+                  <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#284239]/10 pt-4">
+                    <div>
+                      <p className="mb-1 text-xs font-semibold text-[#718078]">
+                        Quantity
+                      </p>
 
-                          <span className="min-w-10 px-2 text-center text-sm font-semibold">
-                            {item.quantity}
-                          </span>
+                      <div className="inline-flex min-h-11 items-center overflow-hidden rounded-full border border-[#284239]/15 bg-white">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setQuantity(
+                              item.lineId,
+                              item.quantity - 1
+                            )
+                          }
+                          className="flex h-11 w-11 items-center justify-center text-lg font-semibold transition active:bg-[#f5efe6]"
+                          aria-label={`Decrease ${item.productName} quantity`}
+                        >
+                          −
+                        </button>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setQuantity(
-                                item.lineId,
-                                item.quantity + 1
-                              )
-                            }
-                            className="h-9 w-10 font-semibold transition hover:bg-[#f5efe6]"
-                            aria-label={`Increase ${item.productName} quantity`}
-                          >
-                            +
-                          </button>
-                        </div>
-
-                        <span className="text-sm text-[#718078]">
-                          {formatPrice(item.unitPrice)} each
+                        <span className="min-w-10 px-2 text-center text-sm font-semibold">
+                          {item.quantity}
                         </span>
 
                         <button
                           type="button"
                           onClick={() =>
-                            removeItem(item.lineId)
+                            setQuantity(
+                              item.lineId,
+                              item.quantity + 1
+                            )
                           }
-                          className="ml-auto text-sm font-semibold text-[#a7473f]"
+                          className="flex h-11 w-11 items-center justify-center text-lg font-semibold transition active:bg-[#f5efe6]"
+                          aria-label={`Increase ${item.productName} quantity`}
                         >
-                          Remove
+                          +
                         </button>
                       </div>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeItem(item.lineId)
+                      }
+                      className="min-h-11 self-end px-3 text-sm font-semibold text-[#a7473f]"
+                    >
+                      Remove
+                    </button>
                   </div>
                 </article>
               );
             })}
           </div>
 
-          <aside className="h-fit rounded-2xl border border-[#284239]/10 bg-white p-6 shadow-sm lg:sticky lg:top-6">
-            <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+          <aside className="h-fit rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-6 lg:sticky lg:top-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+              Next Step
+            </p>
+
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
               Order Summary
             </h2>
 
-            <div className="mt-6 flex items-center justify-between border-b border-[#284239]/10 pb-5">
+            <div className="mt-5 flex items-center justify-between border-b border-[#284239]/10 pb-5">
               <span className="text-[#607068]">
                 Subtotal
               </span>
 
-              <span className="text-lg font-semibold text-[#153f32]">
+              <span className="text-xl font-semibold text-[#153f32]">
                 {formatPrice(subtotal)}
               </span>
             </div>
 
-            <p className="mt-4 text-sm leading-6 text-[#718078]">
-              Pickup or local delivery will be selected at checkout.
-              Applicable delivery fees will be added then.
-            </p>
+            <div className="mt-4 rounded-xl bg-[#edf3e7] p-4">
+              <p className="text-sm font-semibold text-[#36594c]">
+                Pickup or local delivery
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-[#607068]">
+                You&apos;ll choose pickup or
+                delivery and your requested date
+                during checkout. Any applicable
+                delivery fee will be shown before
+                payment.
+              </p>
+            </div>
 
             <Link
               href="/checkout"
-              className="mt-6 flex w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
+              className="mt-5 flex min-h-14 w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#d85b50] active:scale-[0.99]"
             >
               Continue to Checkout
             </Link>
 
+            <p className="mt-3 text-center text-xs leading-5 text-[#718078]">
+              Secure checkout powered by Square.
+            </p>
+
             <Link
               href="/"
-              className="mt-3 flex w-full items-center justify-center rounded-full border border-[#284239]/15 px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]"
+              className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full border border-[#284239]/15 px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]"
             >
               Continue Shopping
             </Link>

@@ -49,7 +49,7 @@ export default function ProductImageGallery({
   return (
     <div>
       <div className="overflow-hidden rounded-[2rem] border border-[#284239]/10 bg-white shadow-[0_18px_50px_rgba(42,66,57,0.12)]">
-        <div className="relative aspect-[4/3] bg-[#f5f1ea]">
+        <div className="relative aspect-square bg-[#f5f1ea] sm:aspect-[4/3]">
           <Image
             src={selectedImage.publicUrl}
             alt={selectedImage.alt_text ?? productName}
@@ -82,7 +82,7 @@ export default function ProductImageGallery({
                     image.alt_text ?? productName
                   }`}
                   aria-pressed={selected}
-                  className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-white transition sm:w-24 ${
+                  className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-white transition active:scale-[0.98] sm:w-24 ${
                     selected
                       ? "border-[#e76d61] shadow-sm"
                       : "border-transparent hover:border-[#284239]/20"
@@ -102,7 +102,7 @@ export default function ProductImageGallery({
           </div>
 
           <p className="mt-2 text-xs text-[#718078]">
-            Select an image to view it larger.
+            Tap an image to view it larger.
           </p>
         </div>
       )}

@@ -4,13 +4,42 @@ import PaymentReturnClient from "@/components/PaymentReturnClient";
 type PaymentReturnPageProps = {
   searchParams: Promise<{
     orderId?: string;
+    test?: string;
   }>;
 };
+
+type PreviewState =
+  | "paid"
+  | "checking"
+  | "delayed";
 
 export default async function PaymentReturnPage({
   searchParams,
 }: PaymentReturnPageProps) {
-  const { orderId } = await searchParams;
+  const { orderId, test } = await searchParams;
+
+  const validPreviewStates: PreviewState[] = [
+    "paid",
+    "checking",
+    "delayed",
+  ];
+
+  const previewState =
+    process.env.NODE_ENV === "development" &&
+    validPreviewStates.includes(
+      test as PreviewState
+    )
+      ? (test as PreviewState)
+      : undefined;
+
+  if (previewState) {
+    return (
+      <PaymentReturnClient
+        orderId="development-preview"
+        previewState={previewState}
+      />
+    );
+  }
 
   if (!orderId) {
     return (
@@ -22,12 +51,13 @@ export default async function PaymentReturnPage({
             </p>
 
             <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-              We couldn't find your order confirmation
+              We couldn&apos;t find your order confirmation
             </h1>
 
             <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
-              We couldn't find the order details for this page.
-              If you completed payment, please contact Port Petals before trying again.
+              We couldn&apos;t find the order details for this page.
+              If you completed payment, please contact Port Petals before
+              trying again.
             </p>
 
             <Link

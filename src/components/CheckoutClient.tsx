@@ -42,8 +42,11 @@ export default function CheckoutClient() {
   const [deliveryArea, setDeliveryArea] =
     useState<DeliveryArea>("");
 
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] =
+    useState(false);
+
   const [error, setError] = useState("");
+
   const [createdOrder, setCreatedOrder] =
     useState<CreatedOrder | null>(null);
 
@@ -81,8 +84,7 @@ export default function CheckoutClient() {
       return;
     }
 
-    const controller =
-      new AbortController();
+    const controller = new AbortController();
 
     async function loadLeadTime() {
       setLoadingLeadTime(true);
@@ -128,17 +130,17 @@ export default function CheckoutClient() {
               ""
           )
         );
-      } catch (error) {
+      } catch (caughtError) {
         if (
-          error instanceof DOMException &&
-          error.name === "AbortError"
+          caughtError instanceof DOMException &&
+          caughtError.name === "AbortError"
         ) {
           return;
         }
 
         console.error(
           "Unable to load fulfillment lead time:",
-          error
+          caughtError
         );
 
         setLeadTimeError(
@@ -163,68 +165,98 @@ export default function CheckoutClient() {
       ? 0
       : deliveryArea === "three-to-eight"
         ? 10
-        : deliveryArea === "smethport-eldred"
+        : deliveryArea ===
+            "smethport-eldred"
           ? 15
           : 0;
+
+  const estimatedTotal =
+    subtotal + estimatedDeliveryFee;
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
 
-    if (items.length === 0 || submitting) {
+    if (
+      items.length === 0 ||
+      submitting
+    ) {
       return;
     }
 
     setError("");
     setSubmitting(true);
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(
+      event.currentTarget
+    );
 
     try {
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          customerName: formData.get("customerName"),
-          customerEmail: formData.get("customerEmail"),
-          customerPhone: formData.get("customerPhone"),
+      const response = await fetch(
+        "/api/orders",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            customerName:
+              formData.get("customerName"),
+            customerEmail:
+              formData.get("customerEmail"),
+            customerPhone:
+              formData.get("customerPhone"),
 
-          fulfillmentType,
-          requestedFulfillmentDate:
-            formData.get(
-              "requestedFulfillmentDate"
-            ),
-          deliveryArea,
+            fulfillmentType,
 
-          deliveryAddress:
-            formData.get("deliveryAddress"),
-          deliveryCity:
-            formData.get("deliveryCity"),
-          deliveryState:
-            formData.get("deliveryState"),
-          deliveryZip:
-            formData.get("deliveryZip"),
+            requestedFulfillmentDate:
+              formData.get(
+                "requestedFulfillmentDate"
+              ),
 
-          notes: formData.get("notes"),
+            deliveryArea,
 
-          items: items.map((item) => ({
-            productId: item.productId,
-            variantId: item.variantId,
-            quantity: item.quantity,
+            deliveryAddress:
+              formData.get(
+                "deliveryAddress"
+              ),
 
-            playerName: item.playerName,
-            playerNumber: item.playerNumber,
+            deliveryCity:
+              formData.get("deliveryCity"),
 
-            customization:
-              item.customization ?? {},
-          })),
-        }),
-      });
+            deliveryState:
+              formData.get(
+                "deliveryState"
+              ),
 
-      const result = await response.json();
+            deliveryZip:
+              formData.get("deliveryZip"),
+
+            notes:
+              formData.get("notes"),
+
+            items: items.map((item) => ({
+              productId: item.productId,
+              variantId: item.variantId,
+              quantity: item.quantity,
+
+              playerName:
+                item.playerName,
+
+              playerNumber:
+                item.playerNumber,
+
+              customization:
+                item.customization ?? {},
+            })),
+          }),
+        }
+      );
+
+      const result =
+        await response.json();
 
       if (!response.ok) {
         console.error(
@@ -255,7 +287,10 @@ export default function CheckoutClient() {
   }
 
   async function handleSquarePayment() {
-    if (!createdOrder || startingPayment) {
+    if (
+      !createdOrder ||
+      startingPayment
+    ) {
       return;
     }
 
@@ -268,15 +303,18 @@ export default function CheckoutClient() {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
           body: JSON.stringify({
-            orderId: createdOrder.orderId,
+            orderId:
+              createdOrder.orderId,
           }),
         }
       );
 
-      const result = await response.json();
+      const result =
+        await response.json();
 
       if (!response.ok) {
         console.error(
@@ -299,7 +337,8 @@ export default function CheckoutClient() {
         );
       }
 
-      window.location.href = result.checkoutUrl;
+      window.location.href =
+        result.checkoutUrl;
     } catch (caughtError) {
       console.error(
         "Payment setup error:",
@@ -314,17 +353,29 @@ export default function CheckoutClient() {
     }
   }
 
-  if (items.length === 0 && !createdOrder) {
+  if (
+    items.length === 0 &&
+    !createdOrder
+  ) {
     return (
       <main className="min-h-[65vh] bg-[#f7f1e8] text-[#284239]">
-        <section className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-8">
-          <h1 className="font-serif text-4xl font-semibold text-[#153f32]">
+        <section className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-8 sm:py-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+            Checkout
+          </p>
+
+          <h1 className="mt-3 font-serif text-3xl font-semibold text-[#153f32] sm:text-4xl">
             Your cart is empty
           </h1>
 
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-[#607068]">
+            Add something to your cart before
+            continuing to checkout.
+          </p>
+
           <Link
             href="/"
-            className="mt-7 inline-flex rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white"
+            className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white"
           >
             Continue Shopping
           </Link>
@@ -336,24 +387,30 @@ export default function CheckoutClient() {
   if (createdOrder) {
     return (
       <main className="min-h-[70vh] bg-[#f7f1e8] text-[#284239]">
-        <section className="mx-auto max-w-3xl px-5 py-16 sm:px-8">
-          <div className="rounded-3xl border border-[#284239]/10 bg-white p-8 text-center shadow-sm sm:p-10">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-              Order Created
+        <section className="mx-auto max-w-3xl px-4 py-10 sm:px-8 sm:py-16">
+          <div className="rounded-3xl border border-[#284239]/10 bg-white p-5 text-center shadow-sm sm:p-10">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#edf3e7] text-xl text-[#31583b]">
+              ✓
+            </div>
+
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+              Order Ready for Payment
             </p>
 
-            <h1 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
+            <h1 className="mt-2 break-words font-serif text-3xl font-semibold text-[#153f32] sm:text-4xl">
               {createdOrder.orderNumber}
             </h1>
 
-            <p className="mx-auto mt-5 max-w-xl leading-7 text-[#607068]">
-              Your order has been validated and saved in Port Petals.
-              Payment has not been collected yet.
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#607068] sm:text-base sm:leading-7">
+              Your order details have been
+              saved. Payment has not been
+              collected yet.
             </p>
 
-            <div className="mx-auto mt-8 max-w-md rounded-2xl bg-[#f7f1e8] p-5 text-left">
-              <div className="flex justify-between">
+            <div className="mx-auto mt-6 max-w-md rounded-2xl bg-[#f7f1e8] p-4 text-left sm:p-5">
+              <div className="flex justify-between gap-4 text-sm">
                 <span>Merchandise</span>
+
                 <strong>
                   {formatPrice(
                     createdOrder.subtotal
@@ -361,8 +418,9 @@ export default function CheckoutClient() {
                 </strong>
               </div>
 
-              <div className="mt-3 flex justify-between">
+              <div className="mt-3 flex justify-between gap-4 text-sm">
                 <span>Delivery</span>
+
                 <strong>
                   {formatPrice(
                     createdOrder.deliveryFee
@@ -370,20 +428,39 @@ export default function CheckoutClient() {
                 </strong>
               </div>
 
-              <div className="mt-4 flex justify-between border-t border-[#284239]/10 pt-4 text-lg">
+              {createdOrder.taxAmount > 0 && (
+                <div className="mt-3 flex justify-between gap-4 text-sm">
+                  <span>Tax</span>
+
+                  <strong>
+                    {formatPrice(
+                      createdOrder.taxAmount
+                    )}
+                  </strong>
+                </div>
+              )}
+
+              <div className="mt-4 flex justify-between gap-4 border-t border-[#284239]/10 pt-4 text-lg">
                 <span>Total</span>
+
                 <strong className="text-[#e76d61]">
-                  {formatPrice(createdOrder.total)}
+                  {formatPrice(
+                    createdOrder.total
+                  )}
                 </strong>
               </div>
             </div>
 
-            <div className="mt-8 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
-              Your order details are ready. Continue to payment to complete your order.
+            <div className="mt-5 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
+              Continue to Square to securely
+              complete your payment.
             </div>
 
             {paymentError && (
-              <div className="mt-4 rounded-xl bg-[#fff0ed] p-4 text-sm leading-6 text-[#a7473f]">
+              <div
+                aria-live="polite"
+                className="mt-4 rounded-xl bg-[#fff0ed] p-4 text-sm leading-6 text-[#a7473f]"
+              >
                 {paymentError}
               </div>
             )}
@@ -392,16 +469,20 @@ export default function CheckoutClient() {
               type="button"
               onClick={handleSquarePayment}
               disabled={startingPayment}
-              className="mt-6 flex w-full items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-5 flex min-h-14 w-full items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#d85b50] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {startingPayment
-                ? "Opening Payment..."
-                : "Continue to Payment"}
+                ? "Opening Secure Payment..."
+                : "Continue to Secure Payment"}
             </button>
+
+            <p className="mt-3 text-xs leading-5 text-[#718078]">
+              Secure payment powered by Square.
+            </p>
 
             <Link
               href="/cart"
-              className="mt-4 inline-flex rounded-full border border-[#284239]/15 px-6 py-3 font-semibold"
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-[#284239]/15 px-6 py-2 text-sm font-semibold text-[#284239]"
             >
               Return to Cart
             </Link>
@@ -413,26 +494,43 @@ export default function CheckoutClient() {
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:px-10">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-12 lg:px-10">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61] sm:text-sm">
             Checkout
           </p>
 
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32] sm:text-5xl">
-            Order details
+          <h1 className="mt-2 font-serif text-3xl font-semibold text-[#153f32] sm:text-5xl">
+            Complete your order
           </h1>
+
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607068]">
+            Enter your contact information,
+            choose pickup or delivery, and
+            select your requested date.
+          </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="mt-10 grid gap-8 lg:grid-cols-[1fr_360px]"
+          className="mt-7 grid gap-6 sm:mt-10 lg:grid-cols-[1fr_360px] lg:gap-8"
         >
-          <div className="space-y-6">
-            <section className="rounded-2xl border border-[#284239]/10 bg-white p-6">
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+          <div className="space-y-5 sm:space-y-6">
+            {/* CONTACT */}
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Step 1
+              </p>
+
+              <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
                 Contact Information
               </h2>
+
+              <p className="mt-2 text-sm leading-6 text-[#607068]">
+                Port Petals will use this
+                information for your order
+                confirmation and order updates.
+              </p>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 sm:col-span-2">
@@ -443,7 +541,8 @@ export default function CheckoutClient() {
                   <input
                     required
                     name="customerName"
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                    autoComplete="name"
+                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -456,7 +555,9 @@ export default function CheckoutClient() {
                     required
                     type="email"
                     name="customerEmail"
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                    autoComplete="email"
+                    inputMode="email"
+                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -469,22 +570,30 @@ export default function CheckoutClient() {
                     required
                     type="tel"
                     name="customerPhone"
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                   />
                 </label>
               </div>
             </section>
 
-            <section className="rounded-2xl border border-[#284239]/10 bg-white p-6">
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            {/* FULFILLMENT */}
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Step 2
+              </p>
+
+              <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
                 Pickup or Delivery
               </h2>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label
-                  className={`cursor-pointer rounded-xl border p-4 ${
-                    fulfillmentType === "pickup"
-                      ? "border-[#e76d61] bg-[#fff4f1]"
+                  className={`flex min-h-[88px] cursor-pointer items-center rounded-2xl border p-4 transition active:scale-[0.99] ${
+                    fulfillmentType ===
+                    "pickup"
+                      ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
                       : "border-[#284239]/15"
                   }`}
                 >
@@ -493,26 +602,36 @@ export default function CheckoutClient() {
                     name="fulfillment"
                     value="pickup"
                     checked={
-                      fulfillmentType === "pickup"
+                      fulfillmentType ===
+                      "pickup"
                     }
                     onChange={() => {
-                      setFulfillmentType("pickup");
+                      setFulfillmentType(
+                        "pickup"
+                      );
                       setDeliveryArea("");
                     }}
                     className="sr-only"
                   />
 
-                  <strong>Pickup</strong>
+                  <span>
+                    <strong className="block text-[#153f32]">
+                      Pickup
+                    </strong>
 
-                  <span className="mt-1 block text-sm text-[#607068]">
-                    430 E Arnold Avenue, Port Allegany
+                    <span className="mt-1 block text-sm leading-5 text-[#607068]">
+                      430 E Arnold Avenue
+                      <br />
+                      Port Allegany, PA
+                    </span>
                   </span>
                 </label>
 
                 <label
-                  className={`cursor-pointer rounded-xl border p-4 ${
-                    fulfillmentType === "delivery"
-                      ? "border-[#e76d61] bg-[#fff4f1]"
+                  className={`flex min-h-[88px] cursor-pointer items-center rounded-2xl border p-4 transition active:scale-[0.99] ${
+                    fulfillmentType ===
+                    "delivery"
+                      ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
                       : "border-[#284239]/15"
                   }`}
                 >
@@ -521,26 +640,48 @@ export default function CheckoutClient() {
                     name="fulfillment"
                     value="delivery"
                     checked={
-                      fulfillmentType === "delivery"
+                      fulfillmentType ===
+                      "delivery"
                     }
                     onChange={() =>
-                      setFulfillmentType("delivery")
+                      setFulfillmentType(
+                        "delivery"
+                      )
                     }
                     className="sr-only"
                   />
 
-                  <strong>Local Delivery</strong>
+                  <span>
+                    <strong className="block text-[#153f32]">
+                      Local Delivery
+                    </strong>
 
-                  <span className="mt-1 block text-sm text-[#607068]">
-                    Delivery fee depends on destination
+                    <span className="mt-1 block text-sm leading-5 text-[#607068]">
+                      Available within the Port
+                      Petals delivery area
+                    </span>
                   </span>
                 </label>
               </div>
+            </section>
+
+            {/* DATE + DELIVERY ADDRESS */}
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Step 3
+              </p>
+
+              <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+                {fulfillmentType === "pickup"
+                  ? "Pickup Details"
+                  : "Delivery Details"}
+              </h2>
 
               <div className="mt-5">
                 <label className="grid gap-2">
                   <span className="text-sm font-semibold">
-                    {fulfillmentType === "pickup"
+                    {fulfillmentType ===
+                    "pickup"
                       ? "Requested Pickup Date *"
                       : "Requested Delivery Date *"}
                   </span>
@@ -555,43 +696,54 @@ export default function CheckoutClient() {
                     }
                     disabled={
                       loadingLeadTime ||
-                      Boolean(leadTimeError)
+                      Boolean(
+                        leadTimeError
+                      )
                     }
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61] disabled:cursor-not-allowed disabled:bg-[#f2f0ec]"
+                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61] disabled:cursor-not-allowed disabled:bg-[#f2f0ec]"
                   />
 
                   {loadingLeadTime ? (
                     <span className="text-xs leading-5 text-[#718078]">
-                      Checking the earliest available
-                      date...
+                      Checking the earliest
+                      available date...
                     </span>
                   ) : leadTimeError ? (
-                    <span className="text-xs leading-5 text-[#a7473f]">
+                    <span className="rounded-lg bg-[#fff0ed] px-3 py-2 text-xs leading-5 text-[#a7473f]">
                       {leadTimeError}
                     </span>
-                  ) : requiredLeadTimeDays > 0 ? (
+                  ) : requiredLeadTimeDays >
+                    0 ? (
                     <span className="text-xs leading-5 text-[#718078]">
-                      This order requires at least{" "}
-                      {requiredLeadTimeDays} full
-                      preparation day
-                      {requiredLeadTimeDays === 1
+                      This order requires at
+                      least{" "}
+                      {
+                        requiredLeadTimeDays
+                      }{" "}
+                      full preparation day
+                      {requiredLeadTimeDays ===
+                      1
                         ? ""
                         : "s"}
-                      . Earlier dates are unavailable.
+                      . Earlier dates are
+                      unavailable.
                     </span>
                   ) : (
                     <span className="text-xs leading-5 text-[#718078]">
-                      Choose the date you would like your
-                      order{" "}
-                      {fulfillmentType === "pickup"
+                      Choose the date you would
+                      like your order{" "}
+                      {fulfillmentType ===
+                      "pickup"
                         ? "ready for pickup"
-                        : "delivered"}.
+                        : "delivered"}
+                      .
                     </span>
                   )}
                 </label>
               </div>
 
-              {fulfillmentType === "delivery" && (
+              {fulfillmentType ===
+                "delivery" && (
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <label className="grid gap-2 sm:col-span-2">
                     <span className="text-sm font-semibold">
@@ -607,7 +759,7 @@ export default function CheckoutClient() {
                             .value as DeliveryArea
                         )
                       }
-                      className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                      className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                     >
                       <option value="">
                         Choose delivery area
@@ -618,11 +770,13 @@ export default function CheckoutClient() {
                       </option>
 
                       <option value="three-to-eight">
-                        Over 3 miles up to 8 miles — $10
+                        Over 3 miles up to 8
+                        miles — $10
                       </option>
 
                       <option value="smethport-eldred">
-                        Smethport or Eldred — $15
+                        Smethport or Eldred —
+                        $15
                       </option>
                     </select>
                   </label>
@@ -635,7 +789,8 @@ export default function CheckoutClient() {
                     <input
                       required
                       name="deliveryAddress"
-                      className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                      autoComplete="street-address"
+                      className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                     />
                   </label>
 
@@ -647,7 +802,8 @@ export default function CheckoutClient() {
                     <input
                       required
                       name="deliveryCity"
-                      className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                      autoComplete="address-level2"
+                      className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                     />
                   </label>
 
@@ -660,11 +816,12 @@ export default function CheckoutClient() {
                       required
                       name="deliveryState"
                       defaultValue="PA"
-                      className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                      autoComplete="address-level1"
+                      className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                     />
                   </label>
 
-                  <label className="grid gap-2">
+                  <label className="grid gap-2 sm:col-span-2">
                     <span className="text-sm font-semibold">
                       ZIP Code *
                     </span>
@@ -672,32 +829,50 @@ export default function CheckoutClient() {
                     <input
                       required
                       name="deliveryZip"
-                      className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                      autoComplete="postal-code"
+                      inputMode="numeric"
+                      className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                     />
                   </label>
                 </div>
               )}
             </section>
 
-            <section className="rounded-2xl border border-[#284239]/10 bg-white p-6">
-              <label className="grid gap-2">
-                <span className="font-serif text-2xl font-semibold text-[#153f32]">
+            {/* NOTES */}
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Step 4
+              </p>
+
+              <label className="mt-1 grid gap-2">
+                <span className="font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
                   Order Notes
+                </span>
+
+                <span className="text-sm leading-6 text-[#607068]">
+                  Optional. Add anything Port
+                  Petals should know about this
+                  order.
                 </span>
 
                 <textarea
                   name="notes"
                   rows={4}
-                  placeholder="Anything Port Petals should know about this order?"
-                  className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  placeholder="Special instructions or other order information..."
+                  className="mt-2 resize-y rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                 />
               </label>
             </section>
           </div>
 
-          <aside className="h-fit rounded-2xl border border-[#284239]/10 bg-white p-6 shadow-sm lg:sticky lg:top-6">
-            <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
-              Order Summary
+          {/* SUMMARY */}
+          <aside className="h-fit rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-6 lg:sticky lg:top-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+              Step 5
+            </p>
+
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+              Review Your Order
             </h2>
 
             <div className="mt-5 space-y-3">
@@ -706,13 +881,15 @@ export default function CheckoutClient() {
                   key={item.lineId}
                   className="flex justify-between gap-4 text-sm"
                 >
-                  <span>
-                    {item.productName} × {item.quantity}
+                  <span className="min-w-0 leading-5 text-[#607068]">
+                    {item.productName} ×{" "}
+                    {item.quantity}
                   </span>
 
-                  <strong>
+                  <strong className="shrink-0 text-[#284239]">
                     {formatPrice(
-                      item.unitPrice * item.quantity
+                      item.unitPrice *
+                        item.quantity
                     )}
                   </strong>
                 </div>
@@ -720,58 +897,93 @@ export default function CheckoutClient() {
             </div>
 
             <div className="mt-5 border-t border-[#284239]/10 pt-5">
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-4 text-sm">
                 <span>Subtotal</span>
-                <strong>{formatPrice(subtotal)}</strong>
-              </div>
 
-              <div className="mt-3 flex justify-between">
-                <span>Delivery</span>
                 <strong>
-                  {formatPrice(
-                    estimatedDeliveryFee
-                  )}
+                  {formatPrice(subtotal)}
                 </strong>
               </div>
 
-              <div className="mt-5 flex justify-between border-t border-[#284239]/10 pt-5 text-lg">
-                <span>Total</span>
-                <strong className="text-[#e76d61]">
+              <div className="mt-3 flex justify-between gap-4 text-sm">
+                <span>Delivery</span>
+
+                <strong>
+                  {fulfillmentType ===
+                    "delivery" &&
+                  deliveryArea === ""
+                    ? "Select area"
+                    : formatPrice(
+                        estimatedDeliveryFee
+                      )}
+                </strong>
+              </div>
+
+              <div className="mt-5 flex items-end justify-between gap-4 border-t border-[#284239]/10 pt-5">
+                <span className="font-semibold">
+                  Estimated Total
+                </span>
+
+                <strong className="text-2xl text-[#e76d61]">
                   {formatPrice(
-                    subtotal +
-                      estimatedDeliveryFee
+                    estimatedTotal
                   )}
                 </strong>
               </div>
             </div>
 
             {error && (
-              <div className="mt-5 rounded-xl bg-[#fff0ed] p-4 text-sm leading-6 text-[#a7473f]">
+              <div
+                aria-live="polite"
+                className="mt-5 rounded-xl bg-[#fff0ed] p-4 text-sm leading-6 text-[#a7473f]"
+              >
                 {error}
               </div>
             )}
+
+            {fulfillmentType ===
+              "delivery" &&
+              deliveryArea === "" && (
+                <div className="mt-4 rounded-xl bg-[#fff0ed] p-4 text-sm leading-5 text-[#a7473f]">
+                  Choose a delivery area before
+                  continuing.
+                </div>
+              )}
 
             <button
               type="submit"
               disabled={
                 submitting ||
                 loadingLeadTime ||
-                Boolean(leadTimeError)
+                Boolean(
+                  leadTimeError
+                ) ||
+                (fulfillmentType ===
+                  "delivery" &&
+                  deliveryArea === "")
               }
-              className="mt-6 flex w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-3 font-semibold text-white transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-5 flex min-h-14 w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#d85b50] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#d9d5ce] disabled:text-[#7a7a76] disabled:shadow-none"
             >
               {submitting
                 ? "Preparing Your Order..."
-                : "Continue to Payment"}
+                : "Review & Continue to Payment"}
             </button>
 
-            <p className="mt-3 text-center text-xs leading-5 text-[#718078]">
-              You will review your order total before completing payment.
-            </p>
+            <div className="mt-4 rounded-xl bg-[#edf3e7] p-4">
+              <p className="text-center text-xs font-semibold text-[#36594c]">
+                Secure checkout powered by
+                Square
+              </p>
+
+              <p className="mt-1 text-center text-xs leading-5 text-[#718078]">
+                Payment is not collected until
+                the next step.
+              </p>
+            </div>
 
             <Link
               href="/cart"
-              className="mt-4 flex justify-center text-sm font-semibold text-[#36594c]"
+              className="mt-4 flex min-h-11 items-center justify-center text-sm font-semibold text-[#36594c]"
             >
               ← Back to Cart
             </Link>

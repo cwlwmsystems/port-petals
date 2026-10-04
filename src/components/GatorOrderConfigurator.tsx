@@ -61,13 +61,13 @@ export default function GatorOrderConfigurator({
   deliveryAvailable,
 }: GatorOrderConfiguratorProps) {
   const { addItem } = useCart();
+
   const [added, setAdded] = useState(false);
 
   const hasVariants = variants.length > 0;
 
-  const [selectedVariantId, setSelectedVariantId] = useState(
-    variants[0]?.id ?? ""
-  );
+  const [selectedVariantId, setSelectedVariantId] =
+    useState(variants[0]?.id ?? "");
 
   const [fulfillment, setFulfillment] =
     useState<FulfillmentType>("pickup");
@@ -76,10 +76,12 @@ export default function GatorOrderConfigurator({
     useState<DeliveryArea>("");
 
   const selectedVariant = variants.find(
-    (variant) => variant.id === selectedVariantId
+    (variant) =>
+      variant.id === selectedVariantId
   );
 
-  const selectedPrice = selectedVariant?.price ?? basePrice;
+  const selectedPrice =
+    selectedVariant?.price ?? basePrice;
 
   const selectedTracksInventory = hasVariants
     ? selectedVariant?.trackInventory ?? false
@@ -111,31 +113,51 @@ export default function GatorOrderConfigurator({
     }
   }, [fulfillment, deliveryArea]);
 
-  const estimatedTotal = selectedPrice + deliveryFee;
+  const estimatedTotal =
+    selectedPrice + deliveryFee;
+
+  const readyToAdd =
+    !soldOut &&
+    (!hasVariants || Boolean(selectedVariant)) &&
+    (fulfillment !== "delivery" ||
+      deliveryArea !== "");
 
   function handleAddToCart(
     event: FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
 
-    if (soldOut) {
+    if (!readyToAdd) {
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
-    const customization: Record<string, string> = {};
+    const formData = new FormData(
+      event.currentTarget
+    );
+
+    const customization: Record<
+      string,
+      string
+    > = {};
 
     if (selectedVariant) {
-      customization.Option = selectedVariant.name;
+      customization.Option =
+        selectedVariant.name;
     }
 
     for (const [field, label] of [
       ["personalization", "Personalization"],
       ["number", "Number"],
-      ["designNotes", "Color / Design Notes"],
+      [
+        "designNotes",
+        "Color / Design Notes",
+      ],
       ["recipientName", "Recipient Name"],
       ["deliveryAddress", "Delivery Address"],
-      ["specialInstructions", "Special Instructions"],
+      [
+        "specialInstructions",
+        "Special Instructions",
+      ],
     ]) {
       const value = String(
         formData.get(field) ?? ""
@@ -148,14 +170,17 @@ export default function GatorOrderConfigurator({
 
     addItem({
       productId,
-      variantId: selectedVariant?.id ?? null,
+      variantId:
+        selectedVariant?.id ?? null,
       productName,
       slug: productSlug,
       productPath: `/gators/${productSlug}`,
       imageUrl,
       unitPrice: selectedPrice,
-      size: selectedVariant?.size ?? null,
-      color: selectedVariant?.color ?? null,
+      size:
+        selectedVariant?.size ?? null,
+      color:
+        selectedVariant?.color ?? null,
       customization,
     });
 
@@ -165,81 +190,110 @@ export default function GatorOrderConfigurator({
   return (
     <form
       onSubmit={handleAddToCart}
-      className="mt-8 border-t border-[#284239]/10 pt-7"
+      className="mt-7 border-t border-[#284239]/10 pt-6 sm:mt-8 sm:pt-7"
     >
       {hasVariants && (
-        <fieldset>
-          <legend className="text-sm font-semibold text-[#153f32]">
-            Choose Size / Option
-          </legend>
+        <section>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+            Step 1
+          </p>
 
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {variants.map((variant) => {
-              const selected = selectedVariantId === variant.id;
+          <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+            Choose your option
+          </h2>
 
-              const variantSoldOut =
-                variant.trackInventory &&
-                variant.quantity !== null &&
-                variant.quantity <= 0;
+          <fieldset className="mt-4">
+            <legend className="sr-only">
+              Choose Size or Option
+            </legend>
 
-              return (
-                <label
-                  key={variant.id}
-                  className={`rounded-xl border px-4 py-3 transition ${
-                    variantSoldOut
-                      ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
-                      : selected
-                        ? "cursor-pointer border-[#e76d61] bg-[#fff4f1] shadow-sm"
-                        : "cursor-pointer border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="gatorVariant"
-                    value={variant.id}
-                    checked={selected}
-                    disabled={variantSoldOut}
-                    onChange={() =>
-                      setSelectedVariantId(variant.id)
-                    }
-                    className="sr-only"
-                  />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {variants.map(
+                (variant) => {
+                  const selected =
+                    selectedVariantId ===
+                    variant.id;
 
-                  <span className="block font-semibold text-[#153f32]">
-                    {variant.size || variant.name}
-                  </span>
+                  const variantSoldOut =
+                    variant.trackInventory &&
+                    variant.quantity !==
+                      null &&
+                    variant.quantity <= 0;
 
-                  {variant.color && (
-                    <span className="mt-1 block text-xs text-[#718078]">
-                      {variant.color}
-                    </span>
-                  )}
+                  return (
+                    <label
+                      key={variant.id}
+                      className={`flex min-h-[86px] cursor-pointer items-center justify-between gap-4 rounded-2xl border px-4 py-4 transition active:scale-[0.99] ${
+                        variantSoldOut
+                          ? "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] opacity-60"
+                          : selected
+                            ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
+                            : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="gatorVariant"
+                        value={variant.id}
+                        checked={selected}
+                        disabled={
+                          variantSoldOut
+                        }
+                        onChange={() => {
+                          setSelectedVariantId(
+                            variant.id
+                          );
+                          setAdded(false);
+                        }}
+                        className="sr-only"
+                      />
 
-                  <span className="mt-2 block text-lg font-semibold text-[#e76d61]">
-                    {formatPrice(variant.price)}
-                  </span>
+                      <span className="min-w-0">
+                        <span className="block font-semibold leading-5 text-[#153f32]">
+                          {variant.size ||
+                            variant.name}
+                        </span>
 
-                  {variant.trackInventory &&
-                    variant.quantity !== null && (
-                      <span
-                        className={`mt-2 block text-xs font-semibold ${
-                          variant.quantity > 0
-                            ? "text-[#607068]"
-                            : "text-[#a7473f]"
-                        }`}
-                      >
-                        {variant.quantity > 0
-                          ? variant.quantity <= 3
-                            ? "Low Stock"
-                            : "In Stock"
-                          : "Sold Out"}
+                        {variant.color && (
+                          <span className="mt-1 block text-xs text-[#718078]">
+                            {variant.color}
+                          </span>
+                        )}
+
+                        {variant.trackInventory &&
+                          variant.quantity !==
+                            null && (
+                            <span
+                              className={`mt-1 block text-xs font-semibold ${
+                                variant.quantity >
+                                0
+                                  ? "text-[#607068]"
+                                  : "text-[#a7473f]"
+                              }`}
+                            >
+                              {variant.quantity >
+                              0
+                                ? variant.quantity <=
+                                  3
+                                  ? "Low Stock"
+                                  : "In Stock"
+                                : "Sold Out"}
+                            </span>
+                          )}
                       </span>
-                    )}
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
+
+                      <span className="shrink-0 text-lg font-semibold text-[#e76d61]">
+                        {formatPrice(
+                          variant.price
+                        )}
+                      </span>
+                    </label>
+                  );
+                }
+              )}
+            </div>
+          </fieldset>
+        </section>
       )}
 
       {!hasVariants &&
@@ -252,10 +306,12 @@ export default function GatorOrderConfigurator({
                 : "bg-[#edf3e7] text-[#36594c]"
             }`}
           >
-            <span className="font-semibold">Availability:</span>{" "}
+            <span className="font-semibold">
+              Availability:
+            </span>{" "}
             {soldOut
               ? "Sold Out"
-              : baseQuantity !== null && baseQuantity <= 3
+              : baseQuantity <= 3
                 ? "Low Stock"
                 : "In Stock"}
           </div>
@@ -265,7 +321,7 @@ export default function GatorOrderConfigurator({
         selectedTracksInventory &&
         selectedQuantity !== null && (
           <div
-            className={`mt-5 rounded-xl px-4 py-3 text-sm ${
+            className={`mt-4 rounded-xl px-4 py-3 text-sm ${
               soldOut
                 ? "bg-[#fff0ed] text-[#a7473f]"
                 : "bg-[#edf3e7] text-[#36594c]"
@@ -278,230 +334,307 @@ export default function GatorOrderConfigurator({
             </span>{" "}
             {soldOut
               ? "Sold Out"
-              : selectedQuantity !== null && selectedQuantity <= 3
+              : selectedQuantity <= 3
                 ? "Low Stock"
                 : "In Stock"}
           </div>
         )}
 
       {customizable && (
-        <div className="mt-6 grid gap-5">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#153f32]">
-              Name / Personalization
-            </span>
+        <section
+          className={`${
+            hasVariants ? "mt-7" : "mt-0"
+          } border-t border-[#284239]/10 pt-6`}
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+            {hasVariants ? "Step 2" : "Step 1"}
+          </p>
 
-            <input
-              type="text"
-              name="personalization"
-              placeholder="Name or wording"
-              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
-            />
-          </label>
+          <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+            Personalize your Gator item
+          </h2>
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <p className="mt-2 text-sm leading-6 text-[#607068]">
+            Add only the details that apply to
+            this product.
+          </p>
+
+          <div className="mt-4 grid gap-4">
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[#153f32]">
-                Number
+                Name / Personalization
               </span>
 
               <input
                 type="text"
-                name="number"
-                placeholder="Example: 12"
-                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
+                name="personalization"
+                placeholder="Name, wording, or personalization"
+                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none placeholder:text-[#8a948e] focus:border-[#e76d61]"
               />
             </label>
 
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-[#153f32]">
+                  Number
+                </span>
+
+                <input
+                  type="text"
+                  name="number"
+                  inputMode="numeric"
+                  placeholder="Example: 12"
+                  className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+                />
+              </label>
+
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-[#153f32]">
+                  Color / Design Notes
+                </span>
+
+                <input
+                  type="text"
+                  name="designNotes"
+                  placeholder="Preferred colors or details"
+                  className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+                />
+              </label>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="mt-7 border-t border-[#284239]/10 pt-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+          {hasVariants && customizable
+            ? "Step 3"
+            : hasVariants || customizable
+              ? "Step 2"
+              : "Step 1"}
+        </p>
+
+        <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+          Pickup or delivery
+        </h2>
+
+        <fieldset className="mt-4">
+          <legend className="sr-only">
+            Pickup or Delivery
+          </legend>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {pickupAvailable && (
+              <label
+                className={`flex min-h-[86px] cursor-pointer items-center rounded-2xl border px-4 py-4 transition active:scale-[0.99] ${
+                  fulfillment === "pickup"
+                    ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
+                    : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="fulfillment"
+                  value="pickup"
+                  checked={
+                    fulfillment === "pickup"
+                  }
+                  onChange={() => {
+                    setFulfillment("pickup");
+                    setDeliveryArea("");
+                    setAdded(false);
+                  }}
+                  className="sr-only"
+                />
+
+                <span>
+                  <span className="block font-semibold text-[#153f32]">
+                    Pickup
+                  </span>
+
+                  <span className="mt-1 block text-sm leading-5 text-[#607068]">
+                    430 E Arnold Avenue
+                    <br />
+                    Port Allegany
+                  </span>
+                </span>
+              </label>
+            )}
+
+            {deliveryAvailable && (
+              <label
+                className={`flex min-h-[86px] cursor-pointer items-center rounded-2xl border px-4 py-4 transition active:scale-[0.99] ${
+                  fulfillment === "delivery"
+                    ? "border-[#e76d61] bg-[#fff4f1] shadow-sm ring-1 ring-[#e76d61]/20"
+                    : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="fulfillment"
+                  value="delivery"
+                  checked={
+                    fulfillment ===
+                    "delivery"
+                  }
+                  onChange={() => {
+                    setFulfillment(
+                      "delivery"
+                    );
+                    setAdded(false);
+                  }}
+                  className="sr-only"
+                />
+
+                <span>
+                  <span className="block font-semibold text-[#153f32]">
+                    Local Delivery
+                  </span>
+
+                  <span className="mt-1 block text-sm leading-5 text-[#607068]">
+                    Delivery fee based on destination
+                  </span>
+                </span>
+              </label>
+            )}
+          </div>
+        </fieldset>
+
+        {fulfillment === "delivery" && (
+          <div className="mt-4 rounded-2xl bg-[#f5efe6] p-4">
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[#153f32]">
-                Color / Design Notes
+                Delivery Area *
               </span>
 
-              <input
-                type="text"
-                name="designNotes"
-                placeholder="Preferred colors or details"
-                className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
+              <select
+                name="deliveryArea"
+                required
+                value={deliveryArea}
+                onChange={(event) => {
+                  setDeliveryArea(
+                    event.target
+                      .value as DeliveryArea
+                  );
+                  setAdded(false);
+                }}
+                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+              >
+                <option value="">
+                  Choose delivery area
+                </option>
+
+                <option value="within-3">
+                  Within 3 miles — Free
+                </option>
+
+                <option value="three-to-eight">
+                  Over 3 miles and up to 8 miles
+                  — $10
+                </option>
+
+                <option value="smethport-eldred">
+                  Smethport or Eldred — $15
+                </option>
+              </select>
+            </label>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-7 border-t border-[#284239]/10 pt-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+          Final Details
+        </p>
+
+        <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+          Add any order notes
+        </h2>
+
+        <details className="mt-4 rounded-2xl border border-[#284239]/10 bg-white">
+          <summary className="flex min-h-14 cursor-pointer items-center px-5 py-4 font-semibold text-[#153f32]">
+            Optional order details
+          </summary>
+
+          <div className="grid gap-5 border-t border-[#284239]/10 p-5">
+            {fulfillment ===
+              "delivery" && (
+              <>
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold">
+                    Recipient Name
+                  </span>
+
+                  <input
+                    type="text"
+                    name="recipientName"
+                    className="min-h-12 rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+                  />
+                </label>
+
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold">
+                    Delivery Address
+                  </span>
+
+                  <input
+                    type="text"
+                    name="deliveryAddress"
+                    placeholder="Street address, city, state, ZIP"
+                    className="min-h-12 rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+                  />
+                </label>
+              </>
+            )}
+
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold">
+                Special Instructions
+              </span>
+
+              <textarea
+                name="specialInstructions"
+                rows={4}
+                placeholder={`Anything Port Petals should know about your ${productName}?`}
+                className="resize-y rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 text-base outline-none focus:border-[#e76d61]"
               />
             </label>
           </div>
-        </div>
-      )}
+        </details>
+      </section>
 
-      <fieldset className="mt-6">
-        <legend className="text-sm font-semibold text-[#153f32]">
-          Pickup or Delivery
-        </legend>
+      <section className="mt-7 rounded-2xl border border-[#284239]/10 bg-[#fffaf3] p-4 sm:p-5">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#718078]">
+              Estimated Total
+            </p>
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {pickupAvailable && (
-            <label
-              className={`cursor-pointer rounded-xl border px-4 py-3 transition ${
-                fulfillment === "pickup"
-                  ? "border-[#e76d61] bg-[#fff4f1]"
-                  : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-              }`}
-            >
-              <input
-                type="radio"
-                name="fulfillment"
-                value="pickup"
-                checked={fulfillment === "pickup"}
-                onChange={() => {
-                  setFulfillment("pickup");
-                  setDeliveryArea("");
-                }}
-                className="sr-only"
-              />
+            {selectedVariant && (
+              <p className="mt-1 text-xs leading-5 text-[#718078]">
+                {selectedVariant.size ||
+                  selectedVariant.name}
+              </p>
+            )}
+          </div>
 
-              <span className="font-semibold text-[#153f32]">
-                Pickup
-              </span>
-
-              <span className="mt-1 block text-xs leading-5 text-[#607068]">
-                430 E Arnold Avenue
-              </span>
-            </label>
-          )}
-
-          {deliveryAvailable && (
-            <label
-              className={`cursor-pointer rounded-xl border px-4 py-3 transition ${
-                fulfillment === "delivery"
-                  ? "border-[#e76d61] bg-[#fff4f1]"
-                  : "border-[#284239]/15 bg-white hover:border-[#e76d61]/50"
-              }`}
-            >
-              <input
-                type="radio"
-                name="fulfillment"
-                value="delivery"
-                checked={fulfillment === "delivery"}
-                onChange={() => setFulfillment("delivery")}
-                className="sr-only"
-              />
-
-              <span className="font-semibold text-[#153f32]">
-                Local Delivery
-              </span>
-
-              <span className="mt-1 block text-xs leading-5 text-[#607068]">
-                Delivery fee based on destination
-              </span>
-            </label>
-          )}
-        </div>
-      </fieldset>
-
-      {fulfillment === "delivery" && (
-        <div className="mt-5 rounded-xl bg-[#f5efe6] p-4">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-[#153f32]">
-              Delivery Area *
-            </span>
-
-            <select
-              name="deliveryArea"
-              required
-              value={deliveryArea}
-              onChange={(event) =>
-                setDeliveryArea(
-                  event.target.value as DeliveryArea
-                )
-              }
-              className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
-            >
-              <option value="">Choose delivery area</option>
-              <option value="within-3">
-                Within 3 miles — Free
-              </option>
-              <option value="three-to-eight">
-                Over 3 miles and up to 8 miles — $10
-              </option>
-              <option value="smethport-eldred">
-                Smethport or Eldred — $15
-              </option>
-            </select>
-          </label>
-        </div>
-      )}
-
-      <div className="mt-6 flex items-end justify-between gap-6 border-y border-[#284239]/10 py-5">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#718078]">
-            Estimated Total
+          <p className="shrink-0 text-2xl font-semibold text-[#e76d61] sm:text-3xl">
+            {formatPrice(estimatedTotal)}
           </p>
+        </div>
 
-          {selectedVariant && (
-            <p className="mt-1 text-xs text-[#718078]">
-              Selected:{" "}
-              {selectedVariant.size ||
-                selectedVariant.name}
+        {fulfillment === "delivery" &&
+          deliveryArea === "" && (
+            <p className="mt-3 rounded-xl bg-[#fff0ed] px-4 py-3 text-sm leading-5 text-[#a7473f]">
+              Choose a delivery area before
+              adding this item to your cart.
             </p>
           )}
-        </div>
 
-        <p className="text-3xl font-semibold text-[#e76d61]">
-          {formatPrice(estimatedTotal)}
-        </p>
-      </div>
-
-      <details className="mt-5 rounded-xl border border-[#284239]/10 bg-white">
-        <summary className="cursor-pointer px-5 py-4 font-semibold text-[#153f32]">
-          Additional Details
-        </summary>
-
-        <div className="grid gap-5 border-t border-[#284239]/10 p-5">
-          {fulfillment === "delivery" && (
-            <>
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold">
-                  Recipient Name
-                </span>
-
-                <input
-                  type="text"
-                  name="recipientName"
-                  className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-                />
-              </label>
-
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold">
-                  Delivery Address
-                </span>
-
-                <input
-                  type="text"
-                  name="deliveryAddress"
-                  placeholder="Street address, city, state, ZIP"
-                  className="rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-                />
-              </label>
-            </>
-          )}
-
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold">
-              Special Instructions
-            </span>
-
-            <textarea
-              name="specialInstructions"
-              rows={4}
-              placeholder={`Anything Port Petals should know about your ${productName}?`}
-              className="resize-y rounded-xl border border-[#284239]/15 bg-[#fffdf9] px-4 py-3 outline-none focus:border-[#e76d61]"
-            />
-          </label>
-        </div>
-      </details>
-
-      <div className="mt-6">
         <button
           type="submit"
-          disabled={soldOut}
-          className="inline-flex w-full items-center justify-center rounded-xl bg-[#e76d61] px-7 py-4 text-base font-semibold text-white shadow-md transition hover:bg-[#d85b50] disabled:cursor-not-allowed disabled:bg-[#9b9b96]"
+          disabled={!readyToAdd}
+          className="mt-4 flex min-h-14 w-full items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#d85b50] active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-[#d9d5ce] disabled:text-[#7a7a76] disabled:shadow-none"
         >
           {soldOut
             ? "Sold Out"
@@ -509,20 +642,20 @@ export default function GatorOrderConfigurator({
         </button>
 
         {added && (
-          <div className="mt-3 flex items-center justify-center gap-3 text-sm font-semibold">
-            <span className="text-[#36594c]">
-              Added to cart.
-            </span>
+          <div className="mt-4 rounded-xl bg-[#edf3e7] p-4 text-center">
+            <p className="text-sm font-semibold text-[#31583b]">
+              Added to your cart.
+            </p>
 
             <Link
               href="/cart"
-              className="text-[#e76d61] underline underline-offset-4 transition hover:text-[#d85b50]"
+              className="mt-2 inline-flex min-h-10 items-center justify-center text-sm font-semibold text-[#e76d61] underline underline-offset-4"
             >
               Go to Cart →
             </Link>
           </div>
         )}
-      </div>
+      </section>
     </form>
   );
 }
