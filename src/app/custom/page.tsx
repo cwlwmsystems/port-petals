@@ -322,7 +322,7 @@ export default async function CustomItemsPage() {
                 </a>
 
                 <a
-                  href="mailto:PortPetals@yahoo.com?subject=Custom%20Order%20Inquiry"
+                  href="mailto:stacy@portpetals.com?subject=Custom%20Order%20Inquiry"
                   className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   Email Port Petals
@@ -483,7 +483,7 @@ export default async function CustomItemsPage() {
               </a>
 
               <a
-                href="mailto:PortPetals@yahoo.com?subject=Custom%20Order%20Inquiry"
+                href="mailto:stacy@portpetals.com?subject=Custom%20Order%20Inquiry"
                 className="rounded-full border border-[#284239]/15 bg-white px-6 py-3 font-semibold text-[#284239]"
               >
                 Email Port Petals
@@ -578,7 +578,7 @@ export default async function CustomItemsPage() {
             </a>
 
             <a
-              href="mailto:PortPetals@yahoo.com?subject=Custom%20Order%20Inquiry"
+              href="mailto:stacy@portpetals.com?subject=Custom%20Order%20Inquiry"
               className="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-3.5 font-semibold text-white transition hover:bg-white/10"
             >
               Email Port Petals

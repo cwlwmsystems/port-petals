@@ -488,7 +488,7 @@ export default async function CustomItemPage({
             </a>
 
             <a
-              href="mailto:PortPetals@yahoo.com?subject=Custom%20Order%20Inquiry"
+              href="mailto:stacy@portpetals.com?subject=Custom%20Order%20Inquiry"
               className="rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
             >
               Email Port Petals

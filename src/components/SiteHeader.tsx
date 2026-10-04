@@ -12,27 +12,21 @@ import CartLink from "@/components/CartLink";
 
 const shopLinks = [
   {
-    label: "Candles & Gifts",
+    label: "Gifts & Decor",
     description:
-      "Candles, small gifts & thoughtful extras",
-    href: "/candles",
+      "Candles, personalized gifts, decor & thoughtful extras",
+    href: "/gifts",
   },
   {
-    label: "Custom Creations",
+    label: "Apparel",
     description:
-      "Personalized gifts, decor & custom pieces",
-    href: "/custom",
-  },
-  {
-    label: "Shirts & Apparel",
-    description:
-      "Custom shirts, wearable gifts & designs",
-    href: "/shirts",
+      "Custom shirts, crewnecks, hoodies & wearable gifts",
+    href: "/apparel",
   },
   {
     label: "Gator Gear",
     description:
-      "Port Allegany school spirit & hometown pride",
+      "Port Allegany school spirit, gifts & hometown pride",
     href: "/gators",
   },
   {
@@ -72,7 +66,7 @@ const occasions = [
     label: "Thank You",
     description:
       "Small gestures with a personal touch",
-    href: "/custom",
+    href: "/gifts",
   },
   {
     label: "Just Because",
@@ -301,12 +295,9 @@ export default function SiteHeader() {
                   </p>
 
                   <p className="mt-1 text-xs leading-5 text-[#748078]">
-                    Gifts,
-                    apparel,
-                    custom
-                    creations &
-                    hometown
-                    favorites.
+                    Browse gifts, apparel,
+                    Gator gear, and custom
+                    creations.
                   </p>
                 </div>
 

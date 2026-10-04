@@ -46,7 +46,7 @@ export default function CustomOrderPage() {
               </a>
 
               <a
-                href="mailto:PortPetals@yahoo.com?subject=Custom%20Order%20Inquiry"
+                href="mailto:stacy@portpetals.com?subject=Custom%20Order%20Inquiry"
                 className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-7 py-3.5 font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
               >
                 Email Port Petals
@@ -120,10 +120,10 @@ export default function CustomOrderPage() {
               </a>
 
               <a
-                href="mailto:PortPetals@yahoo.com?subject=Custom%20Order%20Inquiry"
+                href="mailto:stacy@portpetals.com?subject=Custom%20Order%20Inquiry"
                 className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-7 py-3.5 font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
               >
-                Email PortPetals@yahoo.com
+                Email stacy@portpetals.com
               </a>
             </div>
           </div>

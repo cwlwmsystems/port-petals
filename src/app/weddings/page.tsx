@@ -1,108 +1,290 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import WeddingInquiryForm from "@/components/WeddingInquiryForm";
 import {
   getPublishedWeddingProducts,
   type WeddingProduct,
 } from "@/lib/weddings";
 
 export const metadata: Metadata = {
-  title: "Weddings & Events",
+  title: "Wedding Flowers & Event Florals",
   description:
-    "Wedding flowers, bridal bouquets, ceremony florals, reception arrangements, centerpieces, and event floral design from Port Petals in Port Allegany, Pennsylvania.",
+    "Plan wedding flowers with Port Petals in Port Allegany, Pennsylvania. Explore bridal bouquets, ceremony florals, centerpieces, reception flowers, wedding-party flowers, and custom floral consultations.",
   alternates: {
     canonical: "/weddings",
   },
   openGraph: {
-    title: "Weddings & Events | Port Petals",
+    title:
+      "Wedding Flowers & Events | Port Petals",
     description:
-      "Custom wedding and event florals designed by Port Petals for celebrations throughout the Port Allegany area.",
+      "Wedding floral planning, bridal bouquets, ceremony flowers, reception florals, centerpieces, and custom consultations from Port Petals.",
     url: "/weddings",
   },
 };
 
-const serviceCategories = [
+const weddingExamples: {
+  title: string;
+  eyebrow: string;
+  description: string;
+  details: string;
+  image?: string;
+  imageAlt?: string;
+}[] = [
   {
-    title: "Bridal Bouquets",
+    title:
+      "Bridal Bouquets",
+    eyebrow:
+      "Personal Flowers",
+    image:
+      "/wedding/bouquet.jpeg",
+    imageAlt:
+      "Wedding bridal bouquet by Port Petals",
     description:
-      "Personalized bridal bouquets designed around your colors, flowers, style, and overall wedding vision.",
+      "From compact and classic to loose garden-style or cascading bouquets, the bridal bouquet helps establish the floral direction for the entire wedding.",
+    details:
+      "Consider size, shape, dress style, wedding colors, favorite flowers, greenery, ribbon, and how much movement or structure you prefer.",
   },
   {
-    title: "Wedding Party Flowers",
+    title:
+      "Bridesmaid Bouquets",
+    eyebrow:
+      "Wedding Party",
+    image:
+      "/wedding/bouquet2.jpeg",
+    imageAlt:
+      "Wedding bouquet by Port Petals",
     description:
-      "Bridesmaid bouquets, boutonnieres, corsages, and coordinated floral pieces for your wedding party.",
+      "Coordinated bouquets can echo the bridal bouquet while using a smaller scale, simplified flower mix, or complementary colors.",
+    details:
+      "Useful details include the number of attendants, dress colors, whether bouquets should match exactly, and whether a maid of honor bouquet should differ.",
   },
   {
-    title: "Ceremony Florals",
+    title:
+      "Boutonnieres & Corsages",
+    eyebrow:
+      "Family & Wedding Party",
+    image:
+      "/wedding/bouquet3.jpeg",
+    imageAlt:
+      "Wedding floral design by Port Petals",
     description:
-      "Florals for aisles, entrances, memorial spaces, altars, arches, and other ceremony focal points.",
+      "Boutonnieres and corsages help coordinate the groom, wedding party, parents, grandparents, officiants, and other important people.",
+    details:
+      "Think through everyone who should receive a wearable floral piece so no one is accidentally left off the list.",
   },
   {
-    title: "Reception Florals",
+    title:
+      "Ceremony Florals",
+    eyebrow:
+      "Ceremony",
     description:
-      "Centerpieces, head-table arrangements, accent florals, and coordinated reception designs.",
+      "Ceremony flowers can frame the space and direct attention toward the couple through arches, aisle flowers, entrance pieces, altar arrangements, and floral accents.",
+    details:
+      "Consider the venue structure, weather, aisle length, ceremony focal point, memorial areas, reserved seating, and pieces that could later be reused at the reception.",
   },
   {
-    title: "Wedding Packages",
+    title:
+      "Wedding Arch Florals",
+    eyebrow:
+      "Statement Flowers",
     description:
-      "Coordinated floral packages that bring the major pieces of your wedding together in one cohesive design.",
+      "Arches and arbors can range from small corner clusters to asymmetrical installations or fuller floral coverage.",
+    details:
+      "Port Petals will need to know whether the venue provides the structure, its dimensions, placement, indoor/outdoor conditions, and the amount of floral coverage you envision.",
   },
   {
-    title: "Events & Celebrations",
+    title:
+      "Reception Centerpieces",
+    eyebrow:
+      "Reception",
+    image:
+      "/wedding/table-decorations.jpg",
+    imageAlt:
+      "Wedding reception table flowers and decorations by Port Petals",
     description:
-      "Custom floral design for showers, anniversaries, parties, banquets, community events, and other special occasions.",
+      "Centerpieces can be floral arrangements, bud-vase groupings, greenery, candles with florals, or a mix of styles throughout the room.",
+    details:
+      "Table count, table shape, room layout, guest sightlines, candle policies, and centerpiece height all affect the design.",
+  },
+  {
+    title:
+      "Sweetheart & Head Table",
+    eyebrow:
+      "Reception",
+    description:
+      "The couple's table or head table is often a visual focal point and can use fuller florals, repurposed ceremony pieces, greenery, candles, or statement arrangements.",
+    details:
+      "Share the table dimensions, seating arrangement, backdrop details, and whether ceremony flowers can be moved into this area.",
+  },
+  {
+    title:
+      "Cake & Detail Flowers",
+    eyebrow:
+      "Finishing Details",
+    description:
+      "Fresh flowers can coordinate the cake, welcome sign, seating chart, bar, gift table, memorial table, cocktail tables, or other small areas.",
+    details:
+      "These details are easy to forget during early planning, so they are worth discussing before the final floral plan is approved.",
+  },
+];
+
+const weddingGuide = [
+  {
+    title:
+      "Personal Flowers",
+    intro:
+      "Flowers carried or worn by members of the wedding party and family.",
+    items: [
+      "Bridal bouquet",
+      "Bridesmaid bouquets",
+      "Maid or matron of honor bouquet",
+      "Junior bridesmaid bouquet",
+      "Flower girl flowers or petals",
+      "Toss bouquet",
+      "Groom boutonniere",
+      "Groomsmen boutonnieres",
+      "Ring bearer boutonniere",
+      "Father and grandfather boutonnieres",
+      "Mother and grandmother corsages",
+      "Officiant or honored-guest flowers",
+    ],
+  },
+  {
+    title:
+      "Ceremony Flowers",
+    intro:
+      "Florals that define, decorate, and personalize the ceremony space.",
+    items: [
+      "Wedding arch or arbor florals",
+      "Altar or ceremony focal arrangements",
+      "Aisle markers or aisle-end flowers",
+      "Ground arrangements",
+      "Ceremony entrance arrangements",
+      "Welcome sign flowers",
+      "Reserved-seat flowers",
+      "Memorial flowers",
+      "Unity ceremony flowers",
+      "Petals or floral accents",
+    ],
+  },
+  {
+    title:
+      "Reception Flowers",
+    intro:
+      "Flowers used throughout the reception to connect the tables and venue to the overall wedding design.",
+    items: [
+      "Guest table centerpieces",
+      "Sweetheart table flowers",
+      "Head table flowers",
+      "Cocktail table arrangements",
+      "Cake flowers",
+      "Bar flowers",
+      "Welcome table flowers",
+      "Seating chart or escort-card flowers",
+      "Gift and card table flowers",
+      "Buffet or dessert table flowers",
+      "Fireplace or mantel flowers",
+      "Restroom or small-detail florals",
+    ],
+  },
+  {
+    title:
+      "Planning Details",
+    intro:
+      "Information that helps Stacy recommend designs that make sense for the actual wedding.",
+    items: [
+      "Wedding date",
+      "Ceremony and reception locations",
+      "Indoor or outdoor setting",
+      "Wedding colors",
+      "Dress and wedding-party colors",
+      "Preferred floral style",
+      "Favorite flowers",
+      "Flowers or colors to avoid",
+      "Estimated guest count",
+      "Table count and table shape",
+      "Estimated floral budget",
+      "Delivery and setup needs",
+      "Venue access time",
+      "Planner or coordinator contact",
+    ],
   },
 ];
 
 const processSteps = [
   {
     number: "01",
-    title: "Tell us about your event",
+    title:
+      "Send the planning form",
     description:
-      "Share your date, location, colors, inspiration, floral needs, and the pieces you are considering.",
+      "Share the wedding date, venues, colors, floral needs, quantities, budget, and the overall vision.",
   },
   {
     number: "02",
-    title: "Plan the details",
+    title:
+      "Review the floral plan",
     description:
-      "We work through flower preferences, quantities, design direction, availability, and the overall scope of your event.",
+      "Stacy can work through priorities, flower availability, quantities, design direction, logistics, and the pieces that make sense for the wedding.",
   },
   {
     number: "03",
-    title: "Create your florals",
+    title:
+      "Finalize the details",
     description:
-      "Port Petals prepares the final floral pieces around the approved plan for your wedding or event.",
+      "Once the floral plan is agreed upon, the final wedding details, timing, quantities, and event logistics can be confirmed.",
   },
 ];
 
-const collectionLabels: Record<string, string> = {
-  weddings: "Wedding Florals",
+const collectionLabels: Record<
+  string,
+  string
+> = {
+  weddings:
+    "Wedding Florals",
   ceremony: "Ceremony",
   reception: "Reception",
-  "wedding-party": "Wedding Party",
-  "event-florals": "Event Florals",
+  "wedding-party":
+    "Wedding Party",
+  "event-florals":
+    "Event Florals",
 };
 
-function formatCollection(collection: string) {
+function formatCollection(
+  collection: string
+) {
   return (
-    collectionLabels[collection] ??
+    collectionLabels[
+      collection
+    ] ??
     collection
       .replaceAll("-", " ")
       .replace(
         /\b\w/g,
-        (letter) => letter.toUpperCase()
+        (letter) =>
+          letter.toUpperCase()
       )
   );
 }
 
-function getStartingPrice(product: WeddingProduct) {
+function getStartingPrice(
+  product: WeddingProduct
+) {
   const prices = [
-    ...(product.base_price !== null
+    ...(product.base_price !==
+    null
       ? [product.base_price]
       : []),
+
     ...product.variants
-      .map((variant) => variant.price)
+      .map(
+        (variant) =>
+          variant.price
+      )
       .filter(
-        (price): price is number =>
+        (
+          price
+        ): price is number =>
           price !== null
       ),
   ];
@@ -112,13 +294,20 @@ function getStartingPrice(product: WeddingProduct) {
     : null;
 }
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(price);
+function formatPrice(
+  price: number
+) {
+  return new Intl.NumberFormat(
+    "en-US",
+    {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits:
+        0,
+      maximumFractionDigits:
+        2,
+    }
+  ).format(price);
 }
 
 function WeddingProductCard({
@@ -127,22 +316,24 @@ function WeddingProductCard({
   product: WeddingProduct;
 }) {
   const startingPrice =
-    getStartingPrice(product);
+    getStartingPrice(
+      product
+    );
 
   const image =
-    product.images[0]?.publicUrl;
+    product.images[0]
+      ?.publicUrl;
 
   return (
     <article className="group overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-[0_14px_40px_rgba(42,66,57,0.07)]">
       <div className="relative aspect-[4/3] overflow-hidden bg-[#efe8dd]">
         {image ? (
-          // Native img is intentional here because the URLs are generated
-          // dynamically from the existing Supabase storage bucket.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={image}
             alt={
-              product.images[0]?.alt_text ??
+              product.images[0]
+                ?.alt_text ??
               product.name
             }
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
@@ -175,13 +366,16 @@ function WeddingProductCard({
 
         {product.short_description && (
           <p className="mt-3 text-sm leading-6 text-[#607068]">
-            {product.short_description}
+            {
+              product.short_description
+            }
           </p>
         )}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-[#284239]/10 pt-5">
           <div>
-            {startingPrice !== null ? (
+            {startingPrice !==
+            null ? (
               <>
                 <p className="text-xs uppercase tracking-[0.14em] text-[#607068]">
                   Starting at
@@ -195,13 +389,14 @@ function WeddingProductCard({
               </>
             ) : (
               <p className="text-sm font-medium text-[#607068]">
-                Consultation pricing
+                Consultation
+                pricing
               </p>
             )}
           </div>
 
           <Link
-            href="/custom/request"
+            href="#wedding-inquiry"
             className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#153f32] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#284239]"
           >
             Ask About This
@@ -218,11 +413,13 @@ export default async function WeddingsPage() {
 
   const featuredProducts =
     products.filter(
-      (product) => product.featured
+      (product) =>
+        product.featured
     );
 
   const displayedProducts =
-    featuredProducts.length > 0
+    featuredProducts.length >
+    0
       ? featuredProducts
       : products;
 
@@ -234,8 +431,6 @@ export default async function WeddingsPage() {
 
         <div className="pointer-events-none absolute right-[6%] top-0 h-80 w-80 rounded-full bg-[#cad8c9]/22 blur-3xl" />
 
-        <div className="pointer-events-none absolute bottom-[-120px] left-[42%] h-80 w-80 rounded-full bg-white/60 blur-3xl" />
-
         <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 sm:py-16 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:px-10 lg:py-20">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#b45f75]">
@@ -243,147 +438,177 @@ export default async function WeddingsPage() {
             </p>
 
             <h1 className="mt-4 max-w-3xl font-serif text-4xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-5xl lg:text-6xl">
-              Florals designed around your day.
+              Florals designed
+              around your day.
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-7 text-[#52655d] sm:text-lg sm:leading-8">
-              From bridal bouquets and
-              boutonnieres to ceremony
-              florals, centerpieces, and
-              special-event arrangements,
-              Port Petals creates meaningful
-              floral designs around your
-              colors, style, and celebration.
+              Plan bridal
+              bouquets, wedding
+              party flowers,
+              ceremony florals,
+              centerpieces,
+              reception flowers,
+              and the details that
+              bring the entire
+              celebration together.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
-                href="/custom/request"
+                href="#wedding-inquiry"
                 className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
               >
-                Start Your Consultation
+                Start Your
+                Wedding Inquiry
               </Link>
 
               <Link
-                href="#wedding-services"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#284239]/15 bg-white/70 px-6 py-3 text-sm font-semibold text-[#284239] backdrop-blur-sm transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                href="#wedding-guide"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#284239]/15 bg-white/70 px-6 py-3 text-sm font-semibold text-[#284239]"
               >
-                Explore Wedding Florals
+                Wedding Flower
+                Guide
               </Link>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/55 p-6 shadow-[0_18px_55px_rgba(42,66,57,0.10)] backdrop-blur-[5px] sm:p-8">
-            <div className="absolute inset-0 bg-white/10" />
+          <div className="rounded-[2rem] border border-white/70 bg-white/55 p-6 shadow-[0_18px_55px_rgba(42,66,57,0.10)] backdrop-blur-[5px] sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b45f75]">
+              Plan With
+              Confidence
+            </p>
 
-            <div className="relative">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b45f75]">
-                Designed For You
-              </p>
+            <h2 className="mt-3 font-serif text-2xl font-semibold tracking-[-0.03em] text-[#153f32] sm:text-3xl">
+              You do not need to
+              know all the floral
+              terminology.
+            </h2>
 
-              <h2 className="mt-3 font-serif text-2xl font-semibold tracking-[-0.03em] text-[#153f32] sm:text-3xl">
-                Personal flowers, ceremony
-                details & reception designs
-              </h2>
+            <p className="mt-4 text-sm leading-6 text-[#607068]">
+              The guide and
+              inquiry form below
+              walk through the
+              pieces couples,
+              planners, and
+              families commonly
+              need so important
+              details are not
+              forgotten.
+            </p>
 
-              <p className="mt-4 text-sm leading-6 text-[#607068]">
-                Wedding florals are planned
-                individually so the flowers,
-                scale, colors, and overall
-                look fit the event rather
-                than forcing your day into a
-                standard package.
-              </p>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl bg-white/70 p-4">
-                  <p className="font-semibold text-[#153f32]">
-                    Personal Flowers
-                  </p>
-
-                  <p className="mt-1 text-xs leading-5 text-[#607068]">
-                    Bouquets,
-                    boutonnieres, corsages,
-                    and wedding-party pieces.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-white/70 p-4">
-                  <p className="font-semibold text-[#153f32]">
-                    Event Florals
-                  </p>
-
-                  <p className="mt-1 text-xs leading-5 text-[#607068]">
-                    Ceremony accents,
-                    centerpieces, statement
-                    pieces, and reception
-                    florals.
-                  </p>
-                </div>
-              </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {[
+                "Personal flowers",
+                "Ceremony flowers",
+                "Reception florals",
+                "Budget & logistics",
+              ].map(
+                (item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl bg-white/70 p-4 text-sm font-semibold text-[#153f32]"
+                  >
+                    {item}
+                  </div>
+                )
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* INTRO */}
-      <section className="border-b border-[#284239]/10 bg-white">
-        <div className="mx-auto max-w-4xl px-5 py-12 text-center sm:px-8 sm:py-14">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#b45f75]">
-            Your Flowers, Your Celebration
-          </p>
-
-          <h2 className="mt-3 font-serif text-3xl font-semibold tracking-[-0.035em] text-[#153f32] sm:text-4xl">
-            Wedding flowers should feel
-            personal.
-          </h2>
-
-          <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-[#607068]">
-            Every wedding is different.
-            Port Petals can build the floral
-            plan around the pieces you
-            actually need, whether that is a
-            bridal bouquet and wedding-party
-            flowers or a larger collection
-            spanning the ceremony and
-            reception.
-          </p>
-        </div>
-      </section>
-
-      {/* SERVICES */}
-      <section
-        id="wedding-services"
-        className="scroll-mt-28 bg-[#f7f1e8]"
-      >
+      {/* EXAMPLES */}
+      <section className="bg-white">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-              Wedding & Event Services
+              Wedding Flower
+              Examples
             </p>
 
             <h2 className="mt-3 font-serif text-3xl font-semibold tracking-[-0.035em] text-[#153f32] sm:text-4xl">
-              Floral pieces for every part
-              of the celebration.
+              Flowers for every
+              part of the wedding.
             </h2>
+
+            <p className="mt-4 text-base leading-7 text-[#607068]">
+              These examples help
+              explain the pieces
+              commonly included in
+              a wedding floral
+              plan. Your wedding
+              can include as many
+              or as few as make
+              sense for your day.
+            </p>
           </div>
 
-          <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {serviceCategories.map(
-              (service) => (
+          <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {weddingExamples.map(
+              (example) => (
                 <article
-                  key={service.title}
-                  className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-6 shadow-[0_10px_30px_rgba(42,66,57,0.05)] sm:p-7"
+                  key={
+                    example.title
+                  }
+                  className="group overflow-hidden rounded-[1.5rem] border border-[#284239]/10 bg-[#faf7f1] shadow-[0_10px_30px_rgba(42,66,57,0.05)]"
                 >
-                  <div className="mb-5 h-1 w-12 rounded-full bg-[#e76d61]" />
+                  {example.image ? (
+                    <div className="relative aspect-[4/3] overflow-hidden bg-[#efe8dd]">
+                      <Image
+                        src={
+                          example.image
+                        }
+                        alt={
+                          example.imageAlt ??
+                          example.title
+                        }
+                        fill
+                        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
+                        className="object-cover transition duration-500 group-hover:scale-[1.025]"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex aspect-[4/3] items-center justify-center bg-[linear-gradient(135deg,#f4e9e5_0%,#efe7dc_48%,#e5ece5_100%)] px-8 text-center">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#b45f75]">
+                          Wedding Florals
+                        </p>
 
-                  <h3 className="font-serif text-2xl font-semibold tracking-[-0.025em] text-[#153f32]">
-                    {service.title}
-                  </h3>
+                        <p className="mt-2 font-serif text-2xl font-semibold text-[#153f32]/70">
+                          {
+                            example.title
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
-                  <p className="mt-3 text-sm leading-6 text-[#607068]">
-                    {service.description}
-                  </p>
+                  <div className="p-6">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#b45f75]">
+                      {
+                        example.eyebrow
+                      }
+                    </p>
+
+                    <h3 className="mt-3 font-serif text-2xl font-semibold text-[#153f32]">
+                      {
+                        example.title
+                      }
+                    </h3>
+
+                    <p className="mt-3 text-sm leading-6 text-[#607068]">
+                      {
+                        example.description
+                      }
+                    </p>
+
+                    <p className="mt-4 border-t border-[#284239]/10 pt-4 text-xs leading-5 text-[#718078]">
+                      {
+                        example.details
+                      }
+                    </p>
+                  </div>
                 </article>
               )
             )}
@@ -391,44 +616,32 @@ export default async function WeddingsPage() {
         </div>
       </section>
 
-      {/* PUBLISHED WEDDING PRODUCTS */}
-      {displayedProducts.length > 0 && (
-        <section className="border-y border-[#284239]/10 bg-[#faf7f1]">
+      {/* REAL WEDDING PRODUCTS */}
+      {displayedProducts.length >
+        0 && (
+        <section className="border-y border-[#284239]/10 bg-[#f7f1e8]">
           <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-                  Wedding Inspiration
-                </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
+              Port Petals
+              Inspiration
+            </p>
 
-                <h2 className="mt-3 font-serif text-3xl font-semibold tracking-[-0.035em] text-[#153f32] sm:text-4xl">
-                  Featured wedding florals
-                </h2>
-
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607068]">
-                  Browse examples and
-                  wedding floral offerings,
-                  then contact Port Petals to
-                  discuss colors,
-                  availability, quantities,
-                  and event details.
-                </p>
-              </div>
-
-              <Link
-                href="/custom/request"
-                className="text-sm font-semibold text-[#153f32] underline decoration-[#e76d61]/50 underline-offset-4 transition hover:text-[#e76d61]"
-              >
-                Request a consultation
-              </Link>
-            </div>
+            <h2 className="mt-3 font-serif text-3xl font-semibold text-[#153f32] sm:text-4xl">
+              Wedding floral
+              examples from the
+              shop
+            </h2>
 
             <div className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {displayedProducts.map(
                 (product) => (
                   <WeddingProductCard
-                    key={product.id}
-                    product={product}
+                    key={
+                      product.id
+                    }
+                    product={
+                      product
+                    }
                   />
                 )
               )}
@@ -437,37 +650,150 @@ export default async function WeddingsPage() {
         </section>
       )}
 
-      {/* PROCESS */}
-      <section className="bg-white">
+      {/* GUIDE */}
+      <section
+        id="wedding-guide"
+        className="scroll-mt-28 bg-[#faf7f1]"
+      >
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
-          <div className="max-w-3xl">
+          <div className="max-w-4xl">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#b45f75]">
-              How It Works
+              Complete Wedding
+              Flower Guide
             </p>
 
             <h2 className="mt-3 font-serif text-3xl font-semibold tracking-[-0.035em] text-[#153f32] sm:text-4xl">
-              Start with the vision. We will
-              work through the flowers.
+              A checklist for
+              planning the flowers.
             </h2>
+
+            <p className="mt-4 text-base leading-7 text-[#607068]">
+              You do not need every
+              item on this list.
+              The purpose is to
+              make sure you know
+              what is possible
+              before deciding what
+              matters most for your
+              wedding.
+            </p>
           </div>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {weddingGuide.map(
+              (group) => (
+                <article
+                  key={
+                    group.title
+                  }
+                  className="rounded-[1.6rem] border border-[#284239]/10 bg-white p-6 sm:p-7"
+                >
+                  <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
+                    {
+                      group.title
+                    }
+                  </h3>
+
+                  <p className="mt-3 text-sm leading-6 text-[#607068]">
+                    {
+                      group.intro
+                    }
+                  </p>
+
+                  <ul className="mt-5 grid gap-2">
+                    {group.items.map(
+                      (item) => (
+                        <li
+                          key={
+                            item
+                          }
+                          className="flex gap-3 text-sm leading-6 text-[#52655d]"
+                        >
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#e76d61]" />
+
+                          <span>
+                            {item}
+                          </span>
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </article>
+              )
+            )}
+          </div>
+
+          <div className="mt-8 rounded-[1.6rem] bg-[#edf3e7] p-6 sm:p-8">
+            <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
+              Details couples
+              often forget
+            </h3>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                "Parents and grandparents who need corsages or boutonnieres",
+                "Memorial or remembrance flowers",
+                "Welcome sign and seating-chart florals",
+                "Cake flowers",
+                "Cocktail tables and small reception areas",
+                "Venue access and floral setup time",
+                "Whether ceremony florals can be reused at the reception",
+                "Who will move floral pieces between locations",
+                "Weather plans for outdoor ceremonies",
+              ].map(
+                (item) => (
+                  <div
+                    key={item}
+                    className="rounded-xl bg-white/70 p-4 text-sm leading-6 text-[#52655d]"
+                  >
+                    {item}
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PROCESS */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#b45f75]">
+            How It Works
+          </p>
+
+          <h2 className="mt-3 max-w-3xl font-serif text-3xl font-semibold text-[#153f32] sm:text-4xl">
+            Start with the
+            details. Build the
+            floral plan from
+            there.
+          </h2>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
             {processSteps.map(
               (step) => (
                 <div
-                  key={step.number}
-                  className="relative border-t border-[#284239]/15 pt-6"
+                  key={
+                    step.number
+                  }
+                  className="border-t border-[#284239]/15 pt-6"
                 >
                   <p className="font-serif text-4xl text-[#e76d61]/55">
-                    {step.number}
+                    {
+                      step.number
+                    }
                   </p>
 
                   <h3 className="mt-4 font-serif text-2xl font-semibold text-[#153f32]">
-                    {step.title}
+                    {
+                      step.title
+                    }
                   </h3>
 
                   <p className="mt-3 text-sm leading-6 text-[#607068]">
-                    {step.description}
+                    {
+                      step.description
+                    }
                   </p>
                 </div>
               )
@@ -476,35 +802,35 @@ export default async function WeddingsPage() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="bg-[#153f32]">
-        <div className="mx-auto max-w-5xl px-5 py-14 text-center sm:px-8 sm:py-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#f1b6ad]">
-            Planning Something Special?
-          </p>
+      {/* INQUIRY FORM */}
+      <section
+        id="wedding-inquiry"
+        className="scroll-mt-28 border-t border-[#284239]/10 bg-[#f7f1e8]"
+      >
+        <div className="mx-auto max-w-5xl px-5 py-14 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
+          <div className="mb-10 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
+              Wedding
+              Consultation
+            </p>
 
-          <h2 className="mx-auto mt-3 max-w-3xl font-serif text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
-            Tell Port Petals what you are
-            planning.
-          </h2>
+            <h2 className="mx-auto mt-3 max-w-3xl font-serif text-3xl font-semibold tracking-[-0.035em] text-[#153f32] sm:text-4xl">
+              Tell Stacy about
+              the wedding.
+            </h2>
 
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/75 sm:text-base sm:leading-7">
-            Share your date, event type,
-            colors, floral ideas, and the
-            pieces you are interested in.
-            That gives us a starting point
-            for planning your wedding or
-            event florals.
-          </p>
-
-          <div className="mt-7">
-            <Link
-              href="/custom/request"
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
-            >
-              Start Your Consultation
-            </Link>
+            <p className="mx-auto mt-4 max-w-3xl text-base leading-7 text-[#607068]">
+              Fill out as much as
+              you know right now.
+              It is completely
+              fine to choose “not
+              sure” or leave
+              optional details
+              blank.
+            </p>
           </div>
+
+          <WeddingInquiryForm />
         </div>
       </section>
     </main>

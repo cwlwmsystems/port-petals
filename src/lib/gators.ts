@@ -108,7 +108,7 @@ export async function getPublishedGatorGear(): Promise<GatorProduct[]> {
         is_primary
       )
     `)
-    .eq("category", "gators")
+    .eq("department", "gator-gear")
     .eq("status", "published")
     .order("featured", { ascending: false })
     .order("updated_at", { ascending: false });

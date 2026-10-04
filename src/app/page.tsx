@@ -15,7 +15,7 @@ const categories = [
   {
     name: "Fresh Flowers",
     description:
-      "Thoughtful bouquets and seasonal arrangements for life's everyday moments.",
+      "Thoughtful bouquets, arrangements, sympathy flowers, and flowers for life's everyday moments.",
     href: "/flowers",
     tone: "from-[#f8d8d2] to-[#f5c7bf]",
     accent: "#df6255",
@@ -23,30 +23,20 @@ const categories = [
     image: "/heroes/flowers.jpg",
   },
   {
-    name: "Candles",
+    name: "Gifts & Decor",
     description:
-      "Cozy scents and handmade favorites for gifting, relaxing, and home.",
-    href: "/candles",
+      "Candles, personalized gifts, home decor, keepsakes, and thoughtful extras.",
+    href: "/gifts",
     tone: "from-[#f7ead4] to-[#efd7b7]",
     accent: "#c88654",
     icon: "◈",
     image: "/heroes/candles.jpg",
   },
   {
-    name: "Custom Items",
+    name: "Apparel",
     description:
-      "Personalized gifts made with your names, colors, ideas, and special occasions in mind.",
-    href: "/custom",
-    tone: "from-[#e4f0df] to-[#cfe4c7]",
-    accent: "#629e61",
-    icon: "✦",
-    image: "/heroes/custom.jpg",
-  },
-  {
-    name: "Shirts",
-    description:
-      "Fun, comfortable shirts with seasonal, local, and creative designs.",
-    href: "/shirts",
+      "Custom shirts, crewnecks, hoodies, and wearable designs for every occasion.",
+    href: "/apparel",
     tone: "from-[#f4dde4] to-[#edc8d4]",
     accent: "#c96f8c",
     icon: "♡",
@@ -55,12 +45,22 @@ const categories = [
   {
     name: "Gator Gear",
     description:
-      "Port Allegany spirit wear and hometown apparel for Gator fans of all ages.",
+      "Port Allegany school spirit, hometown gifts, apparel, and Gator favorites.",
     href: "/gators",
     tone: "from-[#dfead8] to-[#c7dfbe]",
     accent: "#426c49",
     icon: "★",
     image: "/heroes/gator-gear.jpg",
+  },
+  {
+    name: "Custom Orders",
+    description:
+      "Have something specific in mind? Tell Port Petals about your personalized idea.",
+    href: "/custom/request",
+    tone: "from-[#e4f0df] to-[#cfe4c7]",
+    accent: "#629e61",
+    icon: "✦",
+    image: "/heroes/custom.jpg",
   },
 ];
 
@@ -92,9 +92,9 @@ export default function Home() {
             </h1>
 
             <p className="mt-8 max-w-xl text-lg leading-8 text-[#40584f]">
-              Fresh flowers, cozy candles, personalized gifts, shirts, and
-              hometown Gator gear — thoughtfully made and selected in Port
-              Allegany.
+              Fresh flowers, gifts and decor, custom apparel, seasonal
+              favorites, and hometown Gator gear — thoughtfully made and
+              selected in Port Allegany.
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -106,7 +106,7 @@ export default function Home() {
               </a>
 
               <a
-                href="/custom"
+                href="/custom/request"
                 className="inline-flex items-center justify-center rounded-full border border-[#e76d61] bg-white/60 px-7 py-3.5 font-semibold text-[#284239] backdrop-blur transition hover:bg-white"
               >
                 Ask About a Custom Order
@@ -170,8 +170,8 @@ export default function Home() {
           </h2>
 
           <p className="mx-auto mt-4 max-w-xl leading-7 text-[#617068]">
-            Explore Port Petals favorites, from fresh arrangements to custom
-            creations and hometown apparel.
+            Explore fresh flowers, gifts and decor, custom apparel, hometown
+            Gator gear, and personalized creations.
           </p>
         </div>
 

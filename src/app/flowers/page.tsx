@@ -327,7 +327,7 @@ export default async function FlowersPage() {
                   </a>
 
                   <a
-                    href="mailto:PortPetals@yahoo.com?subject=Homecoming%20Flowers"
+                    href="mailto:stacy@portpetals.com?subject=Homecoming%20Flowers"
                     className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                   >
                     Email Port Petals

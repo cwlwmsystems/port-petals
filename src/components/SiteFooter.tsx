@@ -19,8 +19,9 @@ export default function SiteFooter() {
             </Link>
 
             <p className="mt-3 max-w-xs text-[13px] leading-5 text-[#637068]">
-              Fresh flowers, candles, custom creations, shirts, and hometown
-              Gator gear from Port Petals in Port Allegany, Pennsylvania.
+              Fresh flowers, gifts and decor, apparel, seasonal favorites,
+              wedding florals, and hometown Gator gear from Port Petals in
+              Port Allegany, Pennsylvania.
             </p>
           </div>
 
@@ -35,20 +36,24 @@ export default function SiteFooter() {
                 Flowers
               </Link>
 
-              <Link href="/candles" className="transition hover:text-[#e76d61]">
-                Candles
+              <Link href="/gifts" className="transition hover:text-[#e76d61]">
+                Gifts & Decor
               </Link>
 
-              <Link href="/custom" className="transition hover:text-[#e76d61]">
-                Custom Creations
-              </Link>
-
-              <Link href="/shirts" className="transition hover:text-[#e76d61]">
-                Shirts
+              <Link href="/apparel" className="transition hover:text-[#e76d61]">
+                Apparel
               </Link>
 
               <Link href="/gators" className="transition hover:text-[#e76d61]">
                 Gator Gear
+              </Link>
+
+              <Link href="/seasonal" className="transition hover:text-[#e76d61]">
+                Seasonal
+              </Link>
+
+              <Link href="/weddings" className="transition hover:text-[#e76d61]">
+                Weddings & Events
               </Link>
             </nav>
           </div>

@@ -89,7 +89,7 @@ export default function AboutPage() {
               Get in Touch
             </h2>
             <p className="mt-4 leading-7 text-[#607068]">
-              Call 814-642-1253 or email PortPetals@yahoo.com.
+              Call 814-642-1253 or email stacy@portpetals.com.
             </p>
           </article>
         </div>
@@ -228,7 +228,7 @@ export default function AboutPage() {
                 </a>
 
                 <a
-                  href="mailto:PortPetals@yahoo.com"
+                  href="mailto:stacy@portpetals.com"
                   className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-7 py-3.5 font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
                 >
                   Email Port Petals
