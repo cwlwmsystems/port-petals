@@ -30,39 +30,87 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+function getLegacyCategory({
+  department,
+  configuratorType,
+}: {
+  department: string;
+  configuratorType: string;
+}) {
+  if (department === "flowers") {
+    return "flowers";
+  }
+
+  if (department === "apparel") {
+    return "shirts";
+  }
+
+  if (department === "gator-gear") {
+    return "gators";
+  }
+
+  if (
+    department === "weddings-events"
+  ) {
+    return "flowers";
+  }
+
+  if (
+    department === "seasonal" &&
+    configuratorType === "flower"
+  ) {
+    return "flowers";
+  }
+
+  if (configuratorType === "candle") {
+    return "candles";
+  }
+
+  return "custom";
+}
+
 function getRequiredLeadTime({
-  category,
-  collection,
-  customizable,
-  madeToOrder,
+  department,
+  productType,
   requestedLeadTime,
 }: {
-  category: string;
-  collection: string;
-  customizable: boolean;
-  madeToOrder: boolean;
+  department: string;
+  productType: string;
   requestedLeadTime: number | null;
 }) {
   let minimum = 0;
 
-  if (category === "flowers") {
-    minimum =
-      collection.toLowerCase() ===
-      "sympathy arrangements"
-        ? 4
-        : 3;
-  }
-
   if (
-    category === "custom" ||
-    category === "gators"
+    [
+      "sympathy-arrangement",
+      "casket-spray",
+      "standing-spray",
+      "memorial-tribute",
+    ].includes(productType)
+  ) {
+    minimum = 4;
+  } else if (
+    [
+      "floral-arrangement",
+      "hand-tied-bouquet",
+      "corsage",
+      "boutonniere",
+      "formal-flower-set",
+      "seasonal-floral",
+    ].includes(productType)
+  ) {
+    minimum = 3;
+  } else if (
+    [
+      "gifts-decor",
+      "gator-gear",
+    ].includes(department)
   ) {
     minimum = 2;
-  }
-
-  if (
-    category === "shirts" &&
-    (customizable || madeToOrder)
+  } else if (
+    department === "seasonal" &&
+    productType !== "seasonal-shirt" &&
+    productType !== "seasonal-candle"
   ) {
     minimum = 2;
   }
@@ -117,12 +165,24 @@ export async function updateProduct(
     formData.get("name") ?? ""
   ).trim();
 
-  const category = String(
-    formData.get("category") ?? ""
+  const department = String(
+    formData.get("department") ?? ""
+  ).trim();
+
+  const productType = String(
+    formData.get("product_type") ?? ""
   ).trim();
 
   const collection = String(
     formData.get("collection") ?? ""
+  ).trim();
+
+  const configuratorType = String(
+    formData.get("configurator_type") ?? ""
+  ).trim();
+
+  const purchaseMode = String(
+    formData.get("purchase_mode") ?? ""
   ).trim();
 
   const shortDescription = String(
@@ -190,20 +250,56 @@ export async function updateProduct(
   if (
     ![
       "flowers",
-      "candles",
-      "custom",
-      "shirts",
-      "gators",
-    ].includes(category)
+      "gifts-decor",
+      "apparel",
+      "gator-gear",
+      "seasonal",
+      "weddings-events",
+    ].includes(department)
   ) {
     throw new Error(
-      "A valid product category is required."
+      "A valid department is required."
+    );
+  }
+
+  if (!productType) {
+    throw new Error(
+      "Product type is required."
     );
   }
 
   if (!collection) {
     throw new Error(
       "Collection is required."
+    );
+  }
+
+  if (
+    ![
+      "simple",
+      "flower",
+      "candle",
+      "custom",
+      "shirt",
+      "gator",
+      "wedding",
+    ].includes(configuratorType)
+  ) {
+    throw new Error(
+      "A valid configurator is required."
+    );
+  }
+
+  if (
+    ![
+      "direct",
+      "customizable",
+      "request",
+      "consultation",
+    ].includes(purchaseMode)
+  ) {
+    throw new Error(
+      "A valid ordering method is required."
     );
   }
 
@@ -234,12 +330,16 @@ export async function updateProduct(
     );
   }
 
+  const category =
+    getLegacyCategory({
+      department,
+      configuratorType,
+    });
+
   const leadTimeDays =
     getRequiredLeadTime({
-      category,
-      collection,
-      customizable,
-      madeToOrder,
+      department,
+      productType,
       requestedLeadTime,
     });
 
@@ -249,7 +349,13 @@ export async function updateProduct(
       .update({
         name,
         category,
+        department,
+        product_type: productType,
         collection,
+        configurator_type:
+          configuratorType,
+        purchase_mode:
+          purchaseMode,
         short_description:
           shortDescription || null,
         description:
@@ -464,7 +570,11 @@ export async function duplicateProduct(
     .select(`
       name,
       category,
+      department,
+      product_type,
       collection,
+      configurator_type,
+      purchase_mode,
       short_description,
       description,
       base_price,

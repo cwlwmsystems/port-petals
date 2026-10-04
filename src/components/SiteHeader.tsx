@@ -10,86 +10,109 @@ import {
 } from "react";
 import CartLink from "@/components/CartLink";
 
-const occasions = [
+const shopLinks = [
   {
-    label: "Birthdays",
-    description: "Flowers, gifts & something special",
-    href: "/flowers",
-  },
-  {
-    label: "Homecoming & Prom",
-    description: "Corsages, boutonnieres & bouquets",
-    href: "/flowers#prom-homecoming",
-  },
-  {
-    label: "Anniversaries",
-    description: "Flowers & thoughtful gifts",
-    href: "/flowers",
-  },
-  {
-    label: "Graduation",
-    description: "Flowers, gifts & Gator pride",
-    href: "/gators",
-  },
-  {
-    label: "Thank You",
-    description: "Small gestures with a personal touch",
-    href: "/custom",
-  },
-  {
-    label: "Just Because",
-    description: "No special occasion required",
-    href: "/flowers",
-  },
-];
-
-const giftGuide = [
-  {
-    label: "Flowers",
-    description: "A classic choice for any occasion",
-    href: "/flowers",
-  },
-  {
-    label: "Candles & Small Gifts",
-    description: "Easy gifts & thoughtful extras",
+    label: "Candles & Gifts",
+    description:
+      "Candles, small gifts & thoughtful extras",
     href: "/candles",
   },
   {
-    label: "Personalized Gifts",
-    description: "Something made especially for them",
+    label: "Custom Creations",
+    description:
+      "Personalized gifts, decor & custom pieces",
     href: "/custom",
   },
   {
-    label: "Shirts",
-    description: "Wearable gifts & custom designs",
+    label: "Shirts & Apparel",
+    description:
+      "Custom shirts, wearable gifts & designs",
     href: "/shirts",
   },
   {
-    label: "Gator Gifts",
-    description: "Port Allegany hometown pride",
+    label: "Gator Gear",
+    description:
+      "Port Allegany school spirit & hometown pride",
     href: "/gators",
   },
   {
-    label: "Need Something Custom?",
-    description: "Call or email Port Petals",
+    label: "Custom Orders",
+    description:
+      "Request something made especially for you",
     href: "/custom/request",
   },
 ];
 
-type DesktopMenu = "occasions" | "gift" | null;
-type MobileSection = "occasions" | "gift" | null;
+const occasions = [
+  {
+    label: "Birthdays",
+    description:
+      "Flowers, gifts & something special",
+    href: "/flowers",
+  },
+  {
+    label: "Homecoming & Prom",
+    description:
+      "Corsages, boutonnieres & bouquets",
+    href: "/flowers#prom-homecoming",
+  },
+  {
+    label: "Anniversaries",
+    description:
+      "Flowers & thoughtful gifts",
+    href: "/flowers",
+  },
+  {
+    label: "Graduation",
+    description:
+      "Flowers, gifts & Gator pride",
+    href: "/gators",
+  },
+  {
+    label: "Thank You",
+    description:
+      "Small gestures with a personal touch",
+    href: "/custom",
+  },
+  {
+    label: "Just Because",
+    description:
+      "No special occasion required",
+    href: "/flowers",
+  },
+];
+
+type DesktopMenu =
+  | "shop"
+  | "occasions"
+  | null;
+
+type MobileSection =
+  | "shop"
+  | "occasions"
+  | null;
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const headerRef = useRef<HTMLElement>(null);
+  const headerRef =
+    useRef<HTMLElement>(null);
 
-  const [desktopMenu, setDesktopMenu] =
+  const [
+    desktopMenu,
+    setDesktopMenu,
+  ] =
     useState<DesktopMenu>(null);
 
-  const [mobileOpen, setMobileOpen] =
+  const [
+    mobileOpen,
+    setMobileOpen,
+  ] =
     useState(false);
 
-  const [mobileSection, setMobileSection] =
+  const [
+    mobileSection,
+    setMobileSection,
+  ] =
     useState<MobileSection>(null);
 
   function closeAllMenus() {
@@ -99,10 +122,15 @@ export default function SiteHeader() {
   }
 
   function toggleDesktopMenu(
-    menu: Exclude<DesktopMenu, null>
+    menu: Exclude<
+      DesktopMenu,
+      null
+    >
   ) {
     setDesktopMenu((current) =>
-      current === menu ? null : menu
+      current === menu
+        ? null
+        : menu
     );
   }
 
@@ -117,10 +145,15 @@ export default function SiteHeader() {
   }
 
   function toggleMobileSection(
-    section: Exclude<MobileSection, null>
+    section: Exclude<
+      MobileSection,
+      null
+    >
   ) {
     setMobileSection((current) =>
-      current === section ? null : section
+      current === section
+        ? null
+        : section
     );
   }
 
@@ -157,14 +190,17 @@ export default function SiteHeader() {
 
   useEffect(() => {
     if (!mobileOpen) {
-      document.body.style.overflow = "";
+      document.body.style.overflow =
+        "";
       return;
     }
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+      "hidden";
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow =
+        "";
     };
   }, [mobileOpen]);
 
@@ -173,7 +209,7 @@ export default function SiteHeader() {
       ref={headerRef}
       className="relative z-50 border-b border-[#284239]/10 bg-[#f7f1e8]/95 backdrop-blur"
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-8 sm:py-3 lg:px-10">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-8 sm:py-3 lg:px-10">
         <Link
           href="/"
           onClick={closeAllMenus}
@@ -193,53 +229,25 @@ export default function SiteHeader() {
         {/* DESKTOP NAVIGATION */}
         <nav
           aria-label="Main navigation"
-          className="hidden items-center gap-5 text-[14px] font-medium text-[#284239] lg:flex xl:gap-7 xl:text-[15px]"
+          className="hidden items-center gap-6 text-[14px] font-medium text-[#284239] lg:flex xl:gap-8 xl:text-[15px]"
         >
           <Link
             href="/flowers"
-            onClick={closeAllMenus}
-            className="transition hover:text-[#e76d61]"
+            onClick={
+              closeAllMenus
+            }
+            className="whitespace-nowrap transition hover:text-[#e76d61]"
           >
             Fresh Flowers
           </Link>
 
-          <Link
-            href="/candles"
-            onClick={closeAllMenus}
-            className="transition hover:text-[#e76d61]"
-          >
-            Candles
-          </Link>
-
-          <Link
-            href="/custom"
-            onClick={closeAllMenus}
-            className="transition hover:text-[#e76d61]"
-          >
-            Custom Items
-          </Link>
-
-          <Link
-            href="/shirts"
-            onClick={closeAllMenus}
-            className="transition hover:text-[#e76d61]"
-          >
-            Shirts
-          </Link>
-
-          <Link
-            href="/gators"
-            onClick={closeAllMenus}
-            className="transition hover:text-[#e76d61]"
-          >
-            Gator Gear
-          </Link>
-
-          {/* OCCASIONS */}
+          {/* SHOP */}
           <div
             className="relative"
             onMouseEnter={() =>
-              setDesktopMenu("occasions")
+              setDesktopMenu(
+                "shop"
+              )
             }
             onMouseLeave={() =>
               setDesktopMenu(null)
@@ -248,16 +256,145 @@ export default function SiteHeader() {
             <button
               type="button"
               onClick={() =>
-                toggleDesktopMenu("occasions")
+                toggleDesktopMenu(
+                  "shop"
+                )
               }
               onFocus={() =>
-                setDesktopMenu("occasions")
+                setDesktopMenu(
+                  "shop"
+                )
               }
               aria-expanded={
-                desktopMenu === "occasions"
+                desktopMenu ===
+                "shop"
               }
-              className={`flex items-center gap-1.5 py-4 transition ${
-                desktopMenu === "occasions"
+              className={`flex items-center gap-1.5 whitespace-nowrap py-4 transition ${
+                desktopMenu ===
+                "shop"
+                  ? "text-[#e76d61]"
+                  : "hover:text-[#e76d61]"
+              }`}
+            >
+              Shop
+
+              <ChevronIcon
+                open={
+                  desktopMenu ===
+                  "shop"
+                }
+              />
+            </button>
+
+            <div
+              className={`absolute left-1/2 top-full w-[390px] -translate-x-1/2 transition-all duration-200 ${
+                desktopMenu ===
+                "shop"
+                  ? "visible translate-y-0 opacity-100"
+                  : "invisible translate-y-2 opacity-0"
+              }`}
+            >
+              <div className="overflow-hidden rounded-[1.4rem] border border-[#284239]/10 bg-[#fffaf3] p-2 shadow-[0_22px_60px_rgba(42,66,57,0.16)]">
+                <div className="px-4 pb-2 pt-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
+                    Shop Port Petals
+                  </p>
+
+                  <p className="mt-1 text-xs leading-5 text-[#748078]">
+                    Gifts,
+                    apparel,
+                    custom
+                    creations &
+                    hometown
+                    favorites.
+                  </p>
+                </div>
+
+                <div className="grid gap-1">
+                  {shopLinks.map(
+                    (item) => (
+                      <Link
+                        key={
+                          item.label
+                        }
+                        href={
+                          item.href
+                        }
+                        onClick={
+                          closeAllMenus
+                        }
+                        className="rounded-xl px-4 py-3 transition hover:bg-[#f4ebe0]"
+                      >
+                        <span className="block font-semibold text-[#153f32]">
+                          {
+                            item.label
+                          }
+                        </span>
+
+                        <span className="mt-0.5 block text-xs font-normal text-[#748078]">
+                          {
+                            item.description
+                          }
+                        </span>
+                      </Link>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            href="/seasonal"
+            onClick={
+              closeAllMenus
+            }
+            className="whitespace-nowrap transition hover:text-[#e76d61]"
+          >
+            Seasonal
+          </Link>
+
+          <Link
+            href="/weddings"
+            onClick={
+              closeAllMenus
+            }
+            className="whitespace-nowrap transition hover:text-[#e76d61]"
+          >
+            Weddings & Events
+          </Link>
+
+          {/* OCCASIONS */}
+          <div
+            className="relative"
+            onMouseEnter={() =>
+              setDesktopMenu(
+                "occasions"
+              )
+            }
+            onMouseLeave={() =>
+              setDesktopMenu(null)
+            }
+          >
+            <button
+              type="button"
+              onClick={() =>
+                toggleDesktopMenu(
+                  "occasions"
+                )
+              }
+              onFocus={() =>
+                setDesktopMenu(
+                  "occasions"
+                )
+              }
+              aria-expanded={
+                desktopMenu ===
+                "occasions"
+              }
+              className={`flex items-center gap-1.5 whitespace-nowrap py-4 transition ${
+                desktopMenu ===
+                "occasions"
                   ? "text-[#e76d61]"
                   : "hover:text-[#e76d61]"
               }`}
@@ -274,7 +411,8 @@ export default function SiteHeader() {
 
             <div
               className={`absolute left-1/2 top-full w-[360px] -translate-x-1/2 transition-all duration-200 ${
-                desktopMenu === "occasions"
+                desktopMenu ===
+                "occasions"
                   ? "visible translate-y-0 opacity-100"
                   : "invisible translate-y-2 opacity-0"
               }`}
@@ -282,107 +420,48 @@ export default function SiteHeader() {
               <div className="overflow-hidden rounded-[1.4rem] border border-[#284239]/10 bg-[#fffaf3] p-2 shadow-[0_22px_60px_rgba(42,66,57,0.16)]">
                 <div className="px-4 pb-2 pt-3">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
-                    Shop by Occasion
+                    Shop by
+                    Occasion
                   </p>
 
                   <p className="mt-1 text-xs leading-5 text-[#748078]">
-                    Find something thoughtful for the moment.
+                    Find
+                    something
+                    thoughtful
+                    for the
+                    moment.
                   </p>
                 </div>
 
                 <div className="grid gap-1">
-                  {occasions.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      onClick={closeAllMenus}
-                      className="rounded-xl px-4 py-3 transition hover:bg-[#f4ebe0]"
-                    >
-                      <span className="block font-semibold text-[#153f32]">
-                        {item.label}
-                      </span>
+                  {occasions.map(
+                    (item) => (
+                      <Link
+                        key={
+                          item.label
+                        }
+                        href={
+                          item.href
+                        }
+                        onClick={
+                          closeAllMenus
+                        }
+                        className="rounded-xl px-4 py-3 transition hover:bg-[#f4ebe0]"
+                      >
+                        <span className="block font-semibold text-[#153f32]">
+                          {
+                            item.label
+                          }
+                        </span>
 
-                      <span className="mt-0.5 block text-xs font-normal text-[#748078]">
-                        {item.description}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* GIFT GUIDE */}
-          <div
-            className="relative"
-            onMouseEnter={() =>
-              setDesktopMenu("gift")
-            }
-            onMouseLeave={() =>
-              setDesktopMenu(null)
-            }
-          >
-            <button
-              type="button"
-              onClick={() =>
-                toggleDesktopMenu("gift")
-              }
-              onFocus={() =>
-                setDesktopMenu("gift")
-              }
-              aria-expanded={
-                desktopMenu === "gift"
-              }
-              className={`flex items-center gap-1.5 py-4 transition ${
-                desktopMenu === "gift"
-                  ? "text-[#e76d61]"
-                  : "hover:text-[#e76d61]"
-              }`}
-            >
-              Gift Guide
-
-              <ChevronIcon
-                open={
-                  desktopMenu === "gift"
-                }
-              />
-            </button>
-
-            <div
-              className={`absolute right-0 top-full w-[360px] transition-all duration-200 ${
-                desktopMenu === "gift"
-                  ? "visible translate-y-0 opacity-100"
-                  : "invisible translate-y-2 opacity-0"
-              }`}
-            >
-              <div className="overflow-hidden rounded-[1.4rem] border border-[#284239]/10 bg-[#fffaf3] p-2 shadow-[0_22px_60px_rgba(42,66,57,0.16)]">
-                <div className="px-4 pb-2 pt-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
-                    Gift Guide
-                  </p>
-
-                  <p className="mt-1 text-xs leading-5 text-[#748078]">
-                    Not sure what to choose? Start here.
-                  </p>
-                </div>
-
-                <div className="grid gap-1">
-                  {giftGuide.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      onClick={closeAllMenus}
-                      className="rounded-xl px-4 py-3 transition hover:bg-[#f4ebe0]"
-                    >
-                      <span className="block font-semibold text-[#153f32]">
-                        {item.label}
-                      </span>
-
-                      <span className="mt-0.5 block text-xs font-normal text-[#748078]">
-                        {item.description}
-                      </span>
-                    </Link>
-                  ))}
+                        <span className="mt-0.5 block text-xs font-normal text-[#748078]">
+                          {
+                            item.description
+                          }
+                        </span>
+                      </Link>
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -390,8 +469,10 @@ export default function SiteHeader() {
 
           <Link
             href="/about"
-            onClick={closeAllMenus}
-            className="transition hover:text-[#e76d61]"
+            onClick={
+              closeAllMenus
+            }
+            className="whitespace-nowrap transition hover:text-[#e76d61]"
           >
             About
           </Link>
@@ -403,8 +484,12 @@ export default function SiteHeader() {
 
           <button
             type="button"
-            onClick={toggleMobileMenu}
-            aria-expanded={mobileOpen}
+            onClick={
+              toggleMobileMenu
+            }
+            aria-expanded={
+              mobileOpen
+            }
             aria-controls="mobile-site-menu"
             aria-label={
               mobileOpen
@@ -451,7 +536,9 @@ export default function SiteHeader() {
           <button
             type="button"
             aria-label="Close navigation menu"
-            onClick={closeAllMenus}
+            onClick={
+              closeAllMenus
+            }
             className="fixed inset-0 top-[82px] z-40 bg-[#153f32]/20 backdrop-blur-[1px] lg:hidden"
           />
 
@@ -461,200 +548,211 @@ export default function SiteHeader() {
           >
             <div className="px-4 pb-8 pt-4 sm:px-8">
               <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-                Shop Port Petals
+                Port Petals
               </p>
 
-              {/* PRIMARY SHOP LINKS */}
               <nav
-                aria-label="Mobile shop navigation"
+                aria-label="Mobile primary navigation"
                 className="mt-3 grid"
               >
                 <MobileLink
                   href="/flowers"
-                  onClick={closeAllMenus}
+                  onClick={
+                    closeAllMenus
+                  }
                 >
                   Fresh Flowers
                 </MobileLink>
 
+                {/* SHOP */}
+                <div className="border-b border-[#284239]/8">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleMobileSection(
+                        "shop"
+                      )
+                    }
+                    aria-expanded={
+                      mobileSection ===
+                      "shop"
+                    }
+                    className="flex min-h-12 w-full items-center justify-between rounded-xl px-3 text-left text-[15px] font-semibold text-[#153f32] transition active:bg-[#f4ebe0]"
+                  >
+                    <span>
+                      Shop
+                    </span>
+
+                    <ChevronIcon
+                      open={
+                        mobileSection ===
+                        "shop"
+                      }
+                    />
+                  </button>
+
+                  {mobileSection ===
+                    "shop" && (
+                    <div className="mb-2 grid rounded-xl bg-[#f7f1e8] p-2">
+                      {shopLinks.map(
+                        (
+                          item
+                        ) => (
+                          <Link
+                            key={
+                              item.label
+                            }
+                            href={
+                              item.href
+                            }
+                            onClick={
+                              closeAllMenus
+                            }
+                            className="rounded-lg px-3 py-3 transition active:bg-white"
+                          >
+                            <span className="block text-sm font-semibold text-[#153f32]">
+                              {
+                                item.label
+                              }
+                            </span>
+
+                            <span className="mt-0.5 block text-xs leading-5 text-[#748078]">
+                              {
+                                item.description
+                              }
+                            </span>
+                          </Link>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <MobileLink
-                  href="/candles"
-                  onClick={closeAllMenus}
+                  href="/seasonal"
+                  onClick={
+                    closeAllMenus
+                  }
                 >
-                  Candles
+                  Seasonal
                 </MobileLink>
 
                 <MobileLink
-                  href="/custom"
-                  onClick={closeAllMenus}
+                  href="/weddings"
+                  onClick={
+                    closeAllMenus
+                  }
                 >
-                  Custom Creations
+                  Weddings & Events
                 </MobileLink>
 
-                <MobileLink
-                  href="/shirts"
-                  onClick={closeAllMenus}
-                >
-                  Shirts
-                </MobileLink>
+                {/* OCCASIONS */}
+                <div className="border-b border-[#284239]/8">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggleMobileSection(
+                        "occasions"
+                      )
+                    }
+                    aria-expanded={
+                      mobileSection ===
+                      "occasions"
+                    }
+                    className="flex min-h-12 w-full items-center justify-between rounded-xl px-3 text-left text-[15px] font-semibold text-[#153f32] transition active:bg-[#f4ebe0]"
+                  >
+                    <span>
+                      Occasions
+                    </span>
+
+                    <ChevronIcon
+                      open={
+                        mobileSection ===
+                        "occasions"
+                      }
+                    />
+                  </button>
+
+                  {mobileSection ===
+                    "occasions" && (
+                    <div className="mb-2 grid rounded-xl bg-[#f7f1e8] p-2">
+                      {occasions.map(
+                        (
+                          item
+                        ) => (
+                          <Link
+                            key={
+                              item.label
+                            }
+                            href={
+                              item.href
+                            }
+                            onClick={
+                              closeAllMenus
+                            }
+                            className="rounded-lg px-3 py-3 transition active:bg-white"
+                          >
+                            <span className="block text-sm font-semibold text-[#153f32]">
+                              {
+                                item.label
+                              }
+                            </span>
+
+                            <span className="mt-0.5 block text-xs leading-5 text-[#748078]">
+                              {
+                                item.description
+                              }
+                            </span>
+                          </Link>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 <MobileLink
-                  href="/gators"
-                  onClick={closeAllMenus}
+                  href="/about"
+                  onClick={
+                    closeAllMenus
+                  }
                 >
-                  Gator Gear
+                  About Port Petals
                 </MobileLink>
               </nav>
 
-              {/* OCCASIONS */}
-              <div className="mt-3 border-t border-[#284239]/10 pt-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    toggleMobileSection(
-                      "occasions"
-                    )
-                  }
-                  aria-expanded={
-                    mobileSection ===
-                    "occasions"
-                  }
-                  className="flex min-h-12 w-full items-center justify-between rounded-xl px-3 text-left font-semibold text-[#153f32] transition active:bg-[#f4ebe0]"
-                >
-                  <span>Shop by Occasion</span>
-
-                  <ChevronIcon
-                    open={
-                      mobileSection ===
-                      "occasions"
-                    }
-                  />
-                </button>
-
-                {mobileSection ===
-                  "occasions" && (
-                  <div className="mt-1 grid rounded-xl bg-[#f7f1e8] p-2">
-                    {occasions.map(
-                      (item) => (
-                        <Link
-                          key={
-                            item.label
-                          }
-                          href={
-                            item.href
-                          }
-                          onClick={
-                            closeAllMenus
-                          }
-                          className="rounded-lg px-3 py-3 transition active:bg-white"
-                        >
-                          <span className="block text-sm font-semibold text-[#153f32]">
-                            {
-                              item.label
-                            }
-                          </span>
-
-                          <span className="mt-0.5 block text-xs leading-5 text-[#748078]">
-                            {
-                              item.description
-                            }
-                          </span>
-                        </Link>
-                      )
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* GIFT GUIDE */}
-              <div className="border-t border-[#284239]/10 pt-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    toggleMobileSection(
-                      "gift"
-                    )
-                  }
-                  aria-expanded={
-                    mobileSection ===
-                    "gift"
-                  }
-                  className="flex min-h-12 w-full items-center justify-between rounded-xl px-3 text-left font-semibold text-[#153f32] transition active:bg-[#f4ebe0]"
-                >
-                  <span>Gift Guide</span>
-
-                  <ChevronIcon
-                    open={
-                      mobileSection ===
-                      "gift"
-                    }
-                  />
-                </button>
-
-                {mobileSection === "gift" && (
-                  <div className="mt-1 grid rounded-xl bg-[#f7f1e8] p-2">
-                    {giftGuide.map(
-                      (item) => (
-                        <Link
-                          key={
-                            item.label
-                          }
-                          href={
-                            item.href
-                          }
-                          onClick={
-                            closeAllMenus
-                          }
-                          className="rounded-lg px-3 py-3 transition active:bg-white"
-                        >
-                          <span className="block text-sm font-semibold text-[#153f32]">
-                            {
-                              item.label
-                            }
-                          </span>
-
-                          <span className="mt-0.5 block text-xs leading-5 text-[#748078]">
-                            {
-                              item.description
-                            }
-                          </span>
-                        </Link>
-                      )
-                    )}
-                  </div>
-                )}
-              </div>
-
               {/* MORE */}
-              <div className="mt-3 border-t border-[#284239]/10 pt-4">
+              <div className="mt-4 border-t border-[#284239]/10 pt-4">
                 <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#718078]">
-                  More from Port Petals
+                  More from Port
+                  Petals
                 </p>
 
                 <nav className="mt-2 grid">
                   <MobileLink
                     href="/journal"
-                    onClick={closeAllMenus}
+                    onClick={
+                      closeAllMenus
+                    }
                   >
-                    Journal & Inspiration
-                  </MobileLink>
-
-                  <MobileLink
-                    href="/about"
-                    onClick={closeAllMenus}
-                  >
-                    About Port Petals
+                    Journal &
+                    Inspiration
                   </MobileLink>
 
                   <MobileLink
                     href="/fulfillment"
-                    onClick={closeAllMenus}
+                    onClick={
+                      closeAllMenus
+                    }
                   >
-                    Pickup & Delivery
+                    Pickup &
+                    Delivery
                   </MobileLink>
 
                   <MobileLink
                     href="/custom/request"
-                    onClick={closeAllMenus}
+                    onClick={
+                      closeAllMenus
+                    }
                   >
                     Custom Orders
                   </MobileLink>
@@ -664,13 +762,18 @@ export default function SiteHeader() {
               {/* CONTACT */}
               <div className="mt-4 rounded-[1.25rem] bg-[#edf3e7] p-4">
                 <p className="text-sm font-semibold text-[#153f32]">
-                  Need help choosing?
+                  Need help
+                  choosing?
                 </p>
 
                 <p className="mt-1 text-xs leading-5 text-[#607068]">
-                  Contact Port Petals directly for
-                  product, custom-order, pickup, or
-                  delivery questions.
+                  Contact Port
+                  Petals directly
+                  for product,
+                  custom-order,
+                  pickup, or
+                  delivery
+                  questions.
                 </p>
 
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -728,7 +831,9 @@ function ChevronIcon({
       fill="none"
       aria-hidden="true"
       className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
-        open ? "rotate-180" : ""
+        open
+          ? "rotate-180"
+          : ""
       }`}
     >
       <path

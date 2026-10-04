@@ -6,6 +6,7 @@ import {
   setProductStatus,
   updateProduct,
 } from "./actions";
+import ProductTaxonomyFields from "./ProductTaxonomyFields";
 import {
   deleteProductImage,
   setPrimaryProductImage,
@@ -387,36 +388,23 @@ export default async function EditProductPage({
                 />
               </label>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <label className="grid gap-2">
-                  <span className="text-sm font-semibold">Category *</span>
-
-                  <select
-                    name="category"
-                    required
-                    defaultValue={product.category}
-                    className="rounded-xl border border-[#284239]/15 bg-white px-4 py-3 outline-none focus:border-[#e76d61]"
-                  >
-                    <option value="flowers">Fresh Flowers</option>
-                    <option value="candles">Candles</option>
-                    <option value="custom">Custom Items</option>
-                    <option value="shirts">Shirts</option>
-                    <option value="gators">Gator Gear</option>
-                  </select>
-                </label>
-
-                <label className="grid gap-2">
-                  <span className="text-sm font-semibold">Collection *</span>
-
-                  <input
-                    type="text"
-                    name="collection"
-                    required
-                    defaultValue={product.collection}
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
-                  />
-                </label>
-              </div>
+              <ProductTaxonomyFields
+                initialDepartment={
+                  product.department
+                }
+                initialProductType={
+                  product.product_type
+                }
+                initialCollection={
+                  product.collection
+                }
+                initialPurchaseMode={
+                  product.purchase_mode
+                }
+                initialConfiguratorType={
+                  product.configurator_type
+                }
+              />
 
               <label className="grid gap-2">
                 <span className="text-sm font-semibold">
