@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import WeddingInquiryForm from "@/components/WeddingInquiryForm";
+import WeddingExamplesCarousel from "@/components/WeddingExamplesCarousel";
 import {
   getPublishedWeddingProducts,
   type WeddingProduct,
@@ -28,104 +29,173 @@ const weddingExamples: {
   eyebrow: string;
   description: string;
   details: string;
-  image?: string;
-  imageAlt?: string;
+  image: string;
+  imageAlt: string;
 }[] = [
   {
-    title:
-      "Bridal Bouquets",
-    eyebrow:
-      "Personal Flowers",
-    image:
-      "/wedding/bouquet.jpeg",
+    title: "Bridal Bouquets",
+    eyebrow: "Personal Flowers",
+    description:
+      "The bridal bouquet often establishes the floral direction for the entire wedding, from color and texture to overall style.",
+    details:
+      "Consider bouquet shape, size, dress style, favorite flowers, greenery, ribbon, and whether you prefer something structured, loose, cascading, or garden-inspired.",
+    image: "/wedding/bridal-bouquet.jpg",
     imageAlt:
-      "Wedding bridal bouquet by Port Petals",
-    description:
-      "From compact and classic to loose garden-style or cascading bouquets, the bridal bouquet helps establish the floral direction for the entire wedding.",
-    details:
-      "Consider size, shape, dress style, wedding colors, favorite flowers, greenery, ribbon, and how much movement or structure you prefer.",
+      "Romantic bridal wedding bouquet with blush and ivory flowers",
   },
   {
-    title:
-      "Bridesmaid Bouquets",
-    eyebrow:
-      "Wedding Party",
-    image:
-      "/wedding/bouquet2.jpeg",
+    title: "Bridesmaid Bouquets",
+    eyebrow: "Wedding Party",
+    description:
+      "Bridesmaid bouquets can coordinate closely with the bridal bouquet while using a smaller scale, simplified flower mix, or complementary colors.",
+    details:
+      "Think about the number of attendants, dress colors, whether bouquets should match exactly, and whether the maid of honor should have a distinctive bouquet.",
+    image: "/wedding/bridesmaid-bouquet.jpg",
     imageAlt:
-      "Wedding bouquet by Port Petals",
-    description:
-      "Coordinated bouquets can echo the bridal bouquet while using a smaller scale, simplified flower mix, or complementary colors.",
-    details:
-      "Useful details include the number of attendants, dress colors, whether bouquets should match exactly, and whether a maid of honor bouquet should differ.",
+      "Coordinated bridesmaid wedding bouquet with blush and ivory flowers",
   },
   {
-    title:
-      "Boutonnieres & Corsages",
-    eyebrow:
-      "Family & Wedding Party",
-    image:
-      "/wedding/bouquet3.jpeg",
+    title: "Boutonnieres",
+    eyebrow: "Wedding Party",
+    description:
+      "Boutonnieres provide a coordinated floral detail for the groom, groomsmen, fathers, grandfathers, officiants, and other honored guests.",
+    details:
+      "Small differences in flowers, greenery, ribbon, or wrapping can distinguish the groom from the rest of the wedding party.",
+    image: "/wedding/boutonniere.jpg",
     imageAlt:
-      "Wedding floral design by Port Petals",
-    description:
-      "Boutonnieres and corsages help coordinate the groom, wedding party, parents, grandparents, officiants, and other important people.",
-    details:
-      "Think through everyone who should receive a wearable floral piece so no one is accidentally left off the list.",
+      "Wedding boutonniere with ivory flower and greenery",
   },
   {
-    title:
-      "Ceremony Florals",
-    eyebrow:
-      "Ceremony",
+    title: "Corsages",
+    eyebrow: "Family Flowers",
     description:
-      "Ceremony flowers can frame the space and direct attention toward the couple through arches, aisle flowers, entrance pieces, altar arrangements, and floral accents.",
+      "Corsages are commonly created for mothers, grandmothers, family members, readers, and other important people participating in the wedding.",
     details:
-      "Consider the venue structure, weather, aisle length, ceremony focal point, memorial areas, reserved seating, and pieces that could later be reused at the reception.",
-  },
-  {
-    title:
-      "Wedding Arch Florals",
-    eyebrow:
-      "Statement Flowers",
-    description:
-      "Arches and arbors can range from small corner clusters to asymmetrical installations or fuller floral coverage.",
-    details:
-      "Port Petals will need to know whether the venue provides the structure, its dimensions, placement, indoor/outdoor conditions, and the amount of floral coverage you envision.",
-  },
-  {
-    title:
-      "Reception Centerpieces",
-    eyebrow:
-      "Reception",
-    image:
-      "/wedding/table-decorations.jpg",
+      "They may be designed as wrist corsages or pin-on pieces depending on preference, attire, and floral style.",
+    image: "/wedding/corsage.jpg",
     imageAlt:
-      "Wedding reception table flowers and decorations by Port Petals",
-    description:
-      "Centerpieces can be floral arrangements, bud-vase groupings, greenery, candles with florals, or a mix of styles throughout the room.",
-    details:
-      "Table count, table shape, room layout, guest sightlines, candle policies, and centerpiece height all affect the design.",
+      "Wedding wrist corsage with blush and ivory flowers",
   },
   {
-    title:
-      "Sweetheart & Head Table",
-    eyebrow:
-      "Reception",
+    title: "Wedding Arch Florals",
+    eyebrow: "Ceremony",
     description:
-      "The couple's table or head table is often a visual focal point and can use fuller florals, repurposed ceremony pieces, greenery, candles, or statement arrangements.",
+      "Wedding arches and arbors can become the main floral focal point of the ceremony and frame the couple during the vows.",
     details:
-      "Share the table dimensions, seating arrangement, backdrop details, and whether ceremony flowers can be moved into this area.",
+      "Designs may include corner clusters, asymmetrical florals, greenery, draping, or fuller coverage depending on the venue and desired impact.",
+    image: "/wedding/ceremony-arch.jpg",
+    imageAlt:
+      "Wedding ceremony arch decorated with blush ivory flowers and greenery",
   },
   {
-    title:
-      "Cake & Detail Flowers",
-    eyebrow:
-      "Finishing Details",
+    title: "Aisle Flowers",
+    eyebrow: "Ceremony",
     description:
-      "Fresh flowers can coordinate the cake, welcome sign, seating chart, bar, gift table, memorial table, cocktail tables, or other small areas.",
+      "Aisle flowers create a visual path toward the ceremony and can add floral detail without overwhelming the venue.",
     details:
-      "These details are easy to forget during early planning, so they are worth discussing before the final floral plan is approved.",
+      "Options include chair or pew flowers, small arrangements, ground florals, petals, greenery, or florals concentrated near the front of the aisle.",
+    image: "/wedding/ceremony-aisle-flowers.jpg",
+    imageAlt:
+      "Wedding ceremony aisle decorated with floral arrangements",
+  },
+  {
+    title: "Ceremony Installations",
+    eyebrow: "Ceremony",
+    description:
+      "Large ceremony floral pieces can help define an altar, backdrop, entrance, fireplace, cross, or other important architectural feature.",
+    details:
+      "Venue dimensions, mounting options, weather, structure ownership, and setup access are important details when planning larger installations.",
+    image: "/wedding/ceremony-floral-installation.jpg",
+    imageAlt:
+      "Large wedding ceremony floral installation with flowers and greenery",
+  },
+  {
+    title: "Reception Centerpieces",
+    eyebrow: "Reception",
+    description:
+      "Guest-table centerpieces help carry the wedding colors and floral style throughout the reception space.",
+    details:
+      "Centerpieces can include low arrangements, taller designs, bud-vase groupings, greenery, candles, or a coordinated mix depending on the tables and room.",
+    image: "/wedding/reception-centerpiece.jpg",
+    imageAlt:
+      "Wedding reception centerpiece with blush ivory flowers and greenery",
+  },
+  {
+    title: "Sweetheart Table Flowers",
+    eyebrow: "Reception",
+    description:
+      "The sweetheart table is often a reception focal point and can support a fuller floral treatment than standard guest tables.",
+    details:
+      "Flowers may be arranged across the front of the table, incorporated with candles or greenery, or created using pieces repurposed from the ceremony.",
+    image: "/wedding/sweetheart-table.jpg",
+    imageAlt:
+      "Wedding sweetheart table decorated with romantic floral arrangements",
+  },
+  {
+    title: "Head Table Flowers",
+    eyebrow: "Reception",
+    description:
+      "Head-table flowers help create a cohesive focal area for the couple and wedding party during the reception.",
+    details:
+      "Long arrangements, greenery runners, clustered florals, candles, and reused ceremony pieces can all be considered depending on the table layout.",
+    image: "/wedding/head-table-arrangement.jpg",
+    imageAlt:
+      "Wedding head table decorated with flowers and greenery",
+  },
+  {
+    title: "Cocktail Table Flowers",
+    eyebrow: "Reception Details",
+    description:
+      "Small floral arrangements can bring the wedding style into cocktail areas and other spaces outside the main reception tables.",
+    details:
+      "Bud vases and compact arrangements are especially useful for cocktail tables where space is limited.",
+    image: "/wedding/cocktail-table-arrangement.jpg",
+    imageAlt:
+      "Small wedding cocktail table floral arrangement",
+  },
+  {
+    title: "Cake Flowers",
+    eyebrow: "Finishing Details",
+    description:
+      "Fresh floral accents can connect the wedding cake to the rest of the floral design without requiring an elaborate cake treatment.",
+    details:
+      "The florist and baker should coordinate placement, flower safety, timing, and the amount of floral coverage planned for the cake.",
+    image: "/wedding/cake-flowers.jpg",
+    imageAlt:
+      "Wedding cake decorated with blush and ivory fresh flowers",
+  },
+  {
+    title: "Welcome Sign Flowers",
+    eyebrow: "Guest Experience",
+    description:
+      "Florals around a welcome sign can create a polished first impression and introduce the wedding's colors and style as guests arrive.",
+    details:
+      "The sign dimensions, stand or easel, placement, venue conditions, and whether flowers will be attached or arranged nearby should be considered.",
+    image: "/wedding/welcome-sign-flowers.jpg",
+    imageAlt:
+      "Wedding welcome sign decorated with flowers and greenery",
+  },
+  {
+    title: "Seating Chart Flowers",
+    eyebrow: "Reception Details",
+    description:
+      "A floral seating-chart display can turn a functional reception element into part of the wedding decor.",
+    details:
+      "Flowers may frame the display, accent corners, sit at the base, or coordinate with nearby welcome-table and reception arrangements.",
+    image: "/wedding/seating-chart-flowers.jpg",
+    imageAlt:
+      "Wedding seating chart display decorated with flowers",
+  },
+  {
+    title: "Memorial Table Flowers",
+    eyebrow: "Meaningful Details",
+    description:
+      "Memorial flowers can create a thoughtful space for remembering loved ones who cannot be present on the wedding day.",
+    details:
+      "Small arrangements, candles, photographs, greenery, and meaningful floral choices can be incorporated respectfully into the display.",
+    image: "/wedding/memorial-table.jpg",
+    imageAlt:
+      "Wedding memorial table with flowers candles and framed remembrance",
   },
 ];
 
@@ -544,74 +614,17 @@ export default async function WeddingsPage() {
             </p>
           </div>
 
-          <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {weddingExamples.map(
-              (example) => (
-                <article
-                  key={
-                    example.title
-                  }
-                  className="group overflow-hidden rounded-[1.5rem] border border-[#284239]/10 bg-[#faf7f1] shadow-[0_10px_30px_rgba(42,66,57,0.05)]"
-                >
-                  {example.image ? (
-                    <div className="relative aspect-[4/3] overflow-hidden bg-[#efe8dd]">
-                      <Image
-                        src={
-                          example.image
-                        }
-                        alt={
-                          example.imageAlt ??
-                          example.title
-                        }
-                        fill
-                        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
-                        className="object-cover transition duration-500 group-hover:scale-[1.025]"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex aspect-[4/3] items-center justify-center bg-[linear-gradient(135deg,#f4e9e5_0%,#efe7dc_48%,#e5ece5_100%)] px-8 text-center">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#b45f75]">
-                          Wedding Florals
-                        </p>
+          <WeddingExamplesCarousel
+            examples={weddingExamples}
+          />
 
-                        <p className="mt-2 font-serif text-2xl font-semibold text-[#153f32]/70">
-                          {
-                            example.title
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="p-6">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#b45f75]">
-                      {
-                        example.eyebrow
-                      }
-                    </p>
-
-                    <h3 className="mt-3 font-serif text-2xl font-semibold text-[#153f32]">
-                      {
-                        example.title
-                      }
-                    </h3>
-
-                    <p className="mt-3 text-sm leading-6 text-[#607068]">
-                      {
-                        example.description
-                      }
-                    </p>
-
-                    <p className="mt-4 border-t border-[#284239]/10 pt-4 text-xs leading-5 text-[#718078]">
-                      {
-                        example.details
-                      }
-                    </p>
-                  </div>
-                </article>
-              )
-            )}
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="#wedding-inquiry"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-7 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(231,109,97,0.18)] transition hover:-translate-y-0.5 hover:bg-[#d85b50]"
+            >
+              Start Your Wedding Inquiry
+            </Link>
           </div>
         </div>
       </section>
