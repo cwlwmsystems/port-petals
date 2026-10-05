@@ -209,6 +209,97 @@ export async function POST(request: Request) {
     );
   }
 
+  /*
+   * If this payment happened after an abandoned-checkout
+   * reminder was sent, mark it as recovered.
+   *
+   * This runs only after complete_square_payment succeeds,
+   * so Square remains authoritative for payment completion.
+   *
+   * checkout_recovered_at IS NULL makes this idempotent:
+   * duplicate Square webhook deliveries cannot create
+   * duplicate recovery events.
+   */
+  try {
+    const recoveredAt =
+      new Date().toISOString();
+
+    const {
+      data: recoveredOrder,
+      error: recoveryError,
+    } = await supabase
+      .from("orders")
+      .update({
+        checkout_recovered_at:
+          recoveredAt,
+      })
+      .eq(
+        "square_order_id",
+        payment.order_id
+      )
+      .not(
+        "abandoned_checkout_reminder_sent_at",
+        "is",
+        null
+      )
+      .is(
+        "checkout_recovered_at",
+        null
+      )
+      .select(
+        "id, order_number, total, abandoned_checkout_reminder_sent_at"
+      )
+      .maybeSingle();
+
+    if (recoveryError) {
+      console.error(
+        "Unable to mark recovered checkout:",
+        recoveryError
+      );
+    } else if (recoveredOrder) {
+      const {
+        error: recoveryEventError,
+      } = await supabase
+        .from("order_events")
+        .insert({
+          order_id:
+            recoveredOrder.id,
+          event_type:
+            "abandoned_checkout_recovered",
+          message:
+            "Order payment completed after an abandoned checkout reminder.",
+          metadata: {
+            recovered_at:
+              recoveredAt,
+            reminder_sent_at:
+              recoveredOrder.abandoned_checkout_reminder_sent_at,
+            recovered_revenue:
+              Number(
+                recoveredOrder.total ??
+                  0
+              ),
+          },
+        });
+
+      if (recoveryEventError) {
+        console.error(
+          "Unable to create checkout recovery event:",
+          recoveryEventError
+        );
+      }
+    }
+  } catch (recoveryTrackingError) {
+    /*
+     * Recovery analytics are secondary.
+     * They must never cause a successfully paid Square
+     * webhook to fail.
+     */
+    console.error(
+      "Checkout recovery tracking failed:",
+      recoveryTrackingError
+    );
+  }
+
   // Payment completion is authoritative. Email is a
   // secondary notification and must never cause a
   // successfully paid order to fail its Square webhook.

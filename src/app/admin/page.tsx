@@ -375,6 +375,9 @@ export default async function AdminPage() {
     weddingFollowUpsResult,
     upcomingBookedWeddingsResult,
     dashboardWeddingLeadsResult,
+    abandonedReminderCountResult,
+    recoveredCheckoutCountResult,
+    recoveredCheckoutRevenueResult,
   ] = await Promise.all([
     supabase
       .from("products")
@@ -533,6 +536,39 @@ export default async function AdminPage() {
         }
       )
       .limit(6),
+
+    supabase
+      .from("orders")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .not(
+        "abandoned_checkout_reminder_sent_at",
+        "is",
+        null
+      ),
+
+    supabase
+      .from("orders")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .not(
+        "checkout_recovered_at",
+        "is",
+        null
+      ),
+
+    supabase
+      .from("orders")
+      .select("total")
+      .not(
+        "checkout_recovered_at",
+        "is",
+        null
+      ),
   ]);
 
   const productCount =
@@ -555,6 +591,37 @@ export default async function AdminPage() {
     preparingCount +
     readyCount +
     outForDeliveryCount;
+
+  const abandonedReminderCount =
+    abandonedReminderCountResult.count ??
+    0;
+
+  const recoveredCheckoutCount =
+    recoveredCheckoutCountResult.count ??
+    0;
+
+  const recoveredCheckoutRevenue =
+    (
+      recoveredCheckoutRevenueResult.data ??
+      []
+    ).reduce(
+      (sum, order) =>
+        sum +
+        Number(
+          order.total ??
+            0
+        ),
+      0
+    );
+
+  const checkoutRecoveryRate =
+    abandonedReminderCount > 0
+      ? (
+          recoveredCheckoutCount /
+          abandonedReminderCount
+        ) *
+        100
+      : 0;
 
   const todayPaidOrders =
     (todayPaidOrdersResult.data ?? []).filter(
@@ -961,6 +1028,81 @@ export default async function AdminPage() {
               </p>
             </Link>
           </div>
+        </section>
+
+        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
+                Checkout Recovery
+              </p>
+
+              <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+                Abandoned Checkouts
+              </h2>
+
+              <p className="mt-1 text-sm text-[#718078]">
+                Performance of automated abandoned-checkout reminders.
+              </p>
+            </div>
+
+            <Link
+              href="/admin/orders?status=awaiting_payment"
+              className="text-sm font-semibold text-[#e76d61] transition hover:text-[#c95349]"
+            >
+              View Awaiting Payment →
+            </Link>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl bg-[#f4ead8] p-4">
+              <p className="text-3xl font-semibold text-[#775d2f]">
+                {abandonedReminderCount}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-[#775d2f]">
+                Reminders Sent
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-[#e6f2e3] p-4">
+              <p className="text-3xl font-semibold text-[#31583b]">
+                {recoveredCheckoutCount}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-[#31583b]">
+                Recovered Orders
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-[#e6edf7] p-4">
+              <p className="text-3xl font-semibold text-[#365b7a]">
+                {checkoutRecoveryRate.toFixed(1)}%
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-[#365b7a]">
+                Recovery Rate
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-[#f8e1dc] p-4">
+              <p className="text-3xl font-semibold text-[#a7473f]">
+                {formatPrice(
+                  recoveredCheckoutRevenue
+                )}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-[#a7473f]">
+                Recovered Revenue
+              </p>
+            </div>
+          </div>
+
+          {abandonedReminderCount === 0 && (
+            <div className="mt-5 rounded-xl bg-[#faf7f1] px-4 py-3 text-sm text-[#607068]">
+              Recovery metrics will begin populating as abandoned-checkout reminders are sent.
+            </div>
+          )}
         </section>
 
         <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">

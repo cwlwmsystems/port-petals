@@ -113,6 +113,9 @@ export default async function AdminOrderDetailPage({
       notes,
       square_order_id,
       square_payment_id,
+      abandoned_checkout_reminder_sent_at,
+      abandoned_checkout_reminder_count,
+      checkout_recovered_at,
       created_at,
       paid_at,
       completed_at,
@@ -510,6 +513,70 @@ export default async function AdminOrderDetailPage({
                 </div>
               </dl>
             </section>
+
+            {(order.abandoned_checkout_reminder_count > 0 ||
+              order.abandoned_checkout_reminder_sent_at ||
+              order.checkout_recovered_at) && (
+              <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                      Checkout Recovery
+                    </p>
+
+                    <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+                      Abandoned Checkout
+                    </h2>
+                  </div>
+
+                  {order.checkout_recovered_at ? (
+                    <span className="rounded-full bg-[#e6f2e3] px-3 py-1.5 text-xs font-semibold text-[#31583b]">
+                      Recovered
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-[#f4ead8] px-3 py-1.5 text-xs font-semibold text-[#775d2f]">
+                      Reminder Sent
+                    </span>
+                  )}
+                </div>
+
+                <dl className="mt-5 space-y-4 text-sm">
+                  <div>
+                    <dt className="font-semibold text-[#153f32]">
+                      Reminder Sent
+                    </dt>
+
+                    <dd className="mt-1 text-[#607068]">
+                      {formatDate(
+                        order.abandoned_checkout_reminder_sent_at
+                      )}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt className="font-semibold text-[#153f32]">
+                      Reminders
+                    </dt>
+
+                    <dd className="mt-1 text-[#607068]">
+                      {order.abandoned_checkout_reminder_count ?? 0}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt className="font-semibold text-[#153f32]">
+                      Recovered
+                    </dt>
+
+                    <dd className="mt-1 text-[#607068]">
+                      {formatDate(
+                        order.checkout_recovered_at
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+            )}
 
             <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
               <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
