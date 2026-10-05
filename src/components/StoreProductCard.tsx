@@ -33,6 +33,8 @@ type StoreProductCardProps = {
   trackInventory: boolean;
   quantity: number | null;
   variants: StockVariant[];
+
+  showHoverPanel?: boolean;
 };
 
 function formatPrice(price: number | null) {
@@ -65,6 +67,7 @@ export default function StoreProductCard({
   trackInventory,
   quantity,
   variants,
+  showHoverPanel = true,
 }: StoreProductCardProps) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
@@ -276,77 +279,92 @@ export default function StoreProductCard({
         </div>
       </div>
 
-      {/* Desktop hover / keyboard quick-view panel */}
-      <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 hidden translate-y-3 rounded-[1.45rem] border border-white/80 bg-[#fffaf3]/95 p-5 opacity-0 shadow-[0_18px_50px_rgba(42,66,57,0.18)] backdrop-blur transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 lg:block">
-        <p className="font-serif text-xl font-semibold text-[#153f32]">
-          {name}
-        </p>
+      {/* Desktop quick-action hover panel */}
+      {showHoverPanel && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 hidden h-[48%] overflow-hidden lg:block">
+          <div className="absolute inset-0 translate-y-4 bg-[#fffaf3]/86 opacity-0 backdrop-blur-md transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100" />
 
-        {shortDescription && (
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#607068]">
-            {shortDescription}
-          </p>
-        )}
+          <div className="pointer-events-auto absolute inset-x-4 bottom-4 translate-y-4 rounded-[1.35rem] border border-white/80 bg-white/88 p-4 opacity-0 shadow-[0_18px_45px_rgba(42,66,57,0.16)] backdrop-blur-xl transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs text-[#718078]">
+                  {hasOptions
+                    ? "Starting at"
+                    : "Price"}
+                </p>
 
-        <div className="mt-4 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs text-[#718078]">
-              {hasOptions
-                ? "Starting at"
-                : "Price"}
-            </p>
+                <p className="mt-1 text-lg font-semibold text-[#e76d61]">
+                  {formatPrice(
+                    startingPrice
+                  )}
+                </p>
+              </div>
 
-            <p className="font-semibold text-[#e76d61]">
-              {formatPrice(startingPrice)}
-            </p>
+              {stockLabel && (
+                <span
+                  className={`text-xs font-semibold ${
+                    soldOut
+                      ? "text-[#a7473f]"
+                      : stockQuantity !==
+                            null &&
+                          stockQuantity <=
+                            3
+                        ? "text-[#b36a32]"
+                        : "text-[#36594c]"
+                  }`}
+                >
+                  {stockLabel}
+                </span>
+              )}
+            </div>
+
+            <div className="mt-4 grid gap-2">
+              {canQuickAdd ? (
+                <button
+                  type="button"
+                  onClick={
+                    handleQuickAdd
+                  }
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#e76d61] px-5 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
+                >
+                  {added
+                    ? "Added to Cart ✓"
+                    : "Add to Cart"}
+                </button>
+              ) : (
+                <Link
+                  href={href}
+                  className={`inline-flex min-h-11 w-full items-center justify-center rounded-full px-5 text-sm font-semibold transition ${
+                    soldOut
+                      ? "border border-[#284239]/15 bg-white text-[#284239] hover:border-[#e76d61]/30"
+                      : "bg-[#e76d61] text-white hover:bg-[#d85b50]"
+                  }`}
+                >
+                  {soldOut
+                    ? "View Product"
+                    : "Choose Options"}
+                </Link>
+              )}
+
+              <Link
+                href={href}
+                className="inline-flex min-h-10 w-full items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                View Details
+              </Link>
+
+              {added && (
+                <Link
+                  href="/cart"
+                  className="text-center text-sm font-semibold text-[#e76d61] underline underline-offset-4"
+                >
+                  Go to Cart →
+                </Link>
+              )}
+            </div>
           </div>
-
-          {stockLabel && (
-            <span className="text-xs font-semibold text-[#36594c]">
-              {stockLabel}
-            </span>
-          )}
         </div>
-
-        <div className="pointer-events-auto mt-4 grid gap-2">
-          {canQuickAdd ? (
-            <button
-              type="button"
-              onClick={handleQuickAdd}
-              className="inline-flex w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
-            >
-              {added
-                ? "Added to Cart ✓"
-                : "Add to Cart"}
-            </button>
-          ) : (
-            <Link
-              href={href}
-              className="inline-flex w-full items-center justify-center rounded-full bg-[#e76d61] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
-            >
-              {soldOut
-                ? "View Product"
-                : "Choose Options"}
-            </Link>
-          )}
-
-          <Link
-            href={href}
-            className="inline-flex w-full items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-          >
-            View Details
-          </Link>
-
-          {added && (
-            <Link
-              href="/cart"
-              className="text-center text-sm font-semibold text-[#e76d61] underline underline-offset-4"
-            >
-              Go to Cart →
-            </Link>
-          )}
-        </div>
-      </div>
+      )}
     </article>
   );
 }
