@@ -296,10 +296,17 @@ export async function POST(request: Request) {
     const { error: updateError } = await supabase
       .from("orders")
       .update({
-        square_order_id: paymentLink.order_id,
+        square_order_id:
+          paymentLink.order_id,
+
         square_payment_link_id:
           paymentLink.id ?? null,
-        square_checkout_url: paymentLink.url,
+
+        square_checkout_url:
+          paymentLink.url,
+
+        checkout_created_at:
+          new Date().toISOString(),
       })
       .eq("id", order.id);
 

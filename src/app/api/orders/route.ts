@@ -500,6 +500,9 @@ export async function POST(request: Request) {
           requested_fulfillment_date:
             requestedFulfillmentDate,
 
+          required_lead_time_days:
+            requiredLeadTimeDays,
+
           delivery_area:
             body.fulfillmentType === "delivery"
               ? body.deliveryArea
