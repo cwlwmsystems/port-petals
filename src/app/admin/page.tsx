@@ -174,6 +174,152 @@ function OrderRow({
   );
 }
 
+
+type DashboardWeddingLead = {
+  id: string;
+  inquiry_number: string;
+  contact_name: string;
+  partner_name: string | null;
+  wedding_date: string;
+  status: string;
+  follow_up_at: string | null;
+};
+
+const weddingStatusLabels: Record<
+  string,
+  string
+> = {
+  new: "New",
+  contacted: "Contacted",
+  consultation_scheduled:
+    "Consultation Scheduled",
+  quote_sent: "Quote Sent",
+  booked: "Booked",
+  declined: "Declined",
+  completed: "Completed",
+};
+
+function weddingStatusClasses(
+  status: string
+) {
+  switch (status) {
+    case "new":
+      return "bg-[#fff0d9] text-[#7a5725]";
+    case "contacted":
+      return "bg-[#e6edf7] text-[#365b7a]";
+    case "consultation_scheduled":
+      return "bg-[#e8e3f4] text-[#5f4f7d]";
+    case "quote_sent":
+      return "bg-[#f4ead8] text-[#775d2f]";
+    case "booked":
+      return "bg-[#e6f2e3] text-[#31583b]";
+    case "declined":
+      return "bg-[#f8e1dc] text-[#a7473f]";
+    case "completed":
+      return "bg-[#e5ebe7] text-[#3f584b]";
+    default:
+      return "bg-[#edf1f6] text-[#536578]";
+  }
+}
+
+function formatWeddingDate(
+  value: string
+) {
+  return new Intl.DateTimeFormat(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "UTC",
+    }
+  ).format(
+    new Date(
+      `${value}T12:00:00Z`
+    )
+  );
+}
+
+function formatWeddingDateTime(
+  value: string | null
+) {
+  if (!value) {
+    return "Not scheduled";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone:
+        "America/New_York",
+    }
+  ).format(new Date(value));
+}
+
+function WeddingLeadRow({
+  inquiry,
+}: {
+  inquiry: DashboardWeddingLead;
+}) {
+  const coupleName =
+    inquiry.partner_name
+      ? `${inquiry.contact_name} & ${inquiry.partner_name}`
+      : inquiry.contact_name;
+
+  return (
+    <Link
+      href={`/admin/weddings/${inquiry.id}`}
+      className="grid gap-4 p-5 transition hover:bg-[#faf7f1] sm:grid-cols-[1.25fr_1fr_auto] sm:items-center"
+    >
+      <div>
+        <p className="font-semibold text-[#153f32]">
+          {inquiry.inquiry_number}
+        </p>
+
+        <p className="mt-1 text-sm text-[#607068]">
+          {coupleName}
+        </p>
+
+        <p className="mt-1 text-xs text-[#718078]">
+          Wedding{" "}
+          {formatWeddingDate(
+            inquiry.wedding_date
+          )}
+        </p>
+      </div>
+
+      <div>
+        <span
+          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${weddingStatusClasses(
+            inquiry.status
+          )}`}
+        >
+          {weddingStatusLabels[
+            inquiry.status
+          ] ?? inquiry.status}
+        </span>
+
+        <p className="mt-2 text-xs font-medium text-[#607068]">
+          Follow-up:{" "}
+          {formatWeddingDateTime(
+            inquiry.follow_up_at
+          )}
+        </p>
+      </div>
+
+      <div className="sm:text-right">
+        <p className="text-sm font-semibold text-[#e76d61]">
+          Open →
+        </p>
+      </div>
+    </Link>
+  );
+}
+
 export default async function AdminPage() {
   const supabase = await createClient();
 
@@ -224,6 +370,11 @@ export default async function AdminPage() {
     deliveryCountResult,
     todayPaidOrdersResult,
     activeOrdersResult,
+    newWeddingLeadsResult,
+    activeWeddingLeadsResult,
+    weddingFollowUpsResult,
+    upcomingBookedWeddingsResult,
+    dashboardWeddingLeadsResult,
   ] = await Promise.all([
     supabase
       .from("products")
@@ -301,6 +452,87 @@ export default async function AdminPage() {
       .order("created_at", {
         ascending: true,
       }),
+
+    supabase
+      .from("wedding_inquiries")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq("status", "new"),
+
+    supabase
+      .from("wedding_inquiries")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .in("status", [
+        "new",
+        "contacted",
+        "consultation_scheduled",
+        "quote_sent",
+      ]),
+
+    supabase
+      .from("wedding_inquiries")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .lte(
+        "follow_up_at",
+        now.toISOString()
+      )
+      .in("status", [
+        "new",
+        "contacted",
+        "consultation_scheduled",
+        "quote_sent",
+        "booked",
+      ]),
+
+    supabase
+      .from("wedding_inquiries")
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq("status", "booked")
+      .gte(
+        "wedding_date",
+        todayKey
+      ),
+
+    supabase
+      .from("wedding_inquiries")
+      .select(`
+        id,
+        inquiry_number,
+        contact_name,
+        partner_name,
+        wedding_date,
+        status,
+        follow_up_at
+      `)
+      .in("status", [
+        "new",
+        "contacted",
+        "consultation_scheduled",
+        "quote_sent",
+        "booked",
+      ])
+      .gte(
+        "wedding_date",
+        todayKey
+      )
+      .order(
+        "wedding_date",
+        {
+          ascending: true,
+        }
+      )
+      .limit(6),
   ]);
 
   const productCount =
@@ -346,6 +578,26 @@ export default async function AdminPage() {
   const activeOrders =
     (activeOrdersResult.data ??
       []) as ActiveOrder[];
+
+  const newWeddingLeadCount =
+    newWeddingLeadsResult.count ??
+    0;
+
+  const activeWeddingLeadCount =
+    activeWeddingLeadsResult.count ??
+    0;
+
+  const weddingFollowUpCount =
+    weddingFollowUpsResult.count ??
+    0;
+
+  const upcomingBookedWeddingCount =
+    upcomingBookedWeddingsResult.count ??
+    0;
+
+  const dashboardWeddingLeads =
+    (dashboardWeddingLeadsResult.data ??
+      []) as DashboardWeddingLead[];
 
   const todayOrders = activeOrders.filter(
     (order) =>
@@ -424,6 +676,13 @@ export default async function AdminPage() {
               className="inline-flex items-center justify-center rounded-full bg-[#284239] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
             >
               Manage Orders
+            </Link>
+
+            <Link
+              href="/admin/weddings"
+              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+            >
+              Wedding Leads
             </Link>
 
             <Link
@@ -694,6 +953,125 @@ export default async function AdminPage() {
                 Out for Delivery
               </p>
             </Link>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
+                Wedding CRM
+              </p>
+
+              <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+                Wedding Leads
+              </h2>
+
+              <p className="mt-1 text-sm text-[#718078]">
+                Consultations, quotes, follow-ups, and booked weddings.
+              </p>
+            </div>
+
+            <Link
+              href="/admin/weddings"
+              className="text-sm font-semibold text-[#e76d61] transition hover:text-[#c95349]"
+            >
+              Manage Wedding Leads →
+            </Link>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Link
+              href="/admin/weddings?status=new"
+              className="rounded-xl bg-[#fff0d9] p-4 transition hover:-translate-y-0.5"
+            >
+              <p className="text-3xl font-semibold text-[#7a5725]">
+                {newWeddingLeadCount}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-[#7a5725]">
+                New Leads
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/weddings"
+              className="rounded-xl bg-[#e6edf7] p-4 transition hover:-translate-y-0.5"
+            >
+              <p className="text-3xl font-semibold text-[#365b7a]">
+                {activeWeddingLeadCount}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-[#365b7a]">
+                Active Leads
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/weddings"
+              className="rounded-xl bg-[#f8e1dc] p-4 transition hover:-translate-y-0.5"
+            >
+              <p className="text-3xl font-semibold text-[#a7473f]">
+                {weddingFollowUpCount}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-[#a7473f]">
+                Follow-Ups Due
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/weddings?status=booked"
+              className="rounded-xl bg-[#e6f2e3] p-4 transition hover:-translate-y-0.5"
+            >
+              <p className="text-3xl font-semibold text-[#31583b]">
+                {upcomingBookedWeddingCount}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-[#31583b]">
+                Upcoming Booked
+              </p>
+            </Link>
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-2xl border border-[#284239]/10">
+            <div className="border-b border-[#284239]/10 bg-[#faf7f1] px-5 py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-semibold text-[#153f32]">
+                    Next Wedding Leads
+                  </p>
+
+                  <p className="mt-1 text-xs text-[#718078]">
+                    Active and booked weddings ordered by event date.
+                  </p>
+                </div>
+
+                <Link
+                  href="/admin/weddings"
+                  className="shrink-0 text-sm font-semibold text-[#e76d61]"
+                >
+                  View all →
+                </Link>
+              </div>
+            </div>
+
+            {dashboardWeddingLeads.length === 0 ? (
+              <div className="p-6 text-sm text-[#718078]">
+                No active upcoming wedding leads.
+              </div>
+            ) : (
+              <div className="divide-y divide-[#284239]/10">
+                {dashboardWeddingLeads.map(
+                  (inquiry) => (
+                    <WeddingLeadRow
+                      key={inquiry.id}
+                      inquiry={inquiry}
+                    />
+                  )
+                )}
+              </div>
+            )}
           </div>
         </section>
 

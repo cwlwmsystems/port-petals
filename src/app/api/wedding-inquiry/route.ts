@@ -2,6 +2,7 @@ import {
   NextResponse,
 } from "next/server";
 import { resend } from "@/lib/email/resend";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const OWNER_EMAIL =
   "stacy@portpetals.com";
@@ -23,6 +24,51 @@ function clean(
   return value
     .trim()
     .slice(0, maxLength);
+}
+
+function nullableInteger(
+  value: string
+) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed =
+    Number.parseInt(value, 10);
+
+  return Number.isInteger(parsed) &&
+    parsed >= 0
+    ? parsed
+    : null;
+}
+
+function errorText(
+  value: unknown
+) {
+  if (value instanceof Error) {
+    return value.message.slice(
+      0,
+      2000
+    );
+  }
+
+  if (
+    typeof value ===
+    "string"
+  ) {
+    return value.slice(
+      0,
+      2000
+    );
+  }
+
+  try {
+    return JSON.stringify(
+      value
+    ).slice(0, 2000);
+  } catch {
+    return "Unknown email error";
+  }
 }
 
 function escapeHtml(
@@ -421,6 +467,244 @@ export async function POST(
           )
         : "";
 
+    // ---------------------------------------------------
+    // Save the wedding lead before attempting email.
+    // Supabase becomes the system of record.
+    // ---------------------------------------------------
+
+    const supabase =
+      createAdminClient();
+
+    const sanitizedSubmission = {
+      contactName,
+      role,
+      partnerName,
+      email,
+      phone,
+      preferredContact,
+      weddingDate,
+      flexibleDate,
+      ceremonyLocation,
+      receptionLocation,
+      ceremonySetting,
+      receptionSetting,
+      guestCount,
+      plannerName,
+      plannerContact,
+      weddingStyle,
+      weddingColors,
+      flowerPreferences,
+      flowersToAvoid,
+      inspiration,
+      budgetRange,
+      budgetNotes,
+      bridalBouquetStyle,
+      bridesmaidCount,
+      boutonniereCount,
+      corsageCount,
+      centerpieceCount,
+      centerpieceStyle,
+      archDetails,
+      ceremonyDetails,
+      receptionDetails,
+      cakeFlowers,
+      memorialFlowers,
+      deliverySetup,
+      setupTime,
+      teardownNeeded,
+      floralPieces,
+      additionalNotes,
+    };
+
+    const {
+      data: inquiry,
+      error: inquiryError,
+    } =
+      await supabase
+        .from(
+          "wedding_inquiries"
+        )
+        .insert({
+          contact_name:
+            contactName,
+
+          contact_role:
+            role,
+
+          partner_name:
+            partnerName ||
+            null,
+
+          email,
+
+          phone,
+
+          preferred_contact:
+            preferredContact ||
+            null,
+
+          wedding_date:
+            weddingDate,
+
+          flexible_date:
+            flexibleDate ||
+            null,
+
+          ceremony_location:
+            ceremonyLocation ||
+            null,
+
+          reception_location:
+            receptionLocation ||
+            null,
+
+          ceremony_setting:
+            ceremonySetting ||
+            null,
+
+          reception_setting:
+            receptionSetting ||
+            null,
+
+          guest_count:
+            nullableInteger(
+              guestCount
+            ),
+
+          planner_name:
+            plannerName ||
+            null,
+
+          planner_contact:
+            plannerContact ||
+            null,
+
+          wedding_style:
+            weddingStyle ||
+            null,
+
+          wedding_colors:
+            weddingColors ||
+            null,
+
+          flower_preferences:
+            flowerPreferences ||
+            null,
+
+          flowers_to_avoid:
+            flowersToAvoid ||
+            null,
+
+          inspiration:
+            inspiration ||
+            null,
+
+          floral_pieces:
+            floralPieces,
+
+          bridal_bouquet_style:
+            bridalBouquetStyle ||
+            null,
+
+          bridesmaid_count:
+            nullableInteger(
+              bridesmaidCount
+            ),
+
+          boutonniere_count:
+            nullableInteger(
+              boutonniereCount
+            ),
+
+          corsage_count:
+            nullableInteger(
+              corsageCount
+            ),
+
+          arch_details:
+            archDetails ||
+            null,
+
+          ceremony_details:
+            ceremonyDetails ||
+            null,
+
+          memorial_flowers:
+            memorialFlowers ||
+            null,
+
+          centerpiece_count:
+            nullableInteger(
+              centerpieceCount
+            ),
+
+          centerpiece_style:
+            centerpieceStyle ||
+            null,
+
+          reception_details:
+            receptionDetails ||
+            null,
+
+          cake_flowers:
+            cakeFlowers ||
+            null,
+
+          budget_range:
+            budgetRange ||
+            null,
+
+          budget_notes:
+            budgetNotes ||
+            null,
+
+          delivery_setup:
+            deliverySetup ||
+            null,
+
+          setup_time:
+            setupTime ||
+            null,
+
+          teardown_needed:
+            teardownNeeded ||
+            null,
+
+          additional_notes:
+            additionalNotes ||
+            null,
+
+          raw_submission:
+            sanitizedSubmission,
+        })
+        .select(
+          "id, inquiry_number"
+        )
+        .single();
+
+    if (
+      inquiryError ||
+      !inquiry
+    ) {
+      console.error(
+        "Wedding CRM insert error:",
+        inquiryError
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Your wedding inquiry could not be saved. Please try again.",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+
+    const inquiryNumber =
+      inquiry.inquiry_number;
+
     const ownerHtml = `
       <div
         style="
@@ -471,6 +755,19 @@ export async function POST(
             )} submitted a wedding
             floral inquiry through
             portpetals.com.
+          </p>
+
+          <p
+            style="
+              margin-top:10px;
+              color:#153f32;
+              font-weight:700;
+            "
+          >
+            Inquiry:
+            ${escapeHtml(
+              inquiryNumber
+            )}
           </p>
         </div>
 
@@ -700,7 +997,7 @@ export async function POST(
         to: [OWNER_EMAIL],
         replyTo: email,
         subject:
-          `Wedding Inquiry — ${contactName} — ${weddingDate}`,
+          `Wedding Inquiry — ${inquiryNumber} — ${contactName} — ${weddingDate}`,
         html: ownerHtml,
       });
 
@@ -710,15 +1007,62 @@ export async function POST(
         ownerError
       );
 
-      return NextResponse.json(
-        {
-          error:
-            "Your inquiry could not be sent. Please try again or contact Port Petals directly.",
-        },
-        {
-          status: 500,
-        }
-      );
+      const {
+        error:
+          ownerTrackingError,
+      } =
+        await supabase
+          .from(
+            "wedding_inquiries"
+          )
+          .update({
+            owner_email_error:
+              errorText(
+                ownerError
+              ),
+          })
+          .eq(
+            "id",
+            inquiry.id
+          );
+
+      if (
+        ownerTrackingError
+      ) {
+        console.error(
+          "Wedding owner email tracking error:",
+          ownerTrackingError
+        );
+      }
+    } else {
+      const {
+        error:
+          ownerTrackingError,
+      } =
+        await supabase
+          .from(
+            "wedding_inquiries"
+          )
+          .update({
+            owner_email_sent_at:
+              new Date().toISOString(),
+
+            owner_email_error:
+              null,
+          })
+          .eq(
+            "id",
+            inquiry.id
+          );
+
+      if (
+        ownerTrackingError
+      ) {
+        console.error(
+          "Wedding owner email tracking error:",
+          ownerTrackingError
+        );
+      }
     }
 
     const confirmationHtml = `
@@ -770,6 +1114,15 @@ export async function POST(
             Your wedding floral
             inquiry has been sent to
             Stacy at Port Petals.
+          </p>
+
+          <p>
+            <strong>
+              Inquiry:
+            </strong>
+            ${display(
+              inquiryNumber
+            )}
           </p>
 
           <p>
@@ -842,10 +1195,73 @@ export async function POST(
         "Wedding confirmation email error:",
         confirmationError
       );
+
+      const {
+        error:
+          customerTrackingError,
+      } =
+        await supabase
+          .from(
+            "wedding_inquiries"
+          )
+          .update({
+            customer_email_error:
+              errorText(
+                confirmationError
+              ),
+          })
+          .eq(
+            "id",
+            inquiry.id
+          );
+
+      if (
+        customerTrackingError
+      ) {
+        console.error(
+          "Wedding customer email tracking error:",
+          customerTrackingError
+        );
+      }
+    } else {
+      const {
+        error:
+          customerTrackingError,
+      } =
+        await supabase
+          .from(
+            "wedding_inquiries"
+          )
+          .update({
+            customer_confirmation_sent_at:
+              new Date().toISOString(),
+
+            customer_email_error:
+              null,
+          })
+          .eq(
+            "id",
+            inquiry.id
+          );
+
+      if (
+        customerTrackingError
+      ) {
+        console.error(
+          "Wedding customer email tracking error:",
+          customerTrackingError
+        );
+      }
     }
 
     return NextResponse.json({
       ok: true,
+
+      inquiryNumber,
+
+      ownerEmailSent:
+        !ownerError,
+
       confirmationSent:
         !confirmationError,
     });
