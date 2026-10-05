@@ -5,6 +5,7 @@ import {
 } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import WeddingLeadActions from "./WeddingLeadActions";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Props = {
   params: Promise<{
@@ -163,12 +164,12 @@ function Section({
     React.ReactNode;
 }) {
   return (
-    <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
-      <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+    <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+      <h2 className="font-serif text-xl font-semibold text-[#153f32]">
         {title}
       </h2>
 
-      <div className="mt-6 grid gap-6 sm:grid-cols-2">
+      <div className="mt-5 grid gap-5 sm:grid-cols-2">
         {children}
       </div>
     </section>
@@ -236,49 +237,32 @@ export default async function WeddingLeadPage({
       : [];
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <Link
-              href="/admin/weddings"
-              className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
+        <AdminPageHeader
+          eyebrow="Wedding CRM"
+          title={inquiry.inquiry_number}
+          description={`Received ${formatDateTime(
+            inquiry.created_at
+          )}`}
+          backHref="/admin/weddings"
+          backLabel="Back to Wedding Leads"
+          actions={
+            <span
+              className={`w-fit rounded-full px-3 py-1.5 text-xs font-semibold ${statusClasses(
+                inquiry.status
+              )}`}
             >
-              ← Back to Wedding Leads
-            </Link>
+              {statusLabels[
+                inquiry.status
+              ] ??
+                inquiry.status}
+            </span>
+          }
+        />
 
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-              Port Petals Wedding CRM
-            </p>
-
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-              {
-                inquiry.inquiry_number
-              }
-            </h1>
-
-            <p className="mt-3 text-[#607068]">
-              Received{" "}
-              {formatDateTime(
-                inquiry.created_at
-              )}
-            </p>
-          </div>
-
-          <span
-            className={`w-fit rounded-full px-4 py-2 text-sm font-semibold ${statusClasses(
-              inquiry.status
-            )}`}
-          >
-            {statusLabels[
-              inquiry.status
-            ] ??
-              inquiry.status}
-          </span>
-        </div>
-
-        <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_380px]">
-          <div className="space-y-6">
+        <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="space-y-5">
             <Section title="Couple & Contact">
               <InfoItem label="Contact Name">
                 {display(
@@ -591,7 +575,7 @@ export default async function WeddingLeadPage({
             </Section>
           </div>
 
-          <aside className="space-y-6">
+          <aside className="space-y-5">
             <WeddingLeadActions
               inquiryId={
                 inquiry.id
@@ -619,8 +603,8 @@ export default async function WeddingLeadPage({
               }
             />
 
-            <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                 CRM Summary
               </h2>
 

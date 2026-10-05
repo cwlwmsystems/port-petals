@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ProductCreateForm from "./ProductCreateForm";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default async function NewProductPage() {
   const supabase =
@@ -30,29 +30,15 @@ export default async function NewProductPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-5xl">
-        <Link
-          href="/admin/products"
-          className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
-        >
-          ← Back to Product Catalog
-        </Link>
-
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-          Port Petals Admin
-        </p>
-
-        <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-          Create Product
-        </h1>
-
-        <p className="mt-3 max-w-2xl leading-7 text-[#607068]">
-          Add the core product information
-          first. Port Petals will apply the
-          appropriate preparation rules based
-          on the product type.
-        </p>
+        <AdminPageHeader
+          eyebrow="Product Catalog"
+          title="Create Product"
+          description="Add the core product information first. Port Petals will apply the appropriate preparation rules based on the product type."
+          backHref="/admin/products"
+          backLabel="Back to Product Catalog"
+        />
 
         <ProductCreateForm />
       </div>

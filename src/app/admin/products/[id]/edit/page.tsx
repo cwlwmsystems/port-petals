@@ -7,6 +7,7 @@ import {
   updateProduct,
 } from "./actions";
 import ProductTaxonomyFields from "./ProductTaxonomyFields";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
   deleteProductImage,
   setPrimaryProductImage,
@@ -179,28 +180,17 @@ export default async function EditProductPage({
     publishWarnings.length === 0;
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
-      <div className="mx-auto max-w-4xl">
-        <Link
-          href="/admin/products"
-          className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
-        >
-          ← Back to Products
-        </Link>
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
+      <div className="mx-auto max-w-5xl">
+        <AdminPageHeader
+          eyebrow="Product Catalog"
+          title={product.name}
+          description="Update product details, availability, inventory, images, variants, and storefront status."
+          backHref="/admin/products"
+          backLabel="Back to Products"
+        />
 
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-          Port Petals Admin
-        </p>
-
-        <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-          Edit Product
-        </h1>
-
-        <p className="mt-3 text-[#607068]">
-          Update product details, availability, inventory, and storefront status.
-        </p>
-
-        <section className="mt-8 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+        <section className="mt-6 rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -235,7 +225,7 @@ export default async function EditProductPage({
                 )}
               </div>
 
-              <h2 className="mt-4 font-serif text-3xl font-semibold text-[#153f32]">
+              <h2 className="mt-4 font-serif text-xl font-semibold text-[#153f32]">
                 {product.name}
               </h2>
 
@@ -368,14 +358,14 @@ export default async function EditProductPage({
 
         <form
           action={updateAction}
-          className="mt-8 space-y-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm sm:p-8"
+          className="mt-5 space-y-5 rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6"
         >
           <section>
-            <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <h2 className="font-serif text-xl font-semibold text-[#153f32]">
               Product Information
             </h2>
 
-            <div className="mt-5 grid gap-5">
+            <div className="mt-4 grid gap-4">
               <label className="grid gap-2">
                 <span className="text-sm font-semibold">Product Name *</span>
 
@@ -384,7 +374,7 @@ export default async function EditProductPage({
                   name="name"
                   required
                   defaultValue={product.name}
-                  className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  className="rounded-lg border border-[#284239]/15 px-4 py-2.5 outline-none focus:border-[#e76d61]"
                 />
               </label>
 
@@ -415,7 +405,7 @@ export default async function EditProductPage({
                   type="text"
                   name="short_description"
                   defaultValue={product.short_description ?? ""}
-                  className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  className="rounded-lg border border-[#284239]/15 px-4 py-2.5 outline-none focus:border-[#e76d61]"
                 />
               </label>
 
@@ -428,18 +418,18 @@ export default async function EditProductPage({
                   name="description"
                   rows={5}
                   defaultValue={product.description ?? ""}
-                  className="resize-y rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  className="resize-y rounded-lg border border-[#284239]/15 px-4 py-2.5 outline-none focus:border-[#e76d61]"
                 />
               </label>
             </div>
           </section>
 
           <section className="border-t border-[#284239]/10 pt-6">
-            <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <h2 className="font-serif text-xl font-semibold text-[#153f32]">
               Pricing & Inventory
             </h2>
 
-            <div className="mt-5 grid gap-5 sm:grid-cols-3">
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <label className="grid gap-2">
                 <span className="text-sm font-semibold">Base Price</span>
 
@@ -449,7 +439,7 @@ export default async function EditProductPage({
                   min="0"
                   step="0.01"
                   defaultValue={product.base_price ?? ""}
-                  className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  className="rounded-lg border border-[#284239]/15 px-4 py-2.5 outline-none focus:border-[#e76d61]"
                 />
               </label>
 
@@ -488,7 +478,7 @@ export default async function EditProductPage({
                     min="0"
                     step="1"
                     defaultValue={product.quantity ?? ""}
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                    className="rounded-lg border border-[#284239]/15 px-4 py-2.5 outline-none focus:border-[#e76d61]"
                   />
                 </label>
               )}
@@ -502,7 +492,7 @@ export default async function EditProductPage({
                   min="0"
                   step="1"
                   defaultValue={product.lead_time_days ?? ""}
-                  className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  className="rounded-lg border border-[#284239]/15 px-4 py-2.5 outline-none focus:border-[#e76d61]"
                 />
               </label>
             </div>
@@ -580,11 +570,11 @@ export default async function EditProductPage({
           </section>
 
           <section className="border-t border-[#284239]/10 pt-6">
-            <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <h2 className="font-serif text-xl font-semibold text-[#153f32]">
               Maker & Fulfillment
             </h2>
 
-            <div className="mt-5 grid gap-5">
+            <div className="mt-4 grid gap-4">
               <label className="grid gap-2">
                 <span className="text-sm font-semibold">Maker</span>
 
@@ -592,7 +582,7 @@ export default async function EditProductPage({
                   type="text"
                   name="maker"
                   defaultValue={product.maker ?? ""}
-                  className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none focus:border-[#e76d61]"
+                  className="rounded-lg border border-[#284239]/15 px-4 py-2.5 outline-none focus:border-[#e76d61]"
                 />
               </label>
 
@@ -639,10 +629,10 @@ export default async function EditProductPage({
           </div>
         </form>
 
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm sm:p-8">
+        <section className="mt-5 rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                 Product Images
               </h2>
 
@@ -655,7 +645,7 @@ export default async function EditProductPage({
 
           <form
             action={uploadProductImage.bind(null, id)}
-            className="mt-6 rounded-xl border border-dashed border-[#284239]/20 bg-[#faf7f1] p-5"
+            className="mt-5 rounded-xl border border-dashed border-[#284239]/20 bg-[#f7f8f6] p-4"
           >
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[#153f32]">
@@ -691,7 +681,7 @@ export default async function EditProductPage({
               </p>
             </div>
           ) : (
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {images.map((image) => (
                 <article
                   key={image.id}
@@ -745,8 +735,8 @@ export default async function EditProductPage({
           )}
         </section>
 
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm sm:p-8">
-          <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+        <section className="mt-5 rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6">
+          <h2 className="font-serif text-xl font-semibold text-[#153f32]">
             Product Variants
           </h2>
 
@@ -877,7 +867,7 @@ export default async function EditProductPage({
 
           <form
             action={createVariant.bind(null, id)}
-            className="mt-6 rounded-xl border border-[#284239]/10 bg-[#faf7f1] p-5"
+            className="mt-5 rounded-xl border border-[#284239]/10 bg-[#f7f8f6] p-4"
           >
             <p className="text-sm font-semibold text-[#153f32]">
               Add Variant
@@ -1005,7 +995,7 @@ export default async function EditProductPage({
               </p>
             </div>
           ) : (
-            <div className="mt-6 space-y-4">
+            <div className="mt-5 space-y-3">
               {variants.map((variant) => (
                 <article
                   key={variant.id}
@@ -1184,8 +1174,8 @@ export default async function EditProductPage({
           )}
         </section>
 
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
-          <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+        <section className="mt-5 rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+          <h2 className="font-serif text-xl font-semibold text-[#153f32]">
             Storefront Status
           </h2>
 

@@ -543,14 +543,14 @@ export default function ProductCreateForm() {
   return (
     <form
       action={createProduct}
-      className="mt-8 space-y-6"
+      className="mt-6 space-y-5"
     >
-      <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm sm:p-8">
+      <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
           Step 1
         </p>
 
-        <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+        <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32]">
           Product Information
         </h2>
 
@@ -559,7 +559,7 @@ export default function ProductCreateForm() {
           what type of item it is.
         </p>
 
-        <div className="mt-6 grid gap-5">
+        <div className="mt-5 grid gap-4">
           <label className="grid gap-2">
             <span className="text-sm font-semibold">
               Product Name *
@@ -570,11 +570,11 @@ export default function ProductCreateForm() {
               name="name"
               required
               placeholder="Example: Personalized Christmas Slate"
-              className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+              className="min-h-11 rounded-lg border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
             />
           </label>
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
               <span className="text-sm font-semibold">
                 Department *
@@ -589,7 +589,7 @@ export default function ProductCreateForm() {
                     event.target.value as Department
                   )
                 }
-                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
               >
                 <option value="">
                   Choose department
@@ -630,7 +630,7 @@ export default function ProductCreateForm() {
                     event.target.value
                   )
                 }
-                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61] disabled:bg-[#f2f0ec]"
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61] disabled:bg-[#f2f0ec]"
               >
                 <option value="">
                   {department
@@ -667,7 +667,7 @@ export default function ProductCreateForm() {
                   event.target.value
                 )
               }
-              className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61] disabled:bg-[#f2f0ec]"
+              className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61] disabled:bg-[#f2f0ec]"
             >
               <option value="">
                 {department
@@ -697,7 +697,7 @@ export default function ProductCreateForm() {
               type="text"
               name="short_description"
               placeholder="Short description shown on product cards"
-              className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+              className="min-h-11 rounded-lg border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
             />
           </label>
 
@@ -710,18 +710,18 @@ export default function ProductCreateForm() {
               name="description"
               rows={5}
               placeholder="Describe the product, materials, style, customization, or anything the customer should know."
-              className="resize-y rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+              className="resize-y rounded-lg border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
             />
           </label>
         </div>
       </section>
 
-      <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm sm:p-8">
+      <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
           Step 2
         </p>
 
-        <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+        <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32]">
           Ordering Experience
         </h2>
 
@@ -730,7 +730,7 @@ export default function ProductCreateForm() {
           interact with this product.
         </p>
 
-        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="grid gap-2">
             <span className="text-sm font-semibold">
               Ordering Method *
@@ -745,7 +745,7 @@ export default function ProductCreateForm() {
                   event.target.value as PurchaseMode
                 )
               }
-              className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+              className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
             >
               {Object.entries(
                 purchaseModeLabels
@@ -775,7 +775,7 @@ export default function ProductCreateForm() {
                     .value as ConfiguratorType
                 )
               }
-              className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+              className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
             >
               {Object.entries(
                 configuratorLabels
@@ -820,16 +820,16 @@ export default function ProductCreateForm() {
         </div>
       </section>
 
-      <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm sm:p-8">
+      <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
           Step 3
         </p>
 
-        <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+        <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32]">
           Pricing & Production
         </h2>
 
-        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="grid gap-2">
             <span className="text-sm font-semibold">
               Base Price
@@ -860,7 +860,7 @@ export default function ProductCreateForm() {
               type="text"
               name="maker"
               placeholder="Optional"
-              className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+              className="min-h-11 rounded-lg border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
             />
           </label>
         </div>
@@ -980,12 +980,12 @@ export default function ProductCreateForm() {
         </div>
       </section>
 
-      <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm sm:p-8">
+      <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
           Step 4
         </p>
 
-        <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+        <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32]">
           Fulfillment & Inventory
         </h2>
 
@@ -1070,7 +1070,7 @@ export default function ProductCreateForm() {
         </div>
       </section>
 
-      <section className="rounded-[1.75rem] border border-[#e76d61]/20 bg-[#fff7f4] p-6">
+      <section className="rounded-2xl border border-[#e76d61]/20 bg-[#fff7f4] p-5">
         <h2 className="font-serif text-xl font-semibold text-[#153f32]">
           Ready to create the product?
         </h2>
@@ -1085,14 +1085,14 @@ export default function ProductCreateForm() {
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Link
             href="/admin/products"
-            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#284239]/15 bg-white px-6 py-3 font-semibold text-[#284239]"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-6 py-3 font-semibold text-[#284239]"
           >
             Cancel
           </Link>
 
           <button
             type="submit"
-            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
           >
             Create Product & Continue →
           </button>

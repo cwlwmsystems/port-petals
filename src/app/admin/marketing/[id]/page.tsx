@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   notFound,
   redirect,
@@ -7,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { updateCampaign } from "../actions";
 import SendCampaignButton from "./SendCampaignButton";
 import { buildMarketingEmailHtml } from "@/lib/email/marketing-template";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Props = {
   params: Promise<{
@@ -460,45 +460,39 @@ export default async function MarketingCampaignPage({
     );
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <Link
-          href="/admin/marketing"
-          className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
-        >
-          ← Back to Marketing
-        </Link>
-
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-              {isDraft
-                ? "Campaign Draft"
-                : "Campaign"}
-            </p>
-
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
+        <AdminPageHeader
+          eyebrow={
+            isDraft
+              ? "Campaign Draft"
+              : "Campaign"
+          }
+          title={campaign.name}
+          description={
+            isDraft
+              ? "Edit content, refine the audience, preview the email, and review eligible recipients before sending."
+              : "Historical campaign content, recipients, and delivery results."
+          }
+          backHref="/admin/marketing"
+          backLabel="Back to Marketing"
+          actions={
+            <span className="inline-flex w-fit rounded-full bg-[#f4ead8] px-3 py-1.5 text-xs font-semibold text-[#775d2f]">
               {
-                campaign.name
+                campaign.status
+                  .replaceAll(
+                    "_",
+                    " "
+                  )
+                  .replace(
+                    /\b\w/g,
+                    (letter: string) =>
+                      letter.toUpperCase()
+                  )
               }
-            </h1>
-          </div>
-
-          <span className="inline-flex w-fit rounded-full bg-[#f4ead8] px-3 py-1.5 text-xs font-semibold text-[#775d2f]">
-            {
-              campaign.status
-                .replaceAll(
-                  "_",
-                  " "
-                )
-                .replace(
-                  /\b\w/g,
-                  (letter: string) =>
-                    letter.toUpperCase()
-                )
-            }
-          </span>
-        </div>
+            </span>
+          }
+        />
 
         {queryParams.saved ===
           "1" && (
@@ -507,7 +501,7 @@ export default async function MarketingCampaignPage({
           </div>
         )}
 
-        <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(340px,0.6fr)]">
+        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(340px,0.6fr)]">
           <form
             action={
               updateWithId
@@ -519,8 +513,8 @@ export default async function MarketingCampaignPage({
               }
               className="m-0 min-w-0 space-y-5 border-0 p-0"
             >
-            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-6">
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6">
+              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                 Email Content
               </h2>
 
@@ -539,7 +533,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       150
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -557,7 +551,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       200
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -575,7 +569,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       250
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -593,7 +587,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       250
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -612,7 +606,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       1500
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
                   />
 
                   <span className="text-xs leading-5 text-[#718078]">
@@ -634,7 +628,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       120
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -655,7 +649,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       10000
                     }
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none transition focus:border-[#e76d61]"
+                    className="rounded-lg border border-[#284239]/15 px-4 py-3 outline-none transition focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -673,7 +667,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       250
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4 outline-none transition focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -694,7 +688,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       2500
                     }
-                    className="rounded-xl border border-[#284239]/15 px-4 py-3 outline-none transition focus:border-[#e76d61]"
+                    className="rounded-lg border border-[#284239]/15 px-4 py-3 outline-none transition focus:border-[#e76d61]"
                   />
                 </label>
 
@@ -712,7 +706,7 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       100
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4"
                   />
                 </label>
 
@@ -731,14 +725,14 @@ export default async function MarketingCampaignPage({
                     maxLength={
                       1000
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 px-4"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 px-4"
                   />
                 </label>
               </div>
             </section>
 
-            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-6">
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-6">
+              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                 Audience Filters
               </h2>
 
@@ -759,7 +753,7 @@ export default async function MarketingCampaignPage({
                       filters.contact_type ??
                       ""
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4"
                   >
                     <option value="">
                       All
@@ -786,7 +780,7 @@ export default async function MarketingCampaignPage({
                       filters.interest ??
                       ""
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4"
                   >
                     <option value="">
                       All Interests
@@ -829,7 +823,7 @@ export default async function MarketingCampaignPage({
                       filters.purchase_segment ??
                       ""
                     }
-                    className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4"
+                    className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4"
                   >
                     <option value="">
                       All
@@ -852,10 +846,10 @@ export default async function MarketingCampaignPage({
             </section>
 
             {isDraft && (
-              <div className="flex justify-end">
+              <div className="flex flex-col sm:flex-row sm:justify-end">
                 <button
                   type="submit"
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#284239] px-6 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#284239] px-6 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
                 >
                   Save Draft
                 </button>
@@ -865,7 +859,7 @@ export default async function MarketingCampaignPage({
           </form>
 
           <aside className="space-y-5">
-            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-sm">
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
                 {isDraft
                   ? "Eligible Audience"
@@ -968,7 +962,7 @@ export default async function MarketingCampaignPage({
               )}
             </section>
 
-            <section className="overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
+            <section className="overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
               <div className="border-b border-[#284239]/10 px-5 py-4">
                 <h2 className="font-semibold text-[#153f32]">
                   {isDraft
@@ -1133,14 +1127,14 @@ export default async function MarketingCampaignPage({
             </section>
           </aside>        </div>
 
-        <section className="mt-6 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
           <div className="flex flex-col gap-2 border-b border-[#284239]/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#e76d61]">
                 Email Preview
               </p>
 
-              <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+              <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32]">
                 Recipient View
               </h2>
 
@@ -1156,14 +1150,14 @@ export default async function MarketingCampaignPage({
           </div>
 
           <div className="bg-[#edf1ed] p-3 sm:p-6">
-            <div className="mx-auto max-w-[760px] overflow-hidden rounded-xl border border-[#284239]/10 bg-white shadow-sm">
+            <div className="mx-auto max-w-[760px] overflow-hidden rounded-xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
               <iframe
                 title="Marketing email preview"
                 srcDoc={
                   emailPreviewHtml
                 }
                 sandbox=""
-                className="block h-[900px] w-full border-0 bg-[#f7f1e8]"
+                className="block h-[620px] w-full border-0 bg-[#f7f1e8] sm:h-[760px] lg:h-[900px]"
               />
             </div>
           </div>

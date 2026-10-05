@@ -80,7 +80,7 @@ export default function BulkCatalogControls({
       productIds.length;
 
   return (
-    <div className="mt-5 flex flex-col gap-3 rounded-[1.25rem] border border-[#284239]/10 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+    <div className="mt-4 flex flex-col gap-3 rounded-xl border border-[#284239]/10 bg-white px-4 py-3 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm font-semibold text-[#153f32]">
           <input
@@ -126,7 +126,7 @@ export default function BulkCatalogControls({
           disabled={
             selectedCount === 0
           }
-          className="min-h-11 rounded-xl border border-[#284239]/15 bg-white px-4 text-sm font-semibold outline-none disabled:cursor-not-allowed disabled:bg-[#f2f0ec]"
+          className="min-h-10 rounded-lg border border-[#284239]/15 bg-white px-3 text-sm font-semibold outline-none disabled:cursor-not-allowed disabled:bg-[#f2f0ec]"
         >
           <option value="" disabled>
             Choose bulk action
@@ -159,7 +159,7 @@ export default function BulkCatalogControls({
           disabled={
             selectedCount === 0
           }
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#284239] px-5 text-sm font-semibold text-white transition hover:bg-[#1d332b] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#284239] px-4 text-sm font-semibold text-white transition hover:bg-[#1d332b] disabled:cursor-not-allowed disabled:opacity-40"
         >
           Apply to Selected
         </button>

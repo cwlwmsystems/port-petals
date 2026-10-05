@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type AdminOrdersPageProps = {
   searchParams: Promise<{
@@ -174,37 +175,21 @@ export default async function AdminOrdersPage({
   const hasFilters = Boolean(search || status || payment);
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <div>
-          <Link
-            href="/admin"
-            className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
-          >
-            ← Back to Dashboard
-          </Link>
+        <AdminPageHeader
+          eyebrow="Order Management"
+          title="Orders"
+          description="Review customer orders, payment status, fulfillment, and order progress."
+        />
 
-          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-            Port Petals Admin
-          </p>
-
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-            Orders
-          </h1>
-
-          <p className="mt-3 max-w-2xl text-[#607068]">
-            Review customer orders, payment status, fulfillment, and order
-            progress.
-          </p>
-        </div>
-
-        <section className="mt-8 rounded-[1.75rem] border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-6">
+        <section className="mt-5 rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-5">
           <form
             method="GET"
-            className="grid gap-4 md:grid-cols-[1fr_220px_220px_auto]"
+            className="grid gap-3 lg:grid-cols-[minmax(260px,1fr)_200px_200px_auto]"
           >
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-[#153f32]">
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
                 Search Orders
               </span>
 
@@ -213,19 +198,19 @@ export default async function AdminOrdersPage({
                 name="search"
                 defaultValue={search}
                 placeholder="Order #, customer, email, phone..."
-                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
               />
             </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-[#153f32]">
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
                 Order Status
               </span>
 
               <select
                 name="status"
                 defaultValue={status}
-                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
               >
                 <option value="">All Statuses</option>
                 <option value="awaiting_payment">Awaiting Payment</option>
@@ -241,15 +226,15 @@ export default async function AdminOrdersPage({
               </select>
             </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-[#153f32]">
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
                 Payment
               </span>
 
               <select
                 name="payment"
                 defaultValue={payment}
-                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
               >
                 <option value="">All Payments</option>
                 <option value="paid">Paid</option>
@@ -266,7 +251,7 @@ export default async function AdminOrdersPage({
             <div className="flex items-end gap-2">
               <button
                 type="submit"
-                className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#284239] px-5 py-3 font-semibold text-white transition hover:bg-[#1d332b]"
+                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg bg-[#284239] px-5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
               >
                 Apply
               </button>
@@ -274,7 +259,7 @@ export default async function AdminOrdersPage({
               {hasFilters && (
                 <Link
                   href="/admin/orders"
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#284239]/15 px-4 py-3 text-sm font-semibold transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
                 >
                   Clear
                 </Link>
@@ -283,7 +268,7 @@ export default async function AdminOrdersPage({
           </form>
         </section>
 
-        <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
           {!orders || orders.length === 0 ? (
             <div className="px-6 py-16 text-center">
               <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
@@ -300,7 +285,7 @@ export default async function AdminOrdersPage({
             <>
               <div className="hidden overflow-x-auto lg:block">
                 <table className="w-full text-left">
-                  <thead className="border-b border-[#284239]/10 bg-[#faf7f1] text-xs uppercase tracking-[0.12em] text-[#607068]">
+                  <thead className="border-b border-[#284239]/10 bg-[#f5f7f4] text-[11px] uppercase tracking-[0.12em] text-[#607068]">
                     <tr>
                       <th className="px-6 py-4">Order</th>
                       <th className="px-6 py-4">Customer</th>
@@ -318,7 +303,7 @@ export default async function AdminOrdersPage({
                         key={order.id}
                         className="transition hover:bg-[#faf7f1]"
                       >
-                        <td className="px-6 py-5">
+                        <td className="px-5 py-4">
                           <div className="font-semibold text-[#153f32]">
                             {order.order_number}
                           </div>
@@ -328,7 +313,7 @@ export default async function AdminOrdersPage({
                           </div>
                         </td>
 
-                        <td className="px-6 py-5">
+                        <td className="px-5 py-4">
                           <div className="font-medium">
                             {order.customer_name}
                           </div>
@@ -338,7 +323,7 @@ export default async function AdminOrdersPage({
                           </div>
                         </td>
 
-                        <td className="px-6 py-5">
+                        <td className="px-5 py-4">
                           <div className="capitalize">
                             {order.fulfillment_type}
                           </div>
@@ -350,7 +335,7 @@ export default async function AdminOrdersPage({
                           </div>
                         </td>
 
-                        <td className="px-6 py-5">
+                        <td className="px-5 py-4">
                           <span
                             className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusClasses(
                               order.status
@@ -360,7 +345,7 @@ export default async function AdminOrdersPage({
                           </span>
                         </td>
 
-                        <td className="px-6 py-5">
+                        <td className="px-5 py-4">
                           <span
                             className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${paymentClasses(
                               order.payment_status

@@ -5,6 +5,7 @@ import {
 } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import CustomerActions from "./CustomerActions";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Props = {
   params: Promise<{
@@ -352,31 +353,20 @@ export default async function AdminCustomerDetailPage({
     });
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <Link
-              href="/admin/customers"
-              className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
-            >
-              ← Back to Customers
-            </Link>
-
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-              Customer CRM
-            </p>
-
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-              {displayName(
-                contact.first_name,
-                contact.last_name,
-                contact.email,
-                contact.phone
-              )}
-            </h1>
-
-            <div className="mt-4 flex flex-wrap gap-2">
+        <AdminPageHeader
+          eyebrow="Customer CRM"
+          title={displayName(
+            contact.first_name,
+            contact.last_name,
+            contact.email,
+            contact.phone
+          )}
+          backHref="/admin/customers"
+          backLabel="Back to Customers"
+          actions={
+            <>
               <span
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                   contact.contact_type ===
@@ -394,98 +384,90 @@ export default async function AdminCustomerDetailPage({
               <span
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold ${emailState.classes}`}
               >
-                Email:{" "}
-                {
-                  emailState.label
-                }
+                Email: {emailState.label}
               </span>
 
               <span
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold ${smsState.classes}`}
               >
-                SMS:{" "}
-                {
-                  smsState.label
-                }
+                SMS: {smsState.label}
               </span>
+
+              {contact.email && (
+                <a
+                  href={`mailto:${contact.email}`}
+                  className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                >
+                  Email
+                </a>
+              )}
+
+              {contact.phone && (
+                <a
+                  href={`tel:${contact.phone}`}
+                  className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                >
+                  Call
+                </a>
+              )}
+            </>
+          }
+        />
+
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+          <div className="grid grid-cols-2 divide-x divide-y divide-[#284239]/10 lg:grid-cols-4 lg:divide-y-0">
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Paid Orders
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {contact.order_count}
+              </p>
             </div>
-          </div>
 
-          <div className="flex flex-wrap gap-2">
-            {contact.email && (
-              <a
-                href={`mailto:${contact.email}`}
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 text-sm font-semibold text-[#284239]"
-              >
-                Email Customer
-              </a>
-            )}
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Lifetime Value
+              </p>
 
-            {contact.phone && (
-              <a
-                href={`tel:${contact.phone}`}
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 text-sm font-semibold text-[#284239]"
-              >
-                Call Customer
-              </a>
-            )}
-          </div>
-        </div>
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {formatMoney(
+                  contact.lifetime_value
+                )}
+              </p>
+            </div>
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Paid Orders
-            </p>
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                First Order
+              </p>
 
-            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {
-                contact.order_count
-              }
-            </p>
-          </div>
+              <p className="mt-1 text-sm font-semibold text-[#153f32]">
+                {formatDateTime(
+                  contact.first_order_at
+                )}
+              </p>
+            </div>
 
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Lifetime Value
-            </p>
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Last Order
+              </p>
 
-            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {formatMoney(
-                contact.lifetime_value
-              )}
-            </p>
-          </div>
-
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              First Order
-            </p>
-
-            <p className="mt-3 font-semibold text-[#153f32]">
-              {formatDateTime(
-                contact.first_order_at
-              )}
-            </p>
-          </div>
-
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Last Order
-            </p>
-
-            <p className="mt-3 font-semibold text-[#153f32]">
-              {formatDateTime(
-                contact.last_order_at
-              )}
-            </p>
+              <p className="mt-1 text-sm font-semibold text-[#153f32]">
+                {formatDateTime(
+                  contact.last_order_at
+                )}
+              </p>
+            </div>
           </div>
         </section>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
-          <div className="space-y-6">
-            <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+        <div className="mt-5 grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
+          <div className="space-y-5">
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                 Contact Information
               </h2>
 
@@ -537,9 +519,9 @@ export default async function AdminCustomerDetailPage({
               </dl>
             </section>
 
-            <section className="overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
-              <div className="border-b border-[#284239]/10 px-6 py-5">
-                <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <section className="overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+              <div className="border-b border-[#284239]/10 px-5 py-4 sm:px-6">
+                <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                   Order History
                 </h2>
 
@@ -631,7 +613,7 @@ export default async function AdminCustomerDetailPage({
             </section>
           </div>
 
-          <aside className="space-y-6">
+          <aside className="space-y-5">
             <CustomerActions
               contactId={
                 contact.id
@@ -668,8 +650,8 @@ export default async function AdminCustomerDetailPage({
               }
             />
 
-            <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                 Marketing Consent
               </h2>
 
@@ -752,8 +734,8 @@ export default async function AdminCustomerDetailPage({
               </div>
             </section>
 
-            <section className="rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                 Interests
               </h2>
 
@@ -782,9 +764,9 @@ export default async function AdminCustomerDetailPage({
               )}
             </section>
 
-            <section className="overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
-              <div className="border-b border-[#284239]/10 px-6 py-5">
-                <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <section className="overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+              <div className="border-b border-[#284239]/10 px-5 py-4 sm:px-6">
+                <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                   Consent History
                 </h2>
               </div>

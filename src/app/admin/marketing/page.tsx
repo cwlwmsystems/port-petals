@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 function formatDate(
   value: string
@@ -171,41 +172,24 @@ export default async function AdminMarketingPage() {
     [];
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+        <AdminPageHeader
+          eyebrow="Marketing"
+          title="Email Marketing"
+          description="Create promotional campaigns, select consented audiences, preview messages, and review delivery history."
+          actions={
             <Link
-              href="/admin"
-              className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
+              href="/admin/marketing/new"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#e76d61] px-5 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
             >
-              ← Back to Dashboard
+              Create Campaign
             </Link>
+          }
+        />
 
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-              Port Petals Admin
-            </p>
-
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-              Email Marketing
-            </h1>
-
-            <p className="mt-3 max-w-3xl text-[#607068]">
-              Prepare promotional email campaigns, choose an eligible audience,
-              and review recipients before anything is sent.
-            </p>
-          </div>
-
-          <Link
-            href="/admin/marketing/new"
-            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#284239] px-5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
-          >
-            Create Campaign
-          </Link>
-        </div>
-
-        <section className="mt-7 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
-          <div className="grid grid-cols-3 divide-x divide-[#284239]/10">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+          <div className="grid grid-cols-1 divide-y divide-[#284239]/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             <div className="px-4 py-4 sm:px-5">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
                 Campaigns
@@ -246,9 +230,9 @@ export default async function AdminMarketingPage() {
           </div>
         </section>
 
-        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
+        <section className="mt-4 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
           <div className="border-b border-[#284239]/10 px-5 py-4 sm:px-6">
-            <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+            <h2 className="font-serif text-xl font-semibold text-[#153f32]">
               Campaigns
             </h2>
           </div>
@@ -274,7 +258,7 @@ export default async function AdminMarketingPage() {
                       campaign.id
                     }
                     href={`/admin/marketing/${campaign.id}`}
-                    className="grid gap-4 px-5 py-5 transition hover:bg-[#faf7f1] sm:grid-cols-[1.5fr_auto_auto] sm:items-center sm:px-6"
+                    className="grid gap-3 px-5 py-4 transition hover:bg-[#f7f8f6] sm:grid-cols-[1.5fr_auto_auto] sm:items-center sm:px-6"
                   >
                     <div>
                       <div className="flex flex-wrap items-center gap-2">

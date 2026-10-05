@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminMetricStrip from "@/components/admin/AdminMetricStrip";
 
 type AdminWeddingsPageProps = {
   searchParams: Promise<{
@@ -256,58 +258,27 @@ export default async function AdminWeddingsPage({
   ];
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <div>
-          <Link
-            href="/admin"
-            className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
-          >
-            ← Back to Dashboard
-          </Link>
+        <AdminPageHeader
+          eyebrow="Wedding CRM"
+          title="Wedding Leads"
+          description="Manage inquiries, consultations, quotes, follow-ups, and booked events."
+        />
 
-          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-            Port Petals Admin
-          </p>
-
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-            Wedding Leads
-          </h1>
-
-          <p className="mt-3 max-w-2xl text-[#607068]">
-            Manage wedding inquiries,
-            consultations, quotes,
-            follow-ups, and booked
-            events.
-          </p>
+        <div className="mt-5">
+          <AdminMetricStrip
+            metrics={summaryCards}
+          />
         </div>
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {summaryCards.map(
-            (card) => (
-              <div
-                key={card.label}
-                className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm"
-              >
-                <p className="text-sm font-medium text-[#607068]">
-                  {card.label}
-                </p>
-
-                <p className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-                  {card.value}
-                </p>
-              </div>
-            )
-          )}
-        </section>
-
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-6">
+        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-5">
           <form
             method="GET"
-            className="grid gap-4 md:grid-cols-[1fr_260px_auto]"
+            className="grid gap-3 lg:grid-cols-[minmax(260px,1fr)_220px_auto]"
           >
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-[#153f32]">
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
                 Search Wedding Leads
               </span>
 
@@ -316,12 +287,12 @@ export default async function AdminWeddingsPage({
                 name="search"
                 defaultValue={search}
                 placeholder="Inquiry #, name, email, phone..."
-                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
               />
             </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-[#153f32]">
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
                 Lead Status
               </span>
 
@@ -330,7 +301,7 @@ export default async function AdminWeddingsPage({
                 defaultValue={
                   status
                 }
-                className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
               >
                 <option value="">
                   All Statuses
@@ -361,7 +332,7 @@ export default async function AdminWeddingsPage({
             <div className="flex items-end gap-2">
               <button
                 type="submit"
-                className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#284239] px-5 py-3 font-semibold text-white transition hover:bg-[#1d332b]"
+                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg bg-[#284239] px-5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
               >
                 Apply
               </button>
@@ -369,7 +340,7 @@ export default async function AdminWeddingsPage({
               {hasFilters && (
                 <Link
                   href="/admin/weddings"
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#284239]/15 px-4 py-3 text-sm font-semibold transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
                 >
                   Clear
                 </Link>
@@ -378,7 +349,7 @@ export default async function AdminWeddingsPage({
           </form>
         </section>
 
-        <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
           {!inquiries ||
           inquiries.length === 0 ? (
             <div className="px-6 py-16 text-center">
@@ -396,7 +367,7 @@ export default async function AdminWeddingsPage({
             <>
               <div className="hidden overflow-x-auto lg:block">
                 <table className="w-full text-left">
-                  <thead className="border-b border-[#284239]/10 bg-[#faf7f1] text-xs uppercase tracking-[0.12em] text-[#607068]">
+                  <thead className="border-b border-[#284239]/10 bg-[#f5f7f4] text-[11px] uppercase tracking-[0.12em] text-[#607068]">
                     <tr>
                       <th className="px-6 py-4">
                         Inquiry
@@ -437,7 +408,7 @@ export default async function AdminWeddingsPage({
                           }
                           className="transition hover:bg-[#faf7f1]"
                         >
-                          <td className="px-6 py-5">
+                          <td className="px-5 py-4">
                             <p className="font-semibold text-[#153f32]">
                               {
                                 inquiry.inquiry_number
@@ -452,7 +423,7 @@ export default async function AdminWeddingsPage({
                             </p>
                           </td>
 
-                          <td className="px-6 py-5">
+                          <td className="px-5 py-4">
                             <p className="font-medium">
                               {displayName(
                                 inquiry.contact_name,
@@ -467,7 +438,7 @@ export default async function AdminWeddingsPage({
                             </p>
                           </td>
 
-                          <td className="px-6 py-5">
+                          <td className="px-5 py-4">
                             <p className="font-medium text-[#153f32]">
                               {formatDate(
                                 inquiry.wedding_date
@@ -484,7 +455,7 @@ export default async function AdminWeddingsPage({
                             )}
                           </td>
 
-                          <td className="px-6 py-5">
+                          <td className="px-5 py-4">
                             <span
                               className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusClasses(
                                 inquiry.status

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import BulkCatalogControls from "./BulkCatalogControls";
 import { bulkUpdateProducts } from "./actions";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type AdminProductsPageProps = {
   searchParams: Promise<{
@@ -591,43 +592,24 @@ export default async function AdminProductsPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
+        <AdminPageHeader
+          eyebrow="Catalog Management"
+          title="Product Catalog"
+          description="Manage storefront visibility, pricing, inventory, preparation time, and overall catalog health."
+          actions={
             <Link
-              href="/admin"
-              className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
+              href="/admin/products/new"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#e76d61] px-5 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
             >
-              ← Back to Dashboard
+              + Add Product
             </Link>
-
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-              Port Petals Admin
-            </p>
-
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-              Product Catalog
-            </h1>
-
-            <p className="mt-3 max-w-2xl leading-7 text-[#607068]">
-              Manage products, storefront
-              visibility, pricing,
-              inventory, preparation time,
-              and catalog health.
-            </p>
-          </div>
-
-          <Link
-            href="/admin/products/new"
-            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#e76d61] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#d85b50]"
-          >
-            + Add Product
-          </Link>
-        </div>
+          }
+        />
 
         {bulkError && (
-          <section className="mt-6 rounded-[1.25rem] border border-[#d79b58]/25 bg-[#fff5e8] p-5">
+          <section className="mt-5 rounded-xl border border-[#d79b58]/25 bg-[#fff5e8] p-4">
             <p className="font-semibold text-[#8a5b28]">
               Bulk action could not be completed
             </p>
@@ -645,68 +627,70 @@ export default async function AdminProductsPage({
           </section>
         )}
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Total Products
-            </p>
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+          <div className="grid grid-cols-2 divide-x divide-y divide-[#284239]/10 lg:grid-cols-5 lg:divide-y-0">
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Total Products
+              </p>
 
-            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {totalCount}
-            </p>
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {totalCount}
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Published
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#31583b]">
+                {publishedCount}
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Drafts
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#775d2f]">
+                {draftCount}
+              </p>
+            </div>
+
+            <Link
+              href="/admin/products?inventory=low"
+              className="px-4 py-4 transition hover:bg-[#faf7f1] sm:px-5"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Low Stock
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#b36a32]">
+                {lowStockCount}
+              </p>
+            </Link>
+
+            <Link
+              href="/admin/products?inventory=out"
+              className="px-4 py-4 transition hover:bg-[#faf7f1] sm:px-5"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Sold Out
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#a7473f]">
+                {soldOutCount}
+              </p>
+            </Link>
           </div>
-
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Published
-            </p>
-
-            <p className="mt-2 text-4xl font-semibold text-[#31583b]">
-              {publishedCount}
-            </p>
-          </div>
-
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Drafts
-            </p>
-
-            <p className="mt-2 text-4xl font-semibold text-[#775d2f]">
-              {draftCount}
-            </p>
-          </div>
-
-          <Link
-            href="/admin/products?inventory=low"
-            className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm transition hover:border-[#e76d61]/30"
-          >
-            <p className="text-sm font-semibold text-[#607068]">
-              Low Stock
-            </p>
-
-            <p className="mt-2 text-4xl font-semibold text-[#b36a32]">
-              {lowStockCount}
-            </p>
-          </Link>
-
-          <Link
-            href="/admin/products?inventory=out"
-            className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm transition hover:border-[#e76d61]/30"
-          >
-            <p className="text-sm font-semibold text-[#607068]">
-              Sold Out
-            </p>
-
-            <p className="mt-2 text-4xl font-semibold text-[#a7473f]">
-              {soldOutCount}
-            </p>
-          </Link>
         </section>
 
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-6">
+        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-5">
           <form
             method="GET"
-            className="grid gap-4"
+            className="grid gap-3"
           >
             <input
               type="hidden"
@@ -714,9 +698,9 @@ export default async function AdminProductsPage({
               value={view}
             />
 
-            <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr_1fr]">
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-[#153f32]">
+            <div className="grid gap-3 lg:grid-cols-[1.5fr_1fr_1fr]">
+              <label className="grid gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#607068]">
                   Search Catalog
                 </span>
 
@@ -725,19 +709,19 @@ export default async function AdminProductsPage({
                   name="search"
                   defaultValue={search}
                   placeholder="Product name, slug, or collection..."
-                  className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
                 />
               </label>
 
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-[#153f32]">
+              <label className="grid gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#607068]">
                   Category
                 </span>
 
                 <select
                   name="category"
                   defaultValue={category}
-                  className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
                 >
                   <option value="">
                     All Categories
@@ -760,8 +744,8 @@ export default async function AdminProductsPage({
                 </select>
               </label>
 
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-[#153f32]">
+              <label className="grid gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#607068]">
                   Collection
                 </span>
 
@@ -770,7 +754,7 @@ export default async function AdminProductsPage({
                   defaultValue={
                     collection
                   }
-                  className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
                 >
                   <option value="">
                     All Collections
@@ -790,16 +774,16 @@ export default async function AdminProductsPage({
               </label>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]">
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-[#153f32]">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]">
+              <label className="grid gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#607068]">
                   Status
                 </span>
 
                 <select
                   name="status"
                   defaultValue={status}
-                  className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
                 >
                   <option value="">
                     All Statuses
@@ -822,8 +806,8 @@ export default async function AdminProductsPage({
                 </select>
               </label>
 
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-[#153f32]">
+              <label className="grid gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#607068]">
                   Inventory
                 </span>
 
@@ -832,7 +816,7 @@ export default async function AdminProductsPage({
                   defaultValue={
                     inventory
                   }
-                  className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
                 >
                   <option value="">
                     All Inventory
@@ -855,15 +839,15 @@ export default async function AdminProductsPage({
                 </select>
               </label>
 
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-[#153f32]">
+              <label className="grid gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#607068]">
                   Sort By
                 </span>
 
                 <select
                   name="sort"
                   defaultValue={sort}
-                  className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
+                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-4 outline-none transition focus:border-[#e76d61]"
                 >
                   <option value="updated-desc">
                     Recently Updated
@@ -895,7 +879,7 @@ export default async function AdminProductsPage({
               <div className="flex items-end gap-2">
                 <button
                   type="submit"
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#284239] px-6 py-3 font-semibold text-white transition hover:bg-[#1d332b]"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#284239] px-5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
                 >
                   Apply
                 </button>
@@ -903,7 +887,7 @@ export default async function AdminProductsPage({
                 {hasFilters && (
                   <Link
                     href={`/admin/products?view=${view}`}
-                    className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+                    className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
                   >
                     Clear
                   </Link>
@@ -913,7 +897,7 @@ export default async function AdminProductsPage({
           </form>
         </section>
 
-        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-[#607068]">
             Showing{" "}
             <span className="font-semibold text-[#153f32]">
@@ -927,7 +911,7 @@ export default async function AdminProductsPage({
               : ""}
           </p>
 
-          <div className="flex rounded-xl border border-[#284239]/10 bg-white p-1 shadow-sm">
+          <div className="flex rounded-lg border border-[#284239]/10 bg-white p-1 shadow-sm">
             <Link
               href={buildViewHref(
                 "table"
@@ -968,7 +952,7 @@ export default async function AdminProductsPage({
         />
 
         {products.length === 0 ? (
-          <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-10 text-center shadow-sm">
+          <section className="mt-5 rounded-2xl border border-[#284239]/10 bg-white p-10 text-center shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
             <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
               No matching products
             </h2>
@@ -987,7 +971,7 @@ export default async function AdminProductsPage({
             </Link>
           </section>
         ) : view === "cards" ? (
-          <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <section className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {products.map(
               (product) => {
                 const storefrontPath =
@@ -999,7 +983,7 @@ export default async function AdminProductsPage({
                 return (
                   <article
                     key={product.id}
-                    className="relative overflow-hidden rounded-[1.6rem] border border-[#284239]/10 bg-white shadow-sm"
+                    className="relative overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]"
                   >
                     <label className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-lg border border-[#284239]/15 bg-white shadow-sm">
                       <input
@@ -1014,7 +998,7 @@ export default async function AdminProductsPage({
                     </label>
 
                     <div
-                      className="h-52 bg-[#f3eee6] bg-contain bg-center bg-no-repeat"
+                      className="h-48 bg-[#f3eee6] bg-contain bg-center bg-no-repeat"
                       style={
                         product.imageUrl
                           ? {
@@ -1040,7 +1024,7 @@ export default async function AdminProductsPage({
                               product.category}
                           </p>
 
-                          <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+                          <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32]">
                             {product.name}
                           </h2>
 
@@ -1191,10 +1175,10 @@ export default async function AdminProductsPage({
             )}
           </section>
         ) : (
-          <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
-            <div className="overflow-x-auto">
+          <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+            <div className="overflow-x-auto overscroll-x-contain">
               <table className="w-full min-w-[1100px] text-left">
-                <thead className="border-b border-[#284239]/10 bg-[#faf7f1]">
+                <thead className="border-b border-[#284239]/10 bg-[#f5f7f4]">
                   <tr className="text-xs uppercase tracking-[0.12em] text-[#718078]">
                     <th className="w-12 px-5 py-4 font-semibold">
                       Select

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Props = {
   searchParams: Promise<{
@@ -601,32 +602,15 @@ export default async function AdminCustomersPage({
   ];
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <div>
-          <Link
-            href="/admin"
-            className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
-          >
-            ← Back to Dashboard
-          </Link>
+        <AdminPageHeader
+          eyebrow="Customer CRM"
+          title="Customers"
+          description="Customer and prospect records, purchase history, lifetime value, segmentation, and marketing consent."
+        />
 
-          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-            Port Petals Admin
-          </p>
-
-          <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-            Customers
-          </h1>
-
-          <p className="mt-3 max-w-3xl text-[#607068]">
-            Customer and prospect records,
-            purchase history, lifetime value,
-            and marketing consent.
-          </p>
-        </div>
-
-        <section className="mt-7 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
           <div className="grid grid-cols-2 divide-x divide-y divide-[#284239]/10 sm:grid-cols-3 lg:grid-cols-5 lg:divide-y-0">
             {summaryCards.map(
               (card) => (
@@ -653,7 +637,7 @@ export default async function AdminCustomersPage({
           </div>
         </section>
 
-        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-5">
+        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-5">
           <form
             method="GET"
             className="space-y-4"
@@ -848,7 +832,7 @@ export default async function AdminCustomersPage({
           </form>
         </section>
 
-        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white px-4 py-4 shadow-sm sm:px-5">
+        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white px-4 py-4 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:px-5">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <div>
@@ -894,7 +878,7 @@ export default async function AdminCustomersPage({
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap">
               <a
                 href={exportHref(
                   "all"
@@ -934,10 +918,10 @@ export default async function AdminCustomersPage({
             )}
         </section>
 
-        <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
-          <div className="flex flex-col gap-2 border-b border-[#284239]/10 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+          <div className="flex flex-col gap-2 border-b border-[#284239]/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
-              <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
+              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                 Contact Directory
               </h2>
 
@@ -970,7 +954,7 @@ export default async function AdminCustomersPage({
               {/* DESKTOP */}
               <div className="hidden overflow-x-auto lg:block">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#faf7f1] text-xs uppercase tracking-[0.12em] text-[#607068]">
+                  <thead className="bg-[#f5f7f4] text-[11px] uppercase tracking-[0.12em] text-[#607068]">
                     <tr>
                       <th className="px-6 py-4">
                         Contact
@@ -1020,7 +1004,7 @@ export default async function AdminCustomersPage({
                             }
                             className="transition hover:bg-[#faf7f1]"
                           >
-                            <td className="px-6 py-5">
+                            <td className="px-6 py-4">
                               <p className="font-semibold text-[#153f32]">
                                 {displayName(
                                   contact.first_name,
@@ -1047,7 +1031,7 @@ export default async function AdminCustomersPage({
                               )}
                             </td>
 
-                            <td className="px-6 py-5">
+                            <td className="px-6 py-4">
                               <span
                                 className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${typeClasses(
                                   contact.contact_type
@@ -1060,19 +1044,19 @@ export default async function AdminCustomersPage({
                               </span>
                             </td>
 
-                            <td className="px-6 py-5 font-semibold text-[#153f32]">
+                            <td className="px-6 py-4 font-semibold text-[#153f32]">
                               {
                                 contact.order_count
                               }
                             </td>
 
-                            <td className="px-6 py-5 font-semibold text-[#153f32]">
+                            <td className="px-6 py-4 font-semibold text-[#153f32]">
                               {formatMoney(
                                 contact.lifetime_value
                               )}
                             </td>
 
-                            <td className="px-6 py-5">
+                            <td className="px-6 py-4">
                               <div className="flex flex-wrap gap-2">
                                 <span
                                   className={`rounded-full px-2.5 py-1 text-xs font-semibold ${consentClasses(
@@ -1098,13 +1082,13 @@ export default async function AdminCustomersPage({
                               </div>
                             </td>
 
-                            <td className="px-6 py-5 text-[#607068]">
+                            <td className="px-6 py-4 text-[#607068]">
                               {formatDate(
                                 contact.last_order_at
                               )}
                             </td>
 
-                            <td className="px-6 py-5 text-right">
+                            <td className="px-6 py-4 text-right">
                               <Link
                                 href={`/admin/customers/${contact.id}`}
                                 className="font-semibold text-[#e76d61]"

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Props = {
   searchParams: Promise<{
@@ -862,65 +863,45 @@ export default async function ProductionCalendarPage({
     [];
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-4 py-8 text-[#284239] sm:px-8 sm:py-10">
+    <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <Link
-              href="/admin"
-              className="text-sm font-semibold text-[#607068] transition hover:text-[#e76d61]"
-            >
-              ← Back to Dashboard
-            </Link>
+        <AdminPageHeader
+          eyebrow="Operations"
+          title="Production Calendar"
+          description="Production windows, pickups, deliveries, weddings, consultations, and follow-ups in one operational schedule."
+          actions={
+            <>
+              <Link
+                href={`/admin/calendar?month=${previousMonth}`}
+                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                ← Previous
+              </Link>
 
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-              Port Petals Admin
-            </p>
+              <Link
+                href="/admin/calendar"
+                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#284239] px-4 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
+              >
+                Today
+              </Link>
 
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-              Production Calendar
-            </h1>
+              <Link
+                href={`/admin/calendar?month=${nextMonth}`}
+                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Next →
+              </Link>
+            </>
+          }
+        />
 
-            <p className="mt-3 max-w-2xl text-[#607068]">
-              Orders, deliveries,
-              wedding events,
-              consultations, and
-              follow-ups in one
-              operational calendar.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href={`/admin/calendar?month=${previousMonth}`}
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-4 text-sm font-semibold transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              ← Previous
-            </Link>
-
-            <Link
-              href="/admin/calendar"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#284239] px-5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
-            >
-              Today
-            </Link>
-
-            <Link
-              href={`/admin/calendar?month=${nextMonth}`}
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-4 text-sm font-semibold transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              Next →
-            </Link>
-          </div>
-        </div>
-
-        <section className="mt-8 flex flex-col gap-4 rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <section className="mt-5 flex flex-col gap-4 rounded-2xl border border-[#284239]/10 bg-white px-5 py-4 shadow-[0_1px_3px_rgba(21,63,50,0.05)] lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
               Calendar Month
             </p>
 
-            <h2 className="mt-1 font-serif text-3xl font-semibold text-[#153f32]">
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32] sm:text-3xl">
               {getMonthName(
                 selected.year,
                 selected.month
@@ -965,7 +946,7 @@ export default async function ProductionCalendarPage({
               ]) => (
                 <span
                   key={type}
-                  className={`rounded-full border px-3 py-1.5 ${eventClasses(
+                  className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${eventClasses(
                     type as CalendarEventType
                   )}`}
                 >
@@ -978,14 +959,14 @@ export default async function ProductionCalendarPage({
 
         {overdueFollowUps.length >
           0 && (
-          <section className="mt-6 rounded-[1.5rem] border border-[#a7473f]/20 bg-[#fff0ed] p-5">
+          <section className="mt-5 rounded-2xl border border-[#a7473f]/20 bg-[#fff0ed] p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a7473f]">
                   Needs Attention
                 </p>
 
-                <h2 className="mt-1 font-serif text-2xl font-semibold text-[#7e332e]">
+                <h2 className="mt-1 font-serif text-xl font-semibold text-[#7e332e]">
                   {
                     overdueFollowUps.length
                   }{" "}
@@ -1056,8 +1037,8 @@ export default async function ProductionCalendarPage({
         )}
 
         {/* DESKTOP / TABLET MONTH GRID */}
-        <section className="mt-6 hidden overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm md:block">
-          <div className="grid grid-cols-7 border-b border-[#284239]/10 bg-[#faf7f1]">
+        <section className="mt-5 hidden overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)] lg:block">
+          <div className="grid grid-cols-7 border-b border-[#284239]/10 bg-[#f5f7f4]">
             {[
               "Sun",
               "Mon",
@@ -1085,7 +1066,7 @@ export default async function ProductionCalendarPage({
                   key={
                     day.dateKey
                   }
-                  className={`min-h-40 border-b border-r border-[#284239]/10 p-2 xl:min-h-44 ${
+                  className={`min-h-36 border-b border-r border-[#284239]/10 p-2 xl:min-h-40 ${
                     day.inMonth
                       ? "bg-white"
                       : "bg-[#faf7f1]/70"
@@ -1178,10 +1159,10 @@ export default async function ProductionCalendarPage({
         </section>
 
         {/* MOBILE AGENDA */}
-        <section className="mt-6 md:hidden">
+        <section className="mt-5 lg:hidden">
           {agendaDates.length ===
           0 ? (
-            <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-8 text-center shadow-sm">
+            <div className="rounded-2xl border border-[#284239]/10 bg-white p-8 text-center shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
               <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
                 No scheduled work
               </h2>
@@ -1207,9 +1188,9 @@ export default async function ProductionCalendarPage({
                       key={
                         dateKey
                       }
-                      className="overflow-hidden rounded-[1.5rem] border border-[#284239]/10 bg-white shadow-sm"
+                      className="overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]"
                     >
-                      <div className="border-b border-[#284239]/10 bg-[#faf7f1] px-5 py-4">
+                      <div className="border-b border-[#284239]/10 bg-[#f5f7f4] px-5 py-4">
                         <div className="flex items-center justify-between gap-3">
                           <h2 className="font-serif text-xl font-semibold text-[#153f32]">
                             {formatAgendaDate(
@@ -1286,49 +1267,59 @@ export default async function ProductionCalendarPage({
           )}
         </section>
 
-        <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-          {(
-            [
-              "production_start",
-              "production",
-              "pickup",
-              "delivery",
-              "wedding",
-              "consultation",
-              "follow_up",
-            ] as CalendarEventType[]
-          ).map(
-            (type) => {
-              const count =
-                events.filter(
-                  (event) =>
-                    event.type ===
-                    type
-                ).length;
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+          <div className="border-b border-[#284239]/10 px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#e76d61]">
+              Monthly Workload
+            </p>
 
-              return (
-                <div
-                  key={type}
-                  className={`rounded-[1.25rem] border p-4 ${eventClasses(
-                    type
-                  )}`}
-                >
-                  <p className="text-3xl font-semibold">
-                    {count}
-                  </p>
+            <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32]">
+              {getMonthName(
+                selected.year,
+                selected.month
+              )}
+            </h2>
+          </div>
 
-                  <p className="mt-1 text-sm font-semibold">
-                    {eventLabel(
+          <div className="grid grid-cols-2 divide-x divide-y divide-[#284239]/10 sm:grid-cols-4 xl:grid-cols-7 xl:divide-y-0">
+            {(
+              [
+                "production_start",
+                "production",
+                "pickup",
+                "delivery",
+                "wedding",
+                "consultation",
+                "follow_up",
+              ] as CalendarEventType[]
+            ).map(
+              (type) => {
+                const count =
+                  events.filter(
+                    (event) =>
+                      event.type ===
                       type
-                    )}
-                    {count === 1
-                      ? ""
-                      : "s"}
-                  </p>
-                </div>
-              );
-            }
-          )}
+                  ).length;
+
+                return (
+                  <div
+                    key={type}
+                    className="px-4 py-4"
+                  >
+                    <p className="text-2xl font-semibold text-[#153f32]">
+                      {count}
+                    </p>
+
+                    <p className="mt-1 text-xs font-semibold text-[#607068]">
+                      {eventLabel(
+                        type
+                      )}
+                    </p>
+                  </div>
+                );
+              }
+            )}
+          </div>
         </section>
       </div>
     </main>

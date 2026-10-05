@@ -37,6 +37,22 @@ function formatFulfillmentDate(
   );
 }
 
+function formatDashboardDate(
+  date: Date
+) {
+  return new Intl.DateTimeFormat(
+    "en-US",
+    {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      timeZone:
+        "America/New_York",
+    }
+  ).format(date);
+}
+
 function getEasternDateKey(date: Date) {
   const parts =
     new Intl.DateTimeFormat("en-US", {
@@ -717,75 +733,119 @@ export default async function AdminPage() {
     );
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-5 py-10 text-[#284239] sm:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e76d61]">
-              Port Petals Admin
-            </p>
+    <main className="min-h-screen bg-[#f2f4f1] text-[#284239]">
+      <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 sm:py-8">
+        <div className="mb-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+            Operations
+          </p>
 
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32]">
-              Today
-            </h1>
+          <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight text-[#153f32] sm:text-4xl">
+            Dashboard
+          </h1>
 
-            <p className="mt-3 text-[#607068]">
-              Welcome,{" "}
-              {adminUser.display_name ??
-                "Port Petals Owner"}
-              . Here is what needs attention.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/admin/orders"
-              className="inline-flex items-center justify-center rounded-full bg-[#284239] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
-            >
-              Manage Orders
-            </Link>
-
-            <Link
-              href="/admin/weddings"
-              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              Wedding Leads
-            </Link>
-
-            <Link
-              href="/admin/customers"
-              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              Customers
-            </Link>
-
-            <Link
-              href="/admin/marketing"
-              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              Marketing
-            </Link>
-
-            <Link
-              href="/admin/calendar"
-              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              Production Calendar
-            </Link>
-
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              View Storefront
-            </Link>
-
-            <LogoutButton />
-          </div>
+          <p className="mt-2 text-sm text-[#607068]">
+            {
+              formatDashboardDate(
+                now
+              )
+            }
+            {" · "}
+            Welcome,{" "}
+            {
+              adminUser.display_name ??
+              "Port Petals Owner"
+            }
+          </p>
         </div>
+        <section className="overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.06)]">
+          <div className="grid grid-cols-2 divide-x divide-y divide-[#284239]/10 lg:grid-cols-4 lg:divide-y-0">
+            <div className="px-4 py-4 sm:px-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                  Pickups Today
+                </p>
+
+                <span className="h-2 w-2 rounded-full bg-[#31583b]" />
+              </div>
+
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-[#153f32]">
+                {
+                  todayPickups.length
+                }
+              </p>
+
+              <p className="mt-1 text-xs text-[#718078]">
+                Scheduled pickup
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                  Deliveries Today
+                </p>
+
+                <span className="h-2 w-2 rounded-full bg-[#365b7a]" />
+              </div>
+
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-[#153f32]">
+                {
+                  todayDeliveries.length
+                }
+              </p>
+
+              <p className="mt-1 text-xs text-[#718078]">
+                Scheduled delivery
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                  Paid Today
+                </p>
+
+                <span className="h-2 w-2 rounded-full bg-[#e76d61]" />
+              </div>
+
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-[#153f32]">
+                {
+                  todayOrderCount
+                }
+              </p>
+
+              <p className="mt-1 text-xs text-[#718078]">
+                Confirmed orders
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                  Revenue Today
+                </p>
+
+                <span className="h-2 w-2 rounded-full bg-[#775d2f]" />
+              </div>
+
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-[#153f32]">
+                {
+                  formatPrice(
+                    todayRevenue
+                  )
+                }
+              </p>
+
+              <p className="mt-1 text-xs text-[#718078]">
+                Paid revenue
+              </p>
+            </div>
+          </div>
+        </section>
 
         {overdueOrders.length > 0 && (
-          <section className="mt-8 rounded-[1.75rem] border border-[#a7473f]/20 bg-[#fff0ed] p-6">
+          <section className="mt-8 rounded-2xl border border-[#a7473f]/20 bg-[#fff0ed] p-6">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a7473f]">
@@ -816,97 +876,64 @@ export default async function AdminPage() {
           </section>
         )}
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Pickups Today
-            </p>
+        
 
-            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {todayPickups.length}
-            </p>
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
+          <div className="flex items-center justify-between gap-4 border-b border-[#284239]/10 px-5 py-4 sm:px-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#e76d61]">
+                Today
+              </p>
 
-            <p className="mt-1 text-sm text-[#718078]">
-              Scheduled for today
-            </p>
+              <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32]">
+                Today's Fulfillment
+              </h2>
+            </div>
+
+            <span className="rounded-full bg-[#e6f2e3] px-3 py-1 text-xs font-semibold text-[#31583b]">
+              {
+                todayOrders.length
+              }{" "}
+              {
+                todayOrders.length ===
+                1
+                  ? "order"
+                  : "orders"
+              }
+            </span>
           </div>
 
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Deliveries Today
-            </p>
-
-            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {todayDeliveries.length}
-            </p>
-
-            <p className="mt-1 text-sm text-[#718078]">
-              Scheduled for today
-            </p>
-          </div>
-
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Paid Today
-            </p>
-
-            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {todayOrderCount}
-            </p>
-
-            <p className="mt-1 text-sm text-[#718078]">
-              New confirmed orders
-            </p>
-          </div>
-
-          <div className="rounded-[1.5rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-[#607068]">
-              Revenue Today
-            </p>
-
-            <p className="mt-2 text-4xl font-semibold text-[#153f32]">
-              {formatPrice(todayRevenue)}
-            </p>
-
-            <p className="mt-1 text-sm text-[#718078]">
-              Paid order revenue
-            </p>
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
-              Today
-            </p>
-
-            <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
-              Today's Fulfillment
-            </h2>
-          </div>
-
-          {todayOrders.length === 0 ? (
-            <div className="mt-5 rounded-2xl bg-[#f7f1e8] p-6 text-center">
-              <p className="font-semibold text-[#153f32]">
+          {todayOrders.length ===
+          0 ? (
+            <div className="px-6 py-8 text-center">
+              <p className="text-sm font-semibold text-[#607068]">
                 Nothing scheduled for today.
+              </p>
+
+              <p className="mt-1 text-xs text-[#8a958f]">
+                Today's production queue is clear.
               </p>
             </div>
           ) : (
-            <div className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10">
-              <div className="divide-y divide-[#284239]/10">
-                {todayOrders.map((order) => (
+            <div className="divide-y divide-[#284239]/10">
+              {todayOrders.map(
+                (order) => (
                   <OrderRow
-                    key={order.id}
-                    order={order}
+                    key={
+                      order.id
+                    }
+                    order={
+                      order
+                    }
                   />
-                ))}
-              </div>
+                )
+              )}
             </div>
           )}
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">
-          <div className="overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
             <div className="border-b border-[#284239]/10 px-6 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
                 Next
@@ -935,7 +962,7 @@ export default async function AdminPage() {
             )}
           </div>
 
-          <div className="overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
             <div className="border-b border-[#284239]/10 px-6 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
                 Planning
@@ -965,7 +992,7 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+        <section className="mt-6 rounded-2xl border border-[#284239]/10 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
@@ -1044,7 +1071,7 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+        <section className="mt-6 rounded-2xl border border-[#284239]/10 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
@@ -1119,7 +1146,7 @@ export default async function AdminPage() {
           )}
         </section>
 
-        <section className="mt-6 rounded-[1.75rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+        <section className="mt-6 rounded-2xl border border-[#284239]/10 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#e76d61]">
@@ -1239,7 +1266,7 @@ export default async function AdminPage() {
         </section>
 
         {undatedOrders.length > 0 && (
-          <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-[#284239]/10 bg-white shadow-sm">
+          <section className="mt-6 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
             <div className="border-b border-[#284239]/10 px-6 py-5">
               <h2 className="font-serif text-2xl font-semibold text-[#153f32]">
                 Active Orders Without a Date
@@ -1264,7 +1291,7 @@ export default async function AdminPage() {
         <section className="mt-6">
           <Link
             href="/admin/products"
-            className="flex items-center justify-between rounded-[1.5rem] border border-[#284239]/10 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#e76d61]/30"
+            className="flex items-center justify-between rounded-xl border border-[#284239]/10 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#e76d61]/30"
           >
             <div>
               <p className="text-sm font-semibold text-[#607068]">
