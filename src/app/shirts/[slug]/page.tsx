@@ -9,6 +9,7 @@ import {
   getPublishedShirtBySlug,
   getPublishedShirts,
 } from "@/lib/shirts";
+import StickyProductCTA from "@/components/StickyProductCTA";
 
 type ShirtPageProps = {
   params: Promise<{
@@ -211,7 +212,7 @@ export default async function ShirtPage({
   ].slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+    <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
       {/* BREADCRUMB */}
       <section className="mx-auto max-w-7xl px-5 pt-7 sm:px-8 lg:px-10">
         <nav
@@ -386,6 +387,7 @@ export default async function ShirtPage({
                 </p>
               </div>
 
+              <div id="product-order" className="scroll-mt-28">
               <ShirtOrderConfigurator
                 productId={product.id}
                 productSlug={product.slug}
@@ -419,6 +421,7 @@ export default async function ShirtPage({
                   product.delivery_available
                 }
               />
+              </div>
             </div>
 
             {/* QUICK GUIDANCE */}
@@ -605,6 +608,11 @@ export default async function ShirtPage({
           </div>
         </section>
       )}
-    </main>
+          <StickyProductCTA
+        productName={product.name}
+        startingPrice={startingPrice}
+      />
+
+</main>
   );
 }

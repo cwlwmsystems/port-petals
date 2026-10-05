@@ -1,5 +1,8 @@
 "use client";
 
+import { useToast } from "@/components/ToastProvider";
+
+
 import {
   createContext,
   useContext,
@@ -73,6 +76,9 @@ export default function CartProvider({
 }: {
   children: ReactNode;
 }) {
+  const { toast } =
+    useToast();
+
   const [items, setItems] = useState<CartItem[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -146,8 +152,9 @@ export default function CartProvider({
       ];
     });
 
-    window.dispatchEvent(
-      new CustomEvent("port-petals-cart-added")
+    toast(
+      `${input.productName} added to cart.`,
+      "success"
     );
   }
 

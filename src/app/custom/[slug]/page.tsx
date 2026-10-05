@@ -9,6 +9,7 @@ import {
   getPublishedCustomItemBySlug,
   getPublishedCustomItems,
 } from "@/lib/custom-items";
+import StickyProductCTA from "@/components/StickyProductCTA";
 
 type CustomItemPageProps = {
   params: Promise<{
@@ -199,7 +200,7 @@ export default async function CustomItemPage({
   ].slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+    <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
       {/* BREADCRUMB */}
       <section className="mx-auto max-w-7xl px-5 pt-7 sm:px-8 lg:px-10">
         <nav
@@ -374,6 +375,7 @@ export default async function CustomItemPage({
                 </p>
               </div>
 
+              <div id="product-order" className="scroll-mt-28">
               <CustomItemConfigurator
                 productId={product.id}
                 productSlug={product.slug}
@@ -406,6 +408,7 @@ export default async function CustomItemPage({
                   product.delivery_available
                 }
               />
+              </div>
             </div>
 
             {/* TRUST / CUSTOMIZATION CUES */}
@@ -593,6 +596,11 @@ export default async function CustomItemPage({
           </div>
         </section>
       )}
-    </main>
+          <StickyProductCTA
+        productName={product.name}
+        startingPrice={startingPrice}
+      />
+
+</main>
   );
 }

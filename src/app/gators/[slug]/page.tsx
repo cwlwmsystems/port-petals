@@ -8,6 +8,7 @@ import {
   getPublishedGatorBySlug,
   getPublishedGatorGear,
 } from "@/lib/gators";
+import StickyProductCTA from "@/components/StickyProductCTA";
 
 type GatorPageProps = {
   params: Promise<{
@@ -200,7 +201,7 @@ export default async function GatorProductPage({
   ].slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+    <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
       {/* BREADCRUMB */}
       <section className="mx-auto max-w-7xl px-5 pt-7 sm:px-8 lg:px-10">
         <nav
@@ -384,6 +385,7 @@ export default async function GatorProductPage({
               </div>
 
               <div className="p-5 sm:p-7">
+                <div id="product-order" className="scroll-mt-28">
                 <GatorOrderConfigurator
                   productId={product.id}
                   productSlug={product.slug}
@@ -416,6 +418,7 @@ export default async function GatorProductPage({
                     product.delivery_available
                   }
                 />
+                </div>
               </div>
             </div>
 
@@ -656,6 +659,11 @@ export default async function GatorProductPage({
           </div>
         </section>
       )}
-    </main>
+          <StickyProductCTA
+        productName={product.name}
+        startingPrice={startingPrice}
+      />
+
+</main>
   );
 }

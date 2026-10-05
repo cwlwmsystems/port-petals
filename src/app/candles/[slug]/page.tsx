@@ -9,6 +9,7 @@ import {
   getPublishedCandleBySlug,
   getPublishedCandles,
 } from "@/lib/candles";
+import StickyProductCTA from "@/components/StickyProductCTA";
 
 type CandlePageProps = {
   params: Promise<{
@@ -213,7 +214,7 @@ export default async function CandlePage({
   ].slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+    <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
       {/* BREADCRUMB */}
       <section className="mx-auto max-w-7xl px-5 pt-7 sm:px-8 lg:px-10">
         <nav
@@ -377,6 +378,7 @@ export default async function CandlePage({
                 </p>
               </div>
 
+              <div id="product-order" className="scroll-mt-28">
               <CandleOrderConfigurator
                 productId={product.id}
                 productSlug={product.slug}
@@ -398,6 +400,7 @@ export default async function CandlePage({
                 }
                 allowsGiftMessage={true}
               />
+              </div>
             </div>
 
             {/* TRUST / GIFT CUES */}
@@ -582,6 +585,11 @@ export default async function CandlePage({
           </div>
         </section>
       )}
-    </main>
+          <StickyProductCTA
+        productName={product.name}
+        startingPrice={startingPrice}
+      />
+
+</main>
   );
 }

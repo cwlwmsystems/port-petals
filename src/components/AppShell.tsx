@@ -3,6 +3,7 @@
 import type {
   ReactNode,
 } from "react";
+import { ToastProvider } from "@/components/ToastProvider";
 import { usePathname } from "next/navigation";
 import CartProvider from "@/components/CartProvider";
 import SiteHeader from "@/components/SiteHeader";
@@ -23,7 +24,8 @@ export default function AppShell({
     );
 
   return (
-    <CartProvider>
+    <ToastProvider>
+        <CartProvider>
       {!isAdmin && (
         <SiteHeader />
       )}
@@ -34,5 +36,6 @@ export default function AppShell({
         <SiteFooter />
       )}
     </CartProvider>
+      </ToastProvider>
   );
 }

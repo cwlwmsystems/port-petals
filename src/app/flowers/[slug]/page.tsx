@@ -9,6 +9,7 @@ import {
   getPublishedFlowerBySlug,
   getPublishedFlowers,
 } from "@/lib/flowers";
+import StickyProductCTA from "@/components/StickyProductCTA";
 
 type FlowerPageProps = {
   params: Promise<{
@@ -208,7 +209,7 @@ export default async function FlowerPage({
   ].slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+    <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
       {/* BREADCRUMB */}
       <section className="mx-auto max-w-7xl px-5 pt-7 sm:px-8 lg:px-10">
         <nav
@@ -370,6 +371,7 @@ export default async function FlowerPage({
                 </p>
               </div>
 
+              <div id="product-order" className="scroll-mt-28">
               <FlowerOrderConfigurator
                 productId={product.id}
                 productSlug={product.slug}
@@ -391,6 +393,7 @@ export default async function FlowerPage({
                 }
                 allowsCardMessage={true}
               />
+              </div>
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -534,6 +537,11 @@ export default async function FlowerPage({
           </div>
         </section>
       )}
-    </main>
+          <StickyProductCTA
+        productName={product.name}
+        startingPrice={startingPrice}
+      />
+
+</main>
   );
 }
