@@ -4,6 +4,7 @@ import { getPublishedCandles } from "@/lib/candles";
 import { getPublishedCustomItems } from "@/lib/custom-items";
 import { getPublishedShirts } from "@/lib/shirts";
 import { getPublishedGatorGear } from "@/lib/gators";
+import { occasionDefinitions } from "@/lib/occasions";
 
 const baseUrl = "https://www.portpetals.com";
 
@@ -130,6 +131,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  const occasionPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/occasions`,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    ...occasionDefinitions.map(
+      (occasion) => ({
+        url: `${baseUrl}/occasions/${occasion.slug}`,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      })
+    ),
+  ];
+
   const productPages: MetadataRoute.Sitemap = [
     ...flowers.map((product) => ({
       url: `${baseUrl}/flowers/${product.slug}`,
@@ -162,5 +178,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ];
 
-  return [...staticPages, ...productPages];
+  return [
+    ...staticPages,
+    ...occasionPages,
+    ...productPages,
+  ];
 }

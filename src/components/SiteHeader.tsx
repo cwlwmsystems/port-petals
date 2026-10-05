@@ -39,40 +39,46 @@ const shopLinks = [
 
 const occasions = [
   {
+    label: "Shop All Occasions",
+    description:
+      "Flowers, gifts & favorites for every moment",
+    href: "/occasions",
+  },
+  {
     label: "Birthdays",
     description:
       "Flowers, gifts & something special",
-    href: "/flowers",
+    href: "/occasions/birthdays",
   },
   {
     label: "Homecoming & Prom",
     description:
-      "Corsages, boutonnieres & bouquets",
-    href: "/flowers#prom-homecoming",
+      "Flowers, spirit & finishing touches",
+    href: "/occasions/homecoming-prom",
   },
   {
     label: "Anniversaries",
     description:
       "Flowers & thoughtful gifts",
-    href: "/flowers",
+    href: "/occasions/anniversaries",
   },
   {
     label: "Graduation",
     description:
       "Flowers, gifts & Gator pride",
-    href: "/gators",
+    href: "/occasions/graduation",
   },
   {
     label: "Thank You",
     description:
       "Small gestures with a personal touch",
-    href: "/gifts",
+    href: "/occasions/thank-you",
   },
   {
     label: "Just Because",
     description:
       "No special occasion required",
-    href: "/flowers",
+    href: "/occasions/just-because",
   },
 ];
 
