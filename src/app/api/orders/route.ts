@@ -16,6 +16,9 @@ type CheckoutRequest = {
   customerEmail: string;
   customerPhone: string;
 
+  emailMarketingConsent?: boolean;
+  smsMarketingConsent?: boolean;
+
   fulfillmentType: "pickup" | "delivery";
   requestedFulfillmentDate: string;
 
@@ -44,6 +47,59 @@ function cleanText(
   }
 
   return value.trim().slice(0, maxLength);
+}
+
+function normalizeMarketingEmail(
+  value: string
+) {
+  return value
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeMarketingPhone(
+  value: string
+) {
+  const digits =
+    value.replace(
+      /\D/g,
+      ""
+    );
+
+  if (digits.length === 10) {
+    return `+1${digits}`;
+  }
+
+  if (
+    digits.length === 11 &&
+    digits.startsWith("1")
+  ) {
+    return `+${digits}`;
+  }
+
+  return value.trim();
+}
+
+function splitCustomerName(
+  value: string
+) {
+  const parts =
+    value
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+  return {
+    firstName:
+      parts[0] ?? null,
+
+    lastName:
+      parts.length > 1
+        ? parts
+            .slice(1)
+            .join(" ")
+        : null,
+  };
 }
 
 function getDeliveryFee(
@@ -560,6 +616,448 @@ export async function POST(request: Request) {
         .eq("id", order.id);
 
       throw new Error(itemsError.message);
+    }
+
+    /*
+     * CUSTOMER CRM
+     *
+     * Every successfully created checkout can create/update
+     * a contact record, but checkout contact information alone
+     * never implies marketing consent.
+     *
+     * CRM synchronization is deliberately secondary to order
+     * creation. If this fails, the customer's order must still
+     * continue normally.
+     */
+    try {
+      const normalizedEmail =
+        normalizeMarketingEmail(
+          customerEmail
+        );
+
+      const normalizedPhone =
+        normalizeMarketingPhone(
+          customerPhone
+        );
+
+      const {
+        firstName,
+        lastName,
+      } =
+        splitCustomerName(
+          customerName
+        );
+
+      const emailOptIn =
+        body.emailMarketingConsent ===
+        true;
+
+      const smsOptIn =
+        body.smsMarketingConsent ===
+        true;
+
+      const consentTimestamp =
+        new Date().toISOString();
+
+      /*
+       * Prefer email as the primary identity because checkout
+       * requires it. Fall back to phone so a customer changing
+       * their email does not necessarily create a duplicate.
+       */
+      const {
+        data: emailContact,
+        error: emailLookupError,
+      } =
+        await supabase
+          .from(
+            "marketing_contacts"
+          )
+          .select(`
+            id,
+            email,
+            phone,
+            contact_type,
+            email_marketing_consent,
+            sms_marketing_consent,
+            email_unsubscribed_at,
+            sms_unsubscribed_at
+          `)
+          .ilike(
+            "email",
+            normalizedEmail
+          )
+          .maybeSingle();
+
+      if (emailLookupError) {
+        throw emailLookupError;
+      }
+
+      let existingContact =
+        emailContact;
+
+      if (
+        !existingContact &&
+        normalizedPhone
+      ) {
+        const {
+          data: phoneContact,
+          error:
+            phoneLookupError,
+        } =
+          await supabase
+            .from(
+              "marketing_contacts"
+            )
+            .select(`
+              id,
+              email,
+              phone,
+              contact_type,
+              email_marketing_consent,
+              sms_marketing_consent,
+              email_unsubscribed_at,
+              sms_unsubscribed_at
+            `)
+            .eq(
+              "phone",
+              normalizedPhone
+            )
+            .maybeSingle();
+
+        if (phoneLookupError) {
+          throw phoneLookupError;
+        }
+
+        existingContact =
+          phoneContact;
+      }
+
+      let contactId:
+        | string
+        | null = null;
+
+      let shouldRecordEmailOptIn =
+        false;
+
+      let shouldRecordSmsOptIn =
+        false;
+
+      if (existingContact) {
+        /*
+         * An unchecked box means "no new consent decision".
+         * It must NOT revoke consent granted previously.
+         */
+        const updates: {
+          email: string;
+          phone: string;
+          first_name:
+            | string
+            | null;
+          last_name:
+            | string
+            | null;
+
+          email_marketing_consent?:
+            boolean;
+          email_consent_at?:
+            string;
+          email_consent_source?:
+            string;
+          email_unsubscribed_at?:
+            null;
+
+          sms_marketing_consent?:
+            boolean;
+          sms_consent_at?:
+            string;
+          sms_consent_source?:
+            string;
+          sms_unsubscribed_at?:
+            null;
+        } = {
+          email:
+            normalizedEmail,
+          phone:
+            normalizedPhone,
+          first_name:
+            firstName,
+          last_name:
+            lastName,
+        };
+
+        if (
+          emailOptIn &&
+          (
+            !existingContact
+              .email_marketing_consent ||
+            existingContact
+              .email_unsubscribed_at
+          )
+        ) {
+          updates.email_marketing_consent =
+            true;
+
+          updates.email_consent_at =
+            consentTimestamp;
+
+          updates.email_consent_source =
+            "checkout";
+
+          updates.email_unsubscribed_at =
+            null;
+
+          shouldRecordEmailOptIn =
+            true;
+        }
+
+        if (
+          smsOptIn &&
+          (
+            !existingContact
+              .sms_marketing_consent ||
+            existingContact
+              .sms_unsubscribed_at
+          )
+        ) {
+          updates.sms_marketing_consent =
+            true;
+
+          updates.sms_consent_at =
+            consentTimestamp;
+
+          updates.sms_consent_source =
+            "checkout";
+
+          updates.sms_unsubscribed_at =
+            null;
+
+          shouldRecordSmsOptIn =
+            true;
+        }
+
+        const {
+          data: updatedContact,
+          error: updateContactError,
+        } =
+          await supabase
+            .from(
+              "marketing_contacts"
+            )
+            .update(updates)
+            .eq(
+              "id",
+              existingContact.id
+            )
+            .select("id")
+            .single();
+
+        if (
+          updateContactError ||
+          !updatedContact
+        ) {
+          throw (
+            updateContactError ??
+            new Error(
+              "Unable to update marketing contact."
+            )
+          );
+        }
+
+        contactId =
+          updatedContact.id;
+      } else {
+        const {
+          data: createdContact,
+          error: createContactError,
+        } =
+          await supabase
+            .from(
+              "marketing_contacts"
+            )
+            .insert({
+              email:
+                normalizedEmail,
+
+              phone:
+                normalizedPhone,
+
+              first_name:
+                firstName,
+
+              last_name:
+                lastName,
+
+              contact_type:
+                "prospect",
+
+              source:
+                "checkout",
+
+              email_marketing_consent:
+                emailOptIn,
+
+              email_consent_at:
+                emailOptIn
+                  ? consentTimestamp
+                  : null,
+
+              email_consent_source:
+                emailOptIn
+                  ? "checkout"
+                  : null,
+
+              sms_marketing_consent:
+                smsOptIn,
+
+              sms_consent_at:
+                smsOptIn
+                  ? consentTimestamp
+                  : null,
+
+              sms_consent_source:
+                smsOptIn
+                  ? "checkout"
+                  : null,
+            })
+            .select("id")
+            .single();
+
+        if (
+          createContactError ||
+          !createdContact
+        ) {
+          throw (
+            createContactError ??
+            new Error(
+              "Unable to create marketing contact."
+            )
+          );
+        }
+
+        contactId =
+          createdContact.id;
+
+        shouldRecordEmailOptIn =
+          emailOptIn;
+
+        shouldRecordSmsOptIn =
+          smsOptIn;
+      }
+
+      if (
+        contactId &&
+        (
+          shouldRecordEmailOptIn ||
+          shouldRecordSmsOptIn
+        )
+      ) {
+        const consentEvents: Array<{
+          contact_id: string;
+          channel:
+            | "email"
+            | "sms";
+          action:
+            "opted_in";
+          source: string;
+          occurred_at: string;
+          metadata: {
+            disclosure_version:
+              string;
+            order_id: string;
+            order_number: string;
+          };
+        }> = [];
+
+        if (
+          shouldRecordEmailOptIn
+        ) {
+          consentEvents.push({
+            contact_id:
+              contactId,
+
+            channel:
+              "email",
+
+            action:
+              "opted_in",
+
+            source:
+              "checkout",
+
+            occurred_at:
+              consentTimestamp,
+
+            metadata: {
+              disclosure_version:
+                "checkout-email-v1",
+
+              order_id:
+                order.id,
+
+              order_number:
+                order.order_number,
+            },
+          });
+        }
+
+        if (
+          shouldRecordSmsOptIn
+        ) {
+          consentEvents.push({
+            contact_id:
+              contactId,
+
+            channel:
+              "sms",
+
+            action:
+              "opted_in",
+
+            source:
+              "checkout",
+
+            occurred_at:
+              consentTimestamp,
+
+            metadata: {
+              disclosure_version:
+                "checkout-sms-v1",
+
+              order_id:
+                order.id,
+
+              order_number:
+                order.order_number,
+            },
+          });
+        }
+
+        const {
+          error:
+            consentEventError,
+        } =
+          await supabase
+            .from(
+              "marketing_consent_events"
+            )
+            .insert(
+              consentEvents
+            );
+
+        if (
+          consentEventError
+        ) {
+          console.error(
+            "Unable to record marketing consent event:",
+            consentEventError
+          );
+        }
+      }
+    } catch (marketingContactError) {
+      console.error(
+        "Unable to sync checkout customer to marketing CRM:",
+        marketingContactError
+      );
     }
 
     const { error: eventError } = await supabase

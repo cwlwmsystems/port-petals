@@ -209,6 +209,16 @@ export default function CheckoutClient() {
             customerPhone:
               formData.get("customerPhone"),
 
+            emailMarketingConsent:
+              formData.get(
+                "emailMarketingConsent"
+              ) === "yes",
+
+            smsMarketingConsent:
+              formData.get(
+                "smsMarketingConsent"
+              ) === "yes",
+
             fulfillmentType,
 
             requestedFulfillmentDate:
@@ -575,6 +585,69 @@ export default function CheckoutClient() {
                     className="min-h-12 rounded-xl border border-[#284239]/15 px-4 py-3 text-base outline-none focus:border-[#e76d61]"
                   />
                 </label>
+              </div>
+
+              <div className="mt-6 border-t border-[#284239]/10 pt-5">
+                <p className="text-sm font-semibold text-[#153f32]">
+                  Stay in touch
+                </p>
+
+                <p className="mt-1 text-sm leading-6 text-[#607068]">
+                  These are optional. Your choices do not affect your order.
+                </p>
+
+                <div className="mt-4 space-y-4">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#284239]/10 bg-[#faf7f1] p-4">
+                    <input
+                      type="checkbox"
+                      name="emailMarketingConsent"
+                      value="yes"
+                      className="mt-1 h-4 w-4 shrink-0 accent-[#e76d61]"
+                    />
+
+                    <span>
+                      <span className="block text-sm font-semibold text-[#153f32]">
+                        Email me Port Petals news and offers
+                      </span>
+
+                      <span className="mt-1 block text-xs leading-5 text-[#607068]">
+                        Receive occasional emails about new products,
+                        seasonal releases, promotions, and Port Petals news.
+                        You can unsubscribe from marketing emails at any time.
+                      </span>
+                    </span>
+                  </label>
+
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#284239]/10 bg-[#faf7f1] p-4">
+                    <input
+                      type="checkbox"
+                      name="smsMarketingConsent"
+                      value="yes"
+                      className="mt-1 h-4 w-4 shrink-0 accent-[#e76d61]"
+                    />
+
+                    <span>
+                      <span className="block text-sm font-semibold text-[#153f32]">
+                        Text me Port Petals news and offers
+                      </span>
+
+                      <span className="mt-1 block text-xs leading-5 text-[#607068]">
+                        By checking this box, you agree to receive recurring
+                        promotional text messages from Port Petals at the
+                        mobile number provided. Consent is not a condition of
+                        purchase. Message frequency varies. Message and data
+                        rates may apply. Reply STOP to opt out when SMS
+                        messaging is available.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+
+                <p className="mt-4 text-xs leading-5 text-[#718078]">
+                  Order confirmations, payment notices, fulfillment updates,
+                  and other transactional messages are separate from these
+                  marketing preferences.
+                </p>
               </div>
             </section>
 

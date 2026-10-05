@@ -753,6 +753,20 @@ export default async function AdminPage() {
             </Link>
 
             <Link
+              href="/admin/customers"
+              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+            >
+              Customers
+            </Link>
+
+            <Link
+              href="/admin/marketing"
+              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+            >
+              Marketing
+            </Link>
+
+            <Link
               href="/admin/calendar"
               className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
             >
