@@ -1,24 +1,85 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 type Props = {
   searchParams: Promise<{
     search?: string;
-    type?: string;
-    email?: string;
-    sms?: string;
-    interest?: string;
+    account?: string;
     segment?: string;
   }>;
 };
 
-function formatMoney(
-  value:
-    | number
+type CustomerRow = {
+  key: string;
+
+  email: string | null;
+  phone: string | null;
+  name: string;
+
+  crmId: string | null;
+  crmType: string | null;
+
+  userId: string | null;
+  hasAccount: boolean;
+  accountCreatedAt: string | null;
+
+  orderCount: number;
+  paidOrderCount: number;
+  lifetimeValue: number;
+
+  petalsBalance: number;
+  availableRewards: number;
+  reservedRewards: number;
+  wishlistCount: number;
+
+  referralCode: string | null;
+
+  emailMarketingConsent: boolean;
+  smsMarketingConsent: boolean;
+
+  lastOrderAt: string | null;
+};
+
+function normalizeEmail(
+  value: string | null | undefined
+) {
+  return (
+    value
+      ?.trim()
+      .toLowerCase() ??
+    ""
+  );
+}
+
+function displayName(
+  firstName: string | null | undefined,
+  lastName: string | null | undefined,
+  fallback:
     | string
     | null
+    | undefined
+) {
+  const name = [
+    firstName,
+    lastName,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  return (
+    name ||
+    fallback ||
+    "Unnamed Customer"
+  );
+}
+
+function formatMoney(
+  value: number
 ) {
   return new Intl.NumberFormat(
     "en-US",
@@ -26,9 +87,7 @@ function formatMoney(
       style: "currency",
       currency: "USD",
     }
-  ).format(
-    Number(value ?? 0)
-  );
+  ).format(value);
 }
 
 function formatDate(
@@ -52,50 +111,88 @@ function formatDate(
   );
 }
 
-function displayName(
-  firstName: string | null,
-  lastName: string | null,
-  email: string | null,
-  phone: string | null
-) {
-  const name =
-    [
-      firstName,
-      lastName,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .trim();
+async function requireAdmin() {
+  const sessionClient =
+    await createClient();
 
-  return (
-    name ||
-    email ||
-    phone ||
-    "Unnamed Contact"
-  );
-}
+  const {
+    data: claimsData,
+  } =
+    await sessionClient.auth.getClaims();
 
-function typeClasses(
-  type: string
-) {
-  switch (type) {
-    case "customer":
-      return "bg-[#e6f2e3] text-[#31583b]";
+  const authUserId =
+    claimsData?.claims?.sub;
 
-    case "prospect":
-      return "bg-[#f4ead8] text-[#775d2f]";
-
-    default:
-      return "bg-[#edf1f6] text-[#536578]";
+  if (!authUserId) {
+    redirect("/admin/login");
   }
+
+  const {
+    data: adminUser,
+  } =
+    await sessionClient
+      .from("admin_users")
+      .select(
+        "id, auth_user_id"
+      )
+      .eq(
+        "auth_user_id",
+        authUserId
+      )
+      .eq(
+        "active",
+        true
+      )
+      .maybeSingle();
+
+  if (!adminUser) {
+    redirect("/admin/login");
+  }
+
+  return createAdminClient();
 }
 
-function consentClasses(
-  enabled: boolean
+async function loadAuthUsers(
+  admin: ReturnType<
+    typeof createAdminClient
+  >
 ) {
-  return enabled
-    ? "bg-[#e6f2e3] text-[#31583b]"
-    : "bg-[#edf1f6] text-[#607068]";
+  const users = [];
+  const perPage = 1000;
+
+  for (
+    let page = 1;
+    page <= 20;
+    page += 1
+  ) {
+    const {
+      data,
+      error,
+    } =
+      await admin.auth.admin.listUsers({
+        page,
+        perPage,
+      });
+
+    if (error) {
+      throw new Error(
+        `Unable to load registered customer accounts: ${error.message}`
+      );
+    }
+
+    users.push(
+      ...data.users
+    );
+
+    if (
+      data.users.length <
+      perPage
+    ) {
+      break;
+    }
+  }
+
+  return users;
 }
 
 export default async function AdminCustomersPage({
@@ -105,328 +202,884 @@ export default async function AdminCustomersPage({
     await searchParams;
 
   const search =
-    params.search?.trim() ??
+    params.search
+      ?.trim()
+      .toLowerCase() ??
     "";
 
-  const type =
-    params.type?.trim() ??
-    "";
-
-  const email =
-    params.email?.trim() ??
-    "";
-
-  const sms =
-    params.sms?.trim() ??
-    "";
-
-  const interest =
-    params.interest?.trim() ??
+  const accountFilter =
+    params.account?.trim() ??
     "";
 
   const segment =
     params.segment?.trim() ??
     "";
 
-  const supabase =
-    await createClient();
+  const admin =
+    await requireAdmin();
 
-  const {
-    data: claimsData,
-  } =
-    await supabase.auth.getClaims();
-
-  const userId =
-    claimsData?.claims?.sub;
-
-  if (!userId) {
-    redirect("/admin/login");
-  }
-
-  const {
-    data: adminUser,
-  } =
-    await supabase
-      .from("admin_users")
-      .select("id")
-      .eq(
-        "auth_user_id",
-        userId
-      )
-      .eq("active", true)
-      .maybeSingle();
-
-  if (!adminUser) {
-    redirect("/admin/login");
-  }
+  const authUsers =
+    await loadAuthUsers(
+      admin
+    );
 
   const [
-    totalResult,
-    customerResult,
-    prospectResult,
-    emailSubscriberResult,
-    smsSubscriberResult,
-  ] = await Promise.all([
-    supabase
-      .from(
-        "marketing_contacts"
-      )
-      .select("*", {
-        count: "exact",
-        head: true,
-      }),
+    adminUsersResult,
+    contactsResult,
+    profilesResult,
+    balancesResult,
+    redemptionsResult,
+    wishlistResult,
+    referralProfilesResult,
+    ordersResult,
+  ] =
+    await Promise.all([
+      admin
+        .from("admin_users")
+        .select(
+          "auth_user_id"
+        )
+        .eq(
+          "active",
+          true
+        ),
 
-    supabase
-      .from(
-        "marketing_contacts"
-      )
-      .select("*", {
-        count: "exact",
-        head: true,
-      })
-      .eq(
-        "contact_type",
-        "customer"
-      ),
+      admin
+        .from(
+          "marketing_contacts"
+        )
+        .select(`
+          id,
+          email,
+          phone,
+          first_name,
+          last_name,
+          contact_type,
+          order_count,
+          lifetime_value,
+          last_order_at,
+          email_marketing_consent,
+          email_unsubscribed_at,
+          sms_marketing_consent,
+          sms_unsubscribed_at
+        `),
 
-    supabase
-      .from(
-        "marketing_contacts"
-      )
-      .select("*", {
-        count: "exact",
-        head: true,
-      })
-      .eq(
-        "contact_type",
-        "prospect"
-      ),
+      admin
+        .from(
+          "customer_profiles"
+        )
+        .select(`
+          user_id,
+          full_name,
+          phone
+        `),
 
-    supabase
-      .from(
-        "marketing_contacts"
-      )
-      .select("*", {
-        count: "exact",
-        head: true,
-      })
-      .eq(
-        "email_marketing_consent",
-        true
-      )
-      .is(
-        "email_unsubscribed_at",
-        null
-      ),
+      admin
+        .from(
+          "customer_petals_balances"
+        )
+        .select(`
+          user_id,
+          petals_balance
+        `),
 
-    supabase
-      .from(
-        "marketing_contacts"
-      )
-      .select("*", {
-        count: "exact",
-        head: true,
-      })
-      .eq(
-        "sms_marketing_consent",
-        true
-      )
-      .is(
-        "sms_unsubscribed_at",
-        null
-      ),
-  ]);
+      admin
+        .from(
+          "customer_reward_redemptions"
+        )
+        .select(`
+          user_id,
+          status
+        `),
 
-  let interestContactIds:
-    string[] | null = null;
+      admin
+        .from(
+          "customer_wishlist_items"
+        )
+        .select(`
+          user_id,
+          product_id
+        `),
 
-  if (interest) {
-    const allowedInterests =
-      new Set([
-        "flowers",
-        "gifts-decor",
-        "apparel",
-        "gator-gear",
-        "seasonal",
-        "weddings-events",
-      ]);
+      admin
+        .from(
+          "customer_referral_profiles"
+        )
+        .select(`
+          user_id,
+          referral_code
+        `),
+
+      admin
+        .from("orders")
+        .select(`
+          id,
+          customer_user_id,
+          customer_email,
+          customer_name,
+          customer_phone,
+          payment_status,
+          total,
+          created_at
+        `),
+    ]);
+
+  const results = [
+    adminUsersResult,
+    contactsResult,
+    profilesResult,
+    balancesResult,
+    redemptionsResult,
+    wishlistResult,
+    referralProfilesResult,
+    ordersResult,
+  ];
+
+  const firstError =
+    results.find(
+      (result) =>
+        result.error
+    )?.error;
+
+  if (firstError) {
+    throw new Error(
+      firstError.message
+    );
+  }
+
+  const adminUserIds =
+    new Set(
+      (
+        adminUsersResult.data ??
+        []
+      )
+        .map(
+          (row) =>
+            row.auth_user_id
+        )
+        .filter(Boolean)
+    );
+
+  const customerAuthUsers =
+    authUsers.filter(
+      (user) =>
+        !adminUserIds.has(
+          user.id
+        )
+    );
+
+  const profiles =
+    new Map(
+      (
+        profilesResult.data ??
+        []
+      ).map(
+        (row) => [
+          row.user_id,
+          row,
+        ]
+      )
+    );
+
+  const balances =
+    new Map(
+      (
+        balancesResult.data ??
+        []
+      ).map(
+        (row) => [
+          row.user_id,
+          Number(
+            row.petals_balance ??
+              0
+          ),
+        ]
+      )
+    );
+
+  const referralProfiles =
+    new Map(
+      (
+        referralProfilesResult.data ??
+        []
+      ).map(
+        (row) => [
+          row.user_id,
+          row.referral_code,
+        ]
+      )
+    );
+
+  const rewardCounts =
+    new Map<
+      string,
+      {
+        available: number;
+        reserved: number;
+      }
+    >();
+
+  for (
+    const redemption
+    of redemptionsResult.data ??
+    []
+  ) {
+    const current =
+      rewardCounts.get(
+        redemption.user_id
+      ) ?? {
+        available: 0,
+        reserved: 0,
+      };
 
     if (
-      allowedInterests.has(
-        interest
-      )
+      redemption.status ===
+      "issued"
     ) {
-      const {
-        data: interestRows,
-        error: interestError,
-      } =
-        await supabase
-          .from(
-            "marketing_contact_interests"
-          )
-          .select(
-            "contact_id"
-          )
-          .eq(
-            "interest",
-            interest
-          );
+      current.available += 1;
+    }
 
-      if (interestError) {
-        throw new Error(
-          interestError.message
-        );
+    if (
+      redemption.status ===
+      "reserved"
+    ) {
+      current.reserved += 1;
+    }
+
+    rewardCounts.set(
+      redemption.user_id,
+      current
+    );
+  }
+
+  const wishlistCounts =
+    new Map<string, number>();
+
+  for (
+    const item
+    of wishlistResult.data ??
+    []
+  ) {
+    wishlistCounts.set(
+      item.user_id,
+      (
+        wishlistCounts.get(
+          item.user_id
+        ) ?? 0
+      ) + 1
+    );
+  }
+
+  const accountByEmail =
+    new Map<
+      string,
+      (typeof customerAuthUsers)[number]
+    >();
+
+  for (
+    const user
+    of customerAuthUsers
+  ) {
+    const email =
+      normalizeEmail(
+        user.email
+      );
+
+    if (email) {
+      accountByEmail.set(
+        email,
+        user
+      );
+    }
+  }
+
+  const crmByEmail =
+    new Map<
+      string,
+      NonNullable<
+        typeof contactsResult.data
+      >[number]
+    >();
+
+  for (
+    const contact
+    of contactsResult.data ??
+    []
+  ) {
+    const email =
+      normalizeEmail(
+        contact.email
+      );
+
+    if (email) {
+      crmByEmail.set(
+        email,
+        contact
+      );
+    }
+  }
+
+  const orderStatsByUser =
+    new Map<
+      string,
+      {
+        total: number;
+        paid: number;
+        value: number;
+        lastOrderAt: string | null;
+      }
+    >();
+
+  const guestStatsByEmail =
+    new Map<
+      string,
+      {
+        total: number;
+        paid: number;
+        value: number;
+        lastOrderAt: string | null;
+        name: string | null;
+        phone: string | null;
+      }
+    >();
+
+  for (
+    const order
+    of ordersResult.data ??
+    []
+  ) {
+    if (
+      order.customer_user_id
+    ) {
+      const current =
+        orderStatsByUser.get(
+          order.customer_user_id
+        ) ?? {
+          total: 0,
+          paid: 0,
+          value: 0,
+          lastOrderAt: null,
+        };
+
+      current.total += 1;
+
+      if (
+        order.payment_status ===
+        "paid"
+      ) {
+        current.paid += 1;
+        current.value +=
+          Number(
+            order.total ?? 0
+          );
       }
 
-      interestContactIds =
-        Array.from(
-          new Set(
-            (
-              interestRows ??
-              []
-            ).map(
-              (row) =>
-                row.contact_id
-            )
-          )
+      if (
+        !current.lastOrderAt ||
+        new Date(
+          order.created_at
+        ).getTime() >
+          new Date(
+            current.lastOrderAt
+          ).getTime()
+      ) {
+        current.lastOrderAt =
+          order.created_at;
+      }
+
+      orderStatsByUser.set(
+        order.customer_user_id,
+        current
+      );
+
+      continue;
+    }
+
+    const email =
+      normalizeEmail(
+        order.customer_email
+      );
+
+    if (!email) {
+      continue;
+    }
+
+    const current =
+      guestStatsByEmail.get(
+        email
+      ) ?? {
+        total: 0,
+        paid: 0,
+        value: 0,
+        lastOrderAt: null,
+        name:
+          order.customer_name ??
+          null,
+        phone:
+          order.customer_phone ??
+          null,
+      };
+
+    current.total += 1;
+
+    if (
+      order.payment_status ===
+      "paid"
+    ) {
+      current.paid += 1;
+      current.value +=
+        Number(
+          order.total ?? 0
         );
     }
+
+    if (
+      !current.lastOrderAt ||
+      new Date(
+        order.created_at
+      ).getTime() >
+        new Date(
+          current.lastOrderAt
+        ).getTime()
+    ) {
+      current.lastOrderAt =
+        order.created_at;
+    }
+
+    guestStatsByEmail.set(
+      email,
+      current
+    );
   }
 
-  let query =
-    supabase
-      .from(
-        "marketing_contacts"
-      )
-      .select(`
-        id,
-        email,
-        phone,
-        first_name,
-        last_name,
-        contact_type,
-        source,
-        first_order_at,
-        last_order_at,
-        order_count,
-        lifetime_value,
-        email_marketing_consent,
-        email_unsubscribed_at,
-        sms_marketing_consent,
-        sms_unsubscribed_at,
-        created_at,
-        updated_at
-      `)
-      .order(
-        "last_order_at",
-        {
-          ascending: false,
-          nullsFirst: false,
-        }
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false,
-        }
-      );
+  const rows =
+    new Map<
+      string,
+      CustomerRow
+    >();
 
-  if (search) {
-    const safeSearch =
-      search.replace(
-        /[,()]/g,
-        " "
-      );
-
-    query =
-      query.or(
-        `first_name.ilike.%${safeSearch}%,last_name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%`
-      );
-  }
-
-  if (
-    type === "customer" ||
-    type === "prospect"
+  /*
+   * 1. Registered site accounts.
+   *
+   * These are customers even if they
+   * have never ordered.
+   */
+  for (
+    const user
+    of customerAuthUsers
   ) {
-    query =
-      query.eq(
-        "contact_type",
-        type
+    const email =
+      normalizeEmail(
+        user.email
       );
-  }
 
-  if (email === "yes") {
-    query =
-      query
-        .eq(
-          "email_marketing_consent",
-          true
-        )
-        .is(
-          "email_unsubscribed_at",
-          null
-        );
-  }
-
-  if (email === "no") {
-    query =
-      query.eq(
-        "email_marketing_consent",
-        false
+    const profile =
+      profiles.get(
+        user.id
       );
+
+    const crm =
+      email
+        ? crmByEmail.get(
+            email
+          )
+        : undefined;
+
+    const orderStats =
+      orderStatsByUser.get(
+        user.id
+      ) ?? {
+        total: 0,
+        paid: 0,
+        value: 0,
+        lastOrderAt: null,
+      };
+
+    const rewards =
+      rewardCounts.get(
+        user.id
+      ) ?? {
+        available: 0,
+        reserved: 0,
+      };
+
+    const key =
+      email ||
+      `account:${user.id}`;
+
+    rows.set(
+      key,
+      {
+        key,
+
+        email:
+          user.email ??
+          crm?.email ??
+          null,
+
+        phone:
+          profile?.phone ??
+          crm?.phone ??
+          null,
+
+        name:
+          profile?.full_name ||
+          displayName(
+            crm?.first_name,
+            crm?.last_name,
+            user.email
+          ),
+
+        crmId:
+          crm?.id ??
+          null,
+
+        crmType:
+          crm?.contact_type ??
+          null,
+
+        userId:
+          user.id,
+
+        hasAccount:
+          true,
+
+        accountCreatedAt:
+          user.created_at,
+
+        orderCount:
+          Math.max(
+            Number(
+              crm?.order_count ??
+                0
+            ),
+            orderStats.total
+          ),
+
+        paidOrderCount:
+          orderStats.paid,
+
+        lifetimeValue:
+          Math.max(
+            Number(
+              crm?.lifetime_value ??
+                0
+            ),
+            orderStats.value
+          ),
+
+        petalsBalance:
+          balances.get(
+            user.id
+          ) ?? 0,
+
+        availableRewards:
+          rewards.available,
+
+        reservedRewards:
+          rewards.reserved,
+
+        wishlistCount:
+          wishlistCounts.get(
+            user.id
+          ) ?? 0,
+
+        referralCode:
+          referralProfiles.get(
+            user.id
+          ) ?? null,
+
+        emailMarketingConsent:
+          Boolean(
+            crm?.email_marketing_consent &&
+            !crm?.email_unsubscribed_at
+          ),
+
+        smsMarketingConsent:
+          Boolean(
+            crm?.sms_marketing_consent &&
+            !crm?.sms_unsubscribed_at
+          ),
+
+        lastOrderAt:
+          orderStats.lastOrderAt ??
+          crm?.last_order_at ??
+          null,
+      }
+    );
   }
 
-  if (sms === "yes") {
-    query =
-      query
-        .eq(
-          "sms_marketing_consent",
-          true
-        )
-        .is(
-          "sms_unsubscribed_at",
-          null
-        );
-  }
-
-  if (sms === "no") {
-    query =
-      query.eq(
-        "sms_marketing_consent",
-        false
+  /*
+   * 2. CRM contacts that do not have
+   * a registered site account.
+   */
+  for (
+    const contact
+    of contactsResult.data ??
+    []
+  ) {
+    const email =
+      normalizeEmail(
+        contact.email
       );
+
+    const key =
+      email ||
+      `crm:${contact.id}`;
+
+    if (
+      rows.has(key)
+    ) {
+      continue;
+    }
+
+    const guest =
+      email
+        ? guestStatsByEmail.get(
+            email
+          )
+        : undefined;
+
+    rows.set(
+      key,
+      {
+        key,
+
+        email:
+          contact.email,
+
+        phone:
+          contact.phone ??
+          guest?.phone ??
+          null,
+
+        name:
+          displayName(
+            contact.first_name,
+            contact.last_name,
+            contact.email ??
+              contact.phone
+          ),
+
+        crmId:
+          contact.id,
+
+        crmType:
+          contact.contact_type,
+
+        userId:
+          null,
+
+        hasAccount:
+          false,
+
+        accountCreatedAt:
+          null,
+
+        orderCount:
+          Math.max(
+            Number(
+              contact.order_count ??
+                0
+            ),
+            guest?.total ??
+              0
+          ),
+
+        paidOrderCount:
+          guest?.paid ??
+          Number(
+            contact.order_count ??
+              0
+          ),
+
+        lifetimeValue:
+          Math.max(
+            Number(
+              contact.lifetime_value ??
+                0
+            ),
+            guest?.value ??
+              0
+          ),
+
+        petalsBalance:
+          0,
+
+        availableRewards:
+          0,
+
+        reservedRewards:
+          0,
+
+        wishlistCount:
+          0,
+
+        referralCode:
+          null,
+
+        emailMarketingConsent:
+          Boolean(
+            contact.email_marketing_consent &&
+            !contact.email_unsubscribed_at
+          ),
+
+        smsMarketingConsent:
+          Boolean(
+            contact.sms_marketing_consent &&
+            !contact.sms_unsubscribed_at
+          ),
+
+        lastOrderAt:
+          guest?.lastOrderAt ??
+          contact.last_order_at ??
+          null,
+      }
+    );
   }
 
-  if (
-    interestContactIds !==
-    null
+  /*
+   * 3. Guest-order customers that
+   * somehow do not yet have a CRM
+   * contact.
+   */
+  for (
+    const [
+      email,
+      guest,
+    ]
+    of guestStatsByEmail
   ) {
     if (
-      interestContactIds.length ===
-      0
+      rows.has(email)
     ) {
-      query =
-        query.eq(
-          "id",
-          "00000000-0000-0000-0000-000000000000"
-        );
-    } else {
-      query =
-        query.in(
-          "id",
-          interestContactIds
-        );
+      continue;
     }
+
+    rows.set(
+      email,
+      {
+        key:
+          `guest:${email}`,
+
+        email,
+
+        phone:
+          guest.phone,
+
+        name:
+          guest.name ||
+          email,
+
+        crmId:
+          null,
+
+        crmType:
+          "customer",
+
+        userId:
+          null,
+
+        hasAccount:
+          false,
+
+        accountCreatedAt:
+          null,
+
+        orderCount:
+          guest.total,
+
+        paidOrderCount:
+          guest.paid,
+
+        lifetimeValue:
+          guest.value,
+
+        petalsBalance:
+          0,
+
+        availableRewards:
+          0,
+
+        reservedRewards:
+          0,
+
+        wishlistCount:
+          0,
+
+        referralCode:
+          null,
+
+        emailMarketingConsent:
+          false,
+
+        smsMarketingConsent:
+          false,
+
+        lastOrderAt:
+          guest.lastOrderAt,
+      }
+    );
+  }
+
+  let customers =
+    Array.from(
+      rows.values()
+    );
+
+  if (search) {
+    customers =
+      customers.filter(
+        (row) => {
+          const haystack =
+            [
+              row.name,
+              row.email,
+              row.phone,
+              row.referralCode,
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+
+          return haystack.includes(
+            search
+          );
+        }
+      );
+  }
+
+  if (
+    accountFilter ===
+    "yes"
+  ) {
+    customers =
+      customers.filter(
+        (row) =>
+          row.hasAccount
+      );
+  }
+
+  if (
+    accountFilter ===
+    "no"
+  ) {
+    customers =
+      customers.filter(
+        (row) =>
+          !row.hasAccount
+      );
   }
 
   if (
     segment ===
-    "no-purchases"
+    "no-orders"
   ) {
-    query =
-      query.eq(
-        "order_count",
-        0
+    customers =
+      customers.filter(
+        (row) =>
+          row.orderCount ===
+          0
       );
   }
 
@@ -434,10 +1087,11 @@ export default async function AdminCustomersPage({
     segment ===
     "first-time"
   ) {
-    query =
-      query.eq(
-        "order_count",
-        1
+    customers =
+      customers.filter(
+        (row) =>
+          row.paidOrderCount ===
+          1
       );
   }
 
@@ -445,787 +1099,518 @@ export default async function AdminCustomersPage({
     segment ===
     "repeat"
   ) {
-    query =
-      query.gte(
-        "order_count",
-        2
+    customers =
+      customers.filter(
+        (row) =>
+          row.paidOrderCount >=
+          2
       );
   }
 
-  const {
-    data: contacts,
-    error,
-  } = await query;
-
-  if (error) {
-    throw new Error(
-      error.message
-    );
-  }
-
-  const filteredContacts =
-    contacts ?? [];
-
-  const emailEligibleCount =
-    filteredContacts.filter(
-      (contact) =>
-        Boolean(
-          contact.email &&
-          contact.email_marketing_consent &&
-          !contact.email_unsubscribed_at
-        )
-    ).length;
-
-  const smsEligibleCount =
-    filteredContacts.filter(
-      (contact) =>
-        Boolean(
-          contact.phone &&
-          contact.sms_marketing_consent &&
-          !contact.sms_unsubscribed_at
-        )
-    ).length;
-
-  const exportParams =
-    new URLSearchParams();
-
-  if (search) {
-    exportParams.set(
-      "search",
-      search
-    );
-  }
-
-  if (type) {
-    exportParams.set(
-      "type",
-      type
-    );
-  }
-
-  if (email) {
-    exportParams.set(
-      "email",
-      email
-    );
-  }
-
-  if (sms) {
-    exportParams.set(
-      "sms",
-      sms
-    );
-  }
-
-  if (interest) {
-    exportParams.set(
-      "interest",
-      interest
-    );
-  }
-
-  if (segment) {
-    exportParams.set(
-      "segment",
-      segment
-    );
-  }
-
-  const baseExportQuery =
-    exportParams.toString();
-
-  function exportHref(
-    channel:
-      | "all"
-      | "email"
-      | "sms"
+  if (
+    segment ===
+    "prospect"
   ) {
-    const params =
-      new URLSearchParams(
-        baseExportQuery
+    customers =
+      customers.filter(
+        (row) =>
+          row.crmType ===
+          "prospect" &&
+          row.orderCount ===
+          0
       );
+  }
 
-    params.set(
-      "channel",
-      channel
+  customers.sort(
+    (a, b) => {
+      const aDate =
+        a.lastOrderAt ??
+        a.accountCreatedAt ??
+        "";
+
+      const bDate =
+        b.lastOrderAt ??
+        b.accountCreatedAt ??
+        "";
+
+      return (
+        new Date(
+          bDate || 0
+        ).getTime() -
+        new Date(
+          aDate || 0
+        ).getTime()
+      );
+    }
+  );
+
+  const allRows =
+    Array.from(
+      rows.values()
     );
 
-    return `/api/admin/customers/export?${params.toString()}`;
-  }
+  const accountCount =
+    allRows.filter(
+      (row) =>
+        row.hasAccount
+    ).length;
+
+  const purchaserCount =
+    allRows.filter(
+      (row) =>
+        row.paidOrderCount >
+        0
+    ).length;
+
+  const accountNoOrderCount =
+    allRows.filter(
+      (row) =>
+        row.hasAccount &&
+        row.orderCount ===
+          0
+    ).length;
+
+  const guestCustomerCount =
+    allRows.filter(
+      (row) =>
+        !row.hasAccount &&
+        row.orderCount >
+          0
+    ).length;
+
+  const outstandingPetals =
+    allRows.reduce(
+      (
+        total,
+        row
+      ) =>
+        total +
+        row.petalsBalance,
+      0
+    );
 
   const hasFilters =
     Boolean(
       search ||
-      type ||
-      email ||
-      sms ||
-      interest ||
+      accountFilter ||
       segment
     );
-
-  const summaryCards = [
-    {
-      label:
-        "Total Contacts",
-      value:
-        totalResult.count ??
-        0,
-    },
-    {
-      label:
-        "Customers",
-      value:
-        customerResult.count ??
-        0,
-    },
-    {
-      label:
-        "Prospects",
-      value:
-        prospectResult.count ??
-        0,
-    },
-    {
-      label:
-        "Email Subscribers",
-      value:
-        emailSubscriberResult.count ??
-        0,
-    },
-    {
-      label:
-        "SMS Subscribers",
-      value:
-        smsSubscriberResult.count ??
-        0,
-    },
-  ];
 
   return (
     <main className="min-h-screen bg-transparent px-5 py-6 text-[#284239] sm:px-8 sm:py-8">
       <div className="mx-auto max-w-7xl">
         <AdminPageHeader
-          eyebrow="Customer CRM"
+          eyebrow="Customer Management"
           title="Customers"
-          description="Customer and prospect records, purchase history, lifetime value, segmentation, and marketing consent."
+          description="A unified view of registered accounts, purchasers, guest customers, loyalty activity, and CRM records."
+          actions={
+            <>
+              <Link
+                href="/admin/customers/accounts"
+                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Site Accounts
+              </Link>
+
+              <Link
+                href="/admin/customers/crm"
+                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#284239] px-4 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
+              >
+                CRM & Marketing
+              </Link>
+            </>
+          }
         />
 
-        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
-          <div className="grid grid-cols-2 divide-x divide-y divide-[#284239]/10 sm:grid-cols-3 lg:grid-cols-5 lg:divide-y-0">
-            {summaryCards.map(
-              (card) => (
-                <div
-                  key={
-                    card.label
-                  }
-                  className="px-4 py-4 sm:px-5"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
-                    {
-                      card.label
-                    }
-                  </p>
+        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
+          <div className="grid grid-cols-2 divide-x divide-y divide-[#284239]/10 sm:grid-cols-3 xl:grid-cols-6 xl:divide-y-0">
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Total Customers
+              </p>
 
-                  <p className="mt-1 text-2xl font-semibold text-[#153f32]">
-                    {
-                      card.value
-                    }
-                  </p>
-                </div>
-              )
-            )}
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {
+                  allRows.length
+                }
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Site Accounts
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {
+                  accountCount
+                }
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Purchasers
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {
+                  purchaserCount
+                }
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Account / No Orders
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {
+                  accountNoOrderCount
+                }
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Guest Customers
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {
+                  guestCustomerCount
+                }
+              </p>
+            </div>
+
+            <div className="px-4 py-4 sm:px-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#718078]">
+                Petals Outstanding
+              </p>
+
+              <p className="mt-1 text-2xl font-semibold text-[#153f32]">
+                {outstandingPetals.toLocaleString()}
+              </p>
+            </div>
           </div>
         </section>
 
-        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:p-5">
+        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-5">
           <form
             method="GET"
-            className="space-y-4"
+            className="grid gap-3 lg:grid-cols-[minmax(280px,1.4fr)_minmax(180px,0.7fr)_minmax(180px,0.7fr)_auto]"
           >
-            <div className="grid gap-3 lg:grid-cols-[minmax(260px,1.5fr)_repeat(2,minmax(150px,0.75fr))]">
-              <label className="grid gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
-                  Search
-                </span>
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
+                Search
+              </span>
 
-                <input
-                  type="search"
-                  name="search"
-                  defaultValue={
-                    search
-                  }
-                  placeholder="Name, email, phone..."
-                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
-                />
-              </label>
+              <input
+                type="search"
+                name="search"
+                defaultValue={
+                  search
+                }
+                placeholder="Name, email, phone, referral code..."
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
+              />
+            </label>
 
-              <label className="grid gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
-                  Contact Type
-                </span>
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
+                Account Status
+              </span>
 
-                <select
-                  name="type"
-                  defaultValue={
-                    type
-                  }
-                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
+              <select
+                name="account"
+                defaultValue={
+                  accountFilter
+                }
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
+              >
+                <option value="">
+                  All
+                </option>
+
+                <option value="yes">
+                  Has Site Account
+                </option>
+
+                <option value="no">
+                  No Site Account
+                </option>
+              </select>
+            </label>
+
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
+                Customer Segment
+              </span>
+
+              <select
+                name="segment"
+                defaultValue={
+                  segment
+                }
+                className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
+              >
+                <option value="">
+                  All Customers
+                </option>
+
+                <option value="no-orders">
+                  No Orders Yet
+                </option>
+
+                <option value="first-time">
+                  First-Time Customer
+                </option>
+
+                <option value="repeat">
+                  Repeat Customer
+                </option>
+
+                <option value="prospect">
+                  Prospect
+                </option>
+              </select>
+            </label>
+
+            <div className="flex items-end gap-2">
+              {hasFilters && (
+                <Link
+                  href="/admin/customers"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#607068]"
                 >
-                  <option value="">
-                    All
-                  </option>
+                  Clear
+                </Link>
+              )}
 
-                  <option value="customer">
-                    Customers
-                  </option>
-
-                  <option value="prospect">
-                    Prospects
-                  </option>
-                </select>
-              </label>
-
-              <label className="grid gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
-                  Purchase Segment
-                </span>
-
-                <select
-                  name="segment"
-                  defaultValue={
-                    segment
-                  }
-                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
-                >
-                  <option value="">
-                    All Contacts
-                  </option>
-
-                  <option value="no-purchases">
-                    No Purchases
-                  </option>
-
-                  <option value="first-time">
-                    First-Time Customer
-                  </option>
-
-                  <option value="repeat">
-                    Repeat Customer
-                  </option>
-                </select>
-              </label>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(3,minmax(150px,1fr))_auto]">
-              <label className="grid gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
-                  Email Marketing
-                </span>
-
-                <select
-                  name="email"
-                  defaultValue={
-                    email
-                  }
-                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
-                >
-                  <option value="">
-                    All
-                  </option>
-
-                  <option value="yes">
-                    Subscribed
-                  </option>
-
-                  <option value="no">
-                    Not Subscribed
-                  </option>
-                </select>
-              </label>
-
-              <label className="grid gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
-                  SMS Marketing
-                </span>
-
-                <select
-                  name="sms"
-                  defaultValue={
-                    sms
-                  }
-                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
-                >
-                  <option value="">
-                    All
-                  </option>
-
-                  <option value="yes">
-                    Subscribed
-                  </option>
-
-                  <option value="no">
-                    Not Subscribed
-                  </option>
-                </select>
-              </label>
-
-              <label className="grid gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]">
-                  Interest
-                </span>
-
-                <select
-                  name="interest"
-                  defaultValue={
-                    interest
-                  }
-                  className="min-h-11 rounded-lg border border-[#284239]/15 bg-white px-3.5 text-sm outline-none transition focus:border-[#e76d61]"
-                >
-                  <option value="">
-                    All Interests
-                  </option>
-
-                  <option value="flowers">
-                    Flowers
-                  </option>
-
-                  <option value="gifts-decor">
-                    Gifts & Decor
-                  </option>
-
-                  <option value="apparel">
-                    Apparel
-                  </option>
-
-                  <option value="gator-gear">
-                    Gator Gear
-                  </option>
-
-                  <option value="seasonal">
-                    Seasonal
-                  </option>
-
-                  <option value="weddings-events">
-                    Weddings & Events
-                  </option>
-                </select>
-              </label>
-
-              <div className="flex items-end justify-end gap-2">
-                {hasFilters && (
-                  <Link
-                    href="/admin/customers"
-                    className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#607068] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-                  >
-                    Clear
-                  </Link>
-                )}
-
-                <button
-                  type="submit"
-                  className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#284239] px-5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
-                >
-                  Apply Filters
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#284239] px-5 text-sm font-semibold text-white transition hover:bg-[#1d332b]"
+              >
+                Apply
+              </button>
             </div>
           </form>
         </section>
 
-        <section className="mt-4 rounded-2xl border border-[#284239]/10 bg-white px-4 py-4 shadow-[0_1px_3px_rgba(21,63,50,0.05)] sm:px-5">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <section className="mt-4 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-sm">
+          <div className="border-b border-[#284239]/10 px-5 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e76d61]">
-                  Current Audience
+                  Customer Directory
                 </p>
-              </div>
 
-              <div>
-                <p className="text-xl font-semibold text-[#153f32]">
+                <p className="mt-1 text-sm text-[#718078]">
                   {
-                    filteredContacts.length
-                  }
-                </p>
-
-                <p className="text-xs text-[#718078]">
-                  Matching
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xl font-semibold text-[#31583b]">
-                  {
-                    emailEligibleCount
-                  }
-                </p>
-
-                <p className="text-xs text-[#718078]">
-                  Email Eligible
+                    customers.length
+                  }{" "}
+                  matching{" "}
+                  {customers.length ===
+                  1
+                    ? "customer"
+                    : "customers"}
                 </p>
               </div>
 
-              <div>
-                <p className="text-xl font-semibold text-[#365b7a]">
-                  {
-                    smsEligibleCount
-                  }
-                </p>
-
-                <p className="text-xs text-[#718078]">
-                  SMS Eligible
-                </p>
-              </div>
-            </div>
-
-            <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap">
-              <a
-                href={exportHref(
-                  "all"
-                )}
-                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-3.5 text-xs font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-              >
-                Export Segment
-              </a>
-
-              <a
-                href={exportHref(
-                  "email"
-                )}
-                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#31583b] px-3.5 text-xs font-semibold text-white transition hover:bg-[#284b32]"
-              >
-                Export Email
-              </a>
-
-              <a
-                href={exportHref(
-                  "sms"
-                )}
-                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#284239] px-3.5 text-xs font-semibold text-white transition hover:bg-[#1d332b]"
-              >
-                Export SMS
-              </a>
-            </div>
-          </div>
-
-          {filteredContacts.length > 0 &&
-            emailEligibleCount === 0 &&
-            smsEligibleCount === 0 && (
-              <p className="mt-3 border-t border-[#284239]/10 pt-3 text-xs leading-5 text-[#775d2f]">
-                No matching contacts currently have active email or SMS
-                marketing consent.
-              </p>
-            )}
-        </section>
-
-        <section className="mt-5 overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)]">
-          <div className="flex flex-col gap-2 border-b border-[#284239]/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <div>
-              <h2 className="font-serif text-xl font-semibold text-[#153f32]">
-                Contact Directory
-              </h2>
-
-              <p className="mt-1 text-sm text-[#718078]">
-                {
-                  contacts?.length ??
-                  0
-                }{" "}
-                shown
+              <p className="text-xs text-[#718078]">
+                Account holders are included even with zero purchases.
               </p>
             </div>
           </div>
 
-          {!contacts ||
-          contacts.length ===
-            0 ? (
-            <div className="p-8 text-center">
-              <p className="font-semibold text-[#153f32]">
-                No contacts found.
-              </p>
-
-              <p className="mt-2 text-sm text-[#607068]">
-                Contacts will appear here
-                as customers check out or
-                explicitly subscribe.
-              </p>
+          {customers.length ===
+          0 ? (
+            <div className="p-8 text-center text-sm text-[#718078]">
+              No customers match these filters.
             </div>
           ) : (
-            <>
-              {/* DESKTOP */}
-              <div className="hidden overflow-x-auto lg:block">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-[#f5f7f4] text-[11px] uppercase tracking-[0.12em] text-[#607068]">
-                    <tr>
-                      <th className="px-6 py-4">
-                        Contact
-                      </th>
+            <div className="divide-y divide-[#284239]/10">
+              {customers.map(
+                (customer) => {
+                  const href =
+                    customer.userId
+                      ? `/admin/customers/accounts/${customer.userId}`
+                      : customer.crmId
+                        ? `/admin/customers/${customer.crmId}`
+                        : null;
 
-                      <th className="px-6 py-4">
-                        Type
-                      </th>
-
-                      <th className="px-6 py-4">
-                        Orders
-                      </th>
-
-                      <th className="px-6 py-4">
-                        Lifetime Value
-                      </th>
-
-                      <th className="px-6 py-4">
-                        Marketing
-                      </th>
-
-                      <th className="px-6 py-4">
-                        Last Order
-                      </th>
-
-                      <th className="px-6 py-4 text-right">
-                        View
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody className="divide-y divide-[#284239]/10">
-                    {contacts.map(
-                      (contact) => {
-                        const emailSubscribed =
-                          contact.email_marketing_consent &&
-                          !contact.email_unsubscribed_at;
-
-                        const smsSubscribed =
-                          contact.sms_marketing_consent &&
-                          !contact.sms_unsubscribed_at;
-
-                        return (
-                          <tr
-                            key={
-                              contact.id
+                  const content = (
+                    <div className="grid gap-4 p-5 lg:grid-cols-[minmax(240px,1.5fr)_repeat(5,minmax(90px,0.55fr))_auto] lg:items-center">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold text-[#153f32]">
+                            {
+                              customer.name
                             }
-                            className="transition hover:bg-[#faf7f1]"
-                          >
-                            <td className="px-6 py-4">
-                              <p className="font-semibold text-[#153f32]">
-                                {displayName(
-                                  contact.first_name,
-                                  contact.last_name,
-                                  contact.email,
-                                  contact.phone
-                                )}
-                              </p>
+                          </p>
 
-                              {contact.email && (
-                                <p className="mt-1 text-xs text-[#607068]">
-                                  {
-                                    contact.email
-                                  }
-                                </p>
-                              )}
+                          {customer.hasAccount ? (
+                            <span className="rounded-full bg-[#e6f2e3] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#31583b]">
+                              Site Account
+                            </span>
+                          ) : customer.orderCount >
+                            0 ? (
+                            <span className="rounded-full bg-[#f4ead8] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#775d2f]">
+                              Guest Customer
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-[#edf1f6] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#536578]">
+                              Prospect
+                            </span>
+                          )}
 
-                              {contact.phone && (
-                                <p className="mt-1 text-xs text-[#607068]">
-                                  {
-                                    contact.phone
-                                  }
-                                </p>
-                              )}
-                            </td>
-
-                            <td className="px-6 py-4">
-                              <span
-                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${typeClasses(
-                                  contact.contact_type
-                                )}`}
-                              >
-                                {contact.contact_type ===
-                                "customer"
-                                  ? "Customer"
-                                  : "Prospect"}
+                          {customer.hasAccount &&
+                            customer.orderCount ===
+                              0 && (
+                              <span className="rounded-full bg-[#fff4df] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#7b5b1d]">
+                                No Orders Yet
                               </span>
-                            </td>
-
-                            <td className="px-6 py-4 font-semibold text-[#153f32]">
-                              {
-                                contact.order_count
-                              }
-                            </td>
-
-                            <td className="px-6 py-4 font-semibold text-[#153f32]">
-                              {formatMoney(
-                                contact.lifetime_value
-                              )}
-                            </td>
-
-                            <td className="px-6 py-4">
-                              <div className="flex flex-wrap gap-2">
-                                <span
-                                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${consentClasses(
-                                    emailSubscribed
-                                  )}`}
-                                >
-                                  Email{" "}
-                                  {emailSubscribed
-                                    ? "✓"
-                                    : "—"}
-                                </span>
-
-                                <span
-                                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${consentClasses(
-                                    smsSubscribed
-                                  )}`}
-                                >
-                                  SMS{" "}
-                                  {smsSubscribed
-                                    ? "✓"
-                                    : "—"}
-                                </span>
-                              </div>
-                            </td>
-
-                            <td className="px-6 py-4 text-[#607068]">
-                              {formatDate(
-                                contact.last_order_at
-                              )}
-                            </td>
-
-                            <td className="px-6 py-4 text-right">
-                              <Link
-                                href={`/admin/customers/${contact.id}`}
-                                className="font-semibold text-[#e76d61]"
-                              >
-                                Open →
-                              </Link>
-                            </td>
-                          </tr>
-                        );
-                      }
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* MOBILE / TABLET */}
-              <div className="divide-y divide-[#284239]/10 lg:hidden">
-                {contacts.map(
-                  (contact) => {
-                    const emailSubscribed =
-                      contact.email_marketing_consent &&
-                      !contact.email_unsubscribed_at;
-
-                    const smsSubscribed =
-                      contact.sms_marketing_consent &&
-                      !contact.sms_unsubscribed_at;
-
-                    return (
-                      <Link
-                        key={
-                          contact.id
-                        }
-                        href={`/admin/customers/${contact.id}`}
-                        className="block p-5 transition hover:bg-[#faf7f1]"
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p className="font-semibold text-[#153f32]">
-                              {displayName(
-                                contact.first_name,
-                                contact.last_name,
-                                contact.email,
-                                contact.phone
-                              )}
-                            </p>
-
-                            {contact.email && (
-                              <p className="mt-1 break-all text-sm text-[#607068]">
-                                {
-                                  contact.email
-                                }
-                              </p>
                             )}
-
-                            {contact.phone && (
-                              <p className="mt-1 text-sm text-[#607068]">
-                                {
-                                  contact.phone
-                                }
-                              </p>
-                            )}
-                          </div>
-
-                          <span
-                            className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${typeClasses(
-                              contact.contact_type
-                            )}`}
-                          >
-                            {contact.contact_type ===
-                            "customer"
-                              ? "Customer"
-                              : "Prospect"}
-                          </span>
                         </div>
 
-                        <div className="mt-4 grid grid-cols-2 gap-3">
-                          <div className="rounded-xl bg-[#faf7f1] p-3">
-                            <p className="text-xs text-[#718078]">
-                              Orders
-                            </p>
+                        <p className="mt-1 break-all text-sm text-[#607068]">
+                          {customer.email ??
+                            "No email"}
+                        </p>
 
-                            <p className="mt-1 font-semibold text-[#153f32]">
-                              {
-                                contact.order_count
-                              }
-                            </p>
-                          </div>
+                        {customer.phone && (
+                          <p className="mt-1 text-xs text-[#718078]">
+                            {
+                              customer.phone
+                            }
+                          </p>
+                        )}
 
-                          <div className="rounded-xl bg-[#faf7f1] p-3">
-                            <p className="text-xs text-[#718078]">
-                              Lifetime Value
-                            </p>
+                        <p className="mt-2 text-xs text-[#718078]">
+                          {customer.hasAccount
+                            ? `Account created ${formatDate(
+                                customer.accountCreatedAt
+                              )}`
+                            : customer.lastOrderAt
+                              ? `Last order ${formatDate(
+                                  customer.lastOrderAt
+                                )}`
+                              : "No account activity"}
+                        </p>
+                      </div>
 
-                            <p className="mt-1 font-semibold text-[#153f32]">
-                              {formatMoney(
-                                contact.lifetime_value
-                              )}
-                            </p>
-                          </div>
-                        </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#718078]">
+                          Paid Orders
+                        </p>
 
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${consentClasses(
-                              emailSubscribed
-                            )}`}
-                          >
-                            Email{" "}
-                            {emailSubscribed
-                              ? "Subscribed"
-                              : "Not subscribed"}
-                          </span>
+                        <p className="mt-1 font-semibold text-[#153f32]">
+                          {
+                            customer.paidOrderCount
+                          }
+                        </p>
+                      </div>
 
-                          <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${consentClasses(
-                              smsSubscribed
-                            )}`}
-                          >
-                            SMS{" "}
-                            {smsSubscribed
-                              ? "Subscribed"
-                              : "Not subscribed"}
-                          </span>
-                        </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#718078]">
+                          Lifetime
+                        </p>
 
-                        <p className="mt-4 text-xs text-[#718078]">
-                          Last order:{" "}
-                          {formatDate(
-                            contact.last_order_at
+                        <p className="mt-1 font-semibold text-[#153f32]">
+                          {formatMoney(
+                            customer.lifetimeValue
                           )}
                         </p>
-                      </Link>
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#718078]">
+                          Petals
+                        </p>
+
+                        <p className="mt-1 font-semibold text-[#153f32]">
+                          {customer.hasAccount
+                            ? customer.petalsBalance.toLocaleString()
+                            : "—"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#718078]">
+                          Rewards
+                        </p>
+
+                        <p className="mt-1 font-semibold text-[#153f32]">
+                          {customer.hasAccount
+                            ? customer.availableRewards
+                            : "—"}
+                        </p>
+
+                        {customer.reservedRewards >
+                          0 && (
+                          <p className="text-xs text-[#7b5b1d]">
+                            {
+                              customer.reservedRewards
+                            }{" "}
+                            reserved
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#718078]">
+                          Wishlist
+                        </p>
+
+                        <p className="mt-1 font-semibold text-[#153f32]">
+                          {customer.hasAccount
+                            ? customer.wishlistCount
+                            : "—"}
+                        </p>
+                      </div>
+
+                      {href ? (
+                        <span className="text-sm font-semibold text-[#e76d61]">
+                          View →
+                        </span>
+                      ) : (
+                        <span className="text-xs text-[#718078]">
+                          —
+                        </span>
+                      )}
+                    </div>
+                  );
+
+                  if (!href) {
+                    return (
+                      <div
+                        key={
+                          customer.key
+                        }
+                      >
+                        {content}
+                      </div>
                     );
                   }
-                )}
-              </div>
-            </>
+
+                  return (
+                    <Link
+                      key={
+                        customer.key
+                      }
+                      href={
+                        href
+                      }
+                      className="block transition hover:bg-[#faf7f1]"
+                    >
+                      {
+                        content
+                      }
+                    </Link>
+                  );
+                }
+              )}
+            </div>
           )}
         </section>
       </div>
