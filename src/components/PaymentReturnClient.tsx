@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useCart } from "@/components/CartProvider";
+import CheckoutProgress from "@/components/CheckoutProgress";
 
 type ConfirmationOrder = {
   id: string;
@@ -212,6 +213,10 @@ export default function PaymentReturnClient({
   return (
     <main className="min-h-[70vh] bg-[#f7f1e8] text-[#284239]">
       <section className="mx-auto max-w-3xl px-4 py-10 sm:px-8 sm:py-16">
+        <div className="mb-8 sm:mb-10">
+          <CheckoutProgress currentStep="confirmation" />
+        </div>
+
         <div className="rounded-3xl border border-[#284239]/10 bg-white p-5 text-center shadow-sm sm:p-10">
           {paid && order ? (
             <>

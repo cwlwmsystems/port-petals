@@ -7,6 +7,7 @@ import {
   type FormEvent,
 } from "react";
 import { useCart } from "@/components/CartProvider";
+import CheckoutProgress from "@/components/CheckoutProgress";
 
 type FulfillmentType = "pickup" | "delivery";
 
@@ -397,7 +398,46 @@ export default function CheckoutClient() {
   if (createdOrder) {
     return (
       <main className="min-h-[70vh] bg-[#f7f1e8] text-[#284239]">
+        {startingPayment && (
+          <div
+            role="status"
+            aria-live="polite"
+            aria-busy="true"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#f7f1e8]/95 px-5 backdrop-blur-sm"
+          >
+            <div className="pp-scale-in w-full max-w-md rounded-3xl border border-[#284239]/10 bg-white p-7 text-center shadow-[0_24px_80px_rgba(20,38,31,0.18)] sm:p-9">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#fff4f1]">
+                <div className="h-7 w-7 animate-spin rounded-full border-4 border-[#284239]/15 border-t-[#e76d61]" />
+              </div>
+
+              <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Secure Checkout
+              </p>
+
+              <h2 className="mt-2 font-serif text-3xl font-semibold text-[#153f32]">
+                Preparing your payment
+              </h2>
+
+              <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-[#607068]">
+                Your order has been saved. You&apos;ll continue to Square to securely complete payment.
+              </p>
+
+              <div className="mt-6 rounded-2xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
+                Please keep this window open while we connect you to Square.
+              </div>
+
+              <p className="mt-4 text-xs leading-5 text-[#718078]">
+                Secure payment powered by Square.
+              </p>
+            </div>
+          </div>
+        )}
+
         <section className="mx-auto max-w-3xl px-4 py-10 sm:px-8 sm:py-16">
+          <div className="mb-8 sm:mb-10">
+            <CheckoutProgress currentStep="payment" />
+          </div>
+
           <div className="rounded-3xl border border-[#284239]/10 bg-white p-5 text-center shadow-sm sm:p-10">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#edf3e7] text-xl text-[#31583b]">
               ✓
@@ -505,6 +545,10 @@ export default function CheckoutClient() {
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-12 lg:px-10">
+        <div className="mb-8 max-w-3xl sm:mb-10">
+          <CheckoutProgress currentStep="details" />
+        </div>
+
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61] sm:text-sm">
             Checkout
