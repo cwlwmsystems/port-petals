@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import AccountNavigation from "@/components/account/AccountNavigation";
 
 export const metadata: Metadata = {
   title: "Order Details",
@@ -116,16 +117,34 @@ export default async function AccountOrderDetailPage({
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
-      <section className="mx-auto max-w-5xl px-4 py-8 sm:px-8 sm:py-12">
+      <section className="mx-auto max-w-6xl px-4 pb-7 pt-8 sm:px-8 sm:pb-9 sm:pt-12 lg:px-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+          My Port Petals
+        </p>
+
+        <h1 className="mt-2 font-serif text-4xl font-semibold text-[#153f32] sm:text-5xl">
+          Order Details
+        </h1>
+
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607068] sm:text-base">
+          Review the items, payment,
+          fulfillment, and reward details
+          for this order.
+        </p>
+      </section>
+
+      <AccountNavigation />
+
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10 lg:px-10">
         <Link
           href="/account/orders"
-          className="text-sm font-semibold text-[#36594c] underline underline-offset-4"
+          className="inline-flex text-sm font-semibold text-[#31583b] underline decoration-[#e76d61]/30 underline-offset-4"
         >
           ← Back to Orders
         </Link>
 
-        <div className="mt-6 rounded-3xl border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-8">
-          <div className="flex flex-col gap-4 border-b border-[#284239]/10 pb-6 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mt-5 rounded-[2rem] border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-5 border-b border-[#284239]/10 pb-6 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
                 Order Details
@@ -141,13 +160,15 @@ export default async function AccountOrderDetailPage({
             </div>
 
             <div className="text-left sm:text-right">
-              <p className="text-sm capitalize text-[#607068]">
-                {order.payment_status}
-              </p>
+              <div className="flex flex-wrap gap-2 sm:justify-end">
+                <span className="rounded-full bg-[#edf3e7] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#31583b]">
+                  {order.payment_status}
+                </span>
 
-              <p className="mt-1 text-sm capitalize text-[#607068]">
-                {order.status}
-              </p>
+                <span className="rounded-full bg-[#f1ede7] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#665d55]">
+                  {order.status}
+                </span>
+              </div>
 
               <p className="mt-3 font-serif text-2xl font-semibold text-[#e76d61]">
                 {formatPrice(

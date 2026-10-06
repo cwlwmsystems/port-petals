@@ -9,6 +9,7 @@ import {
   createClient,
 } from "@/lib/supabase/server";
 import ReferralShareCard from "@/components/ReferralShareCard";
+import AccountNavigation from "@/components/account/AccountNavigation";
 
 export const metadata: Metadata = {
   title:
@@ -186,32 +187,41 @@ export default async function ReferralsPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
-      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-12">
-        <Link
-          href="/account"
-          className="text-sm font-semibold text-[#36594c] underline underline-offset-4"
-        >
-          ← Back to My Account
-        </Link>
+      <section className="mx-auto max-w-6xl px-4 pb-7 pt-8 sm:px-8 sm:pb-9 sm:pt-12 lg:px-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+          My Port Petals
+        </p>
 
-        <div className="mt-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-            Share Port Petals
-          </p>
+        <div className="mt-2 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="font-serif text-4xl font-semibold text-[#153f32] sm:text-5xl">
+              Referrals
+            </h1>
 
-          <h1 className="mt-2 font-serif text-3xl font-semibold text-[#153f32] sm:text-5xl">
-            Referrals
-          </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607068] sm:text-base">
+              Share Port Petals with friends
+              and earn a 20% reward after an
+              eligible referral completes a
+              qualifying purchase.
+            </p>
+          </div>
 
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607068] sm:text-base">
-            Invite friends to discover Port Petals.
-            When an eligible referred customer
-            completes their qualifying purchase,
-            you&apos;ll unlock your referral reward.
-          </p>
+          <div className="rounded-2xl bg-[#153f32] px-5 py-4 text-white shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#f4b0a8]">
+              Referral Reward
+            </p>
+
+            <p className="mt-1 font-serif text-3xl font-semibold">
+              20% Off
+            </p>
+          </div>
         </div>
+      </section>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[380px_1fr]">
+      <AccountNavigation />
+
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10 lg:px-10">
+        <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
           <aside className="space-y-5">
             <ReferralShareCard
               referralCode={
@@ -219,33 +229,65 @@ export default async function ReferralsPage() {
               }
             />
 
-            <section className="rounded-3xl bg-[#153f32] p-6 text-white shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f4b0a8]">
-                Referral Reward
+            <section className="rounded-[2rem] border border-[#284239]/10 bg-white p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                How It Works
               </p>
 
-              <p className="mt-3 font-serif text-4xl font-semibold">
-                20% Off
-              </p>
+              <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
+                Share. Shop. Earn.
+              </h2>
 
-              <p className="mt-3 text-sm leading-6 text-white/75">
-                Earn 20% off your next eligible
-                Port Petals order after a
-                successful referral qualifies.
-              </p>
+              <div className="mt-5 space-y-4">
+                {[
+                  [
+                    "1",
+                    "Share your link",
+                    "Send your personal Port Petals referral link to a friend.",
+                  ],
+                  [
+                    "2",
+                    "They shop",
+                    "Their eligible purchase is connected to your referral.",
+                  ],
+                  [
+                    "3",
+                    "You earn",
+                    "After the qualifying order is paid, your reward becomes available.",
+                  ],
+                ].map(
+                  ([
+                    step,
+                    title,
+                    copy,
+                  ]) => (
+                    <div
+                      key={step}
+                      className="flex gap-4 rounded-2xl bg-[#faf7f1] p-4"
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white font-serif text-lg font-semibold text-[#e76d61]">
+                        {step}
+                      </span>
 
-              <p className="mt-4 text-xs leading-5 text-white/60">
-                Referral rewards are issued
-                securely to your account after
-                the referred customer completes
-                a qualifying paid order.
-              </p>
+                      <div>
+                        <p className="font-semibold text-[#153f32]">
+                          {title}
+                        </p>
+
+                        <p className="mt-1 text-sm leading-5 text-[#607068]">
+                          {copy}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
             </section>
           </aside>
 
           <div className="space-y-6">
             <section className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-sm">
+              <div className="rounded-[1.6rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e76d61]">
                   Pending
                 </p>
@@ -259,7 +301,7 @@ export default async function ReferralsPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-sm">
+              <div className="rounded-[1.6rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e76d61]">
                   Qualified
                 </p>
@@ -273,7 +315,7 @@ export default async function ReferralsPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-[#284239]/10 bg-white p-5 shadow-sm">
+              <div className="rounded-[1.6rem] border border-[#284239]/10 bg-white p-5 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e76d61]">
                   Rewards
                 </p>
@@ -288,7 +330,7 @@ export default async function ReferralsPage() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-7">
+            <section className="rounded-[2rem] border border-[#284239]/10 bg-white p-6 shadow-sm sm:p-7">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
                 Referral Activity
               </p>
@@ -297,8 +339,9 @@ export default async function ReferralsPage() {
                 Friends You&apos;ve Referred
               </h2>
 
-              {referrals.length > 0 ? (
-                <div className="mt-5 space-y-3">
+              {referrals.length >
+              0 ? (
+                <div className="mt-5 divide-y divide-[#284239]/10">
                   {referrals.map(
                     (
                       referral,
@@ -308,57 +351,55 @@ export default async function ReferralsPage() {
                         key={
                           referral.id
                         }
-                        className="rounded-2xl border border-[#284239]/10 bg-[#fffdf9] p-5"
+                        className="flex flex-col gap-4 py-5 first:pt-0 sm:flex-row sm:items-center sm:justify-between"
                       >
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <p className="font-semibold text-[#153f32]">
-                              Referral{" "}
-                              {referrals.length -
-                                index}
-                            </p>
+                        <div>
+                          <p className="font-semibold text-[#153f32]">
+                            Referral{" "}
+                            {referrals.length -
+                              index}
+                          </p>
 
-                            <p className="mt-1 text-sm text-[#607068]">
-                              Started{" "}
-                              {formatDate(
-                                referral.created_at
-                              )}
-                            </p>
-
-                            {referral.completed_at && (
-                              <p className="mt-1 text-xs text-[#718078]">
-                                Qualified{" "}
-                                {formatDate(
-                                  referral.completed_at
-                                )}
-                              </p>
+                          <p className="mt-1 text-sm text-[#607068]">
+                            Started{" "}
+                            {formatDate(
+                              referral.created_at
                             )}
-                          </div>
+                          </p>
 
-                          <div className="sm:text-right">
-                            <span
-                              className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClasses(
-                                referral.status
-                              )}`}
-                            >
-                              {statusLabel(
-                                referral.status
+                          {referral.completed_at && (
+                            <p className="mt-1 text-xs text-[#718078]">
+                              Qualified{" "}
+                              {formatDate(
+                                referral.completed_at
                               )}
-                            </span>
-
-                            <p className="mt-2 text-xs text-[#718078]">
-                              {Number(
-                                referral.reward_percent
-                              ).toLocaleString(
-                                "en-US",
-                                {
-                                  maximumFractionDigits:
-                                    0,
-                                }
-                              )}
-                              % referral reward
                             </p>
-                          </div>
+                          )}
+                        </div>
+
+                        <div className="sm:text-right">
+                          <span
+                            className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClasses(
+                              referral.status
+                            )}`}
+                          >
+                            {statusLabel(
+                              referral.status
+                            )}
+                          </span>
+
+                          <p className="mt-2 text-xs text-[#718078]">
+                            {Number(
+                              referral.reward_percent
+                            ).toLocaleString(
+                              "en-US",
+                              {
+                                maximumFractionDigits:
+                                  0,
+                              }
+                            )}
+                            % reward
+                          </p>
                         </div>
                       </article>
                     )
@@ -372,72 +413,38 @@ export default async function ReferralsPage() {
 
                   <p className="mt-2 text-sm leading-6 text-[#607068]">
                     Share your personal link.
-                    Referral activity will appear
-                    here once friends use it and
-                    create eligible Port Petals
-                    accounts and orders.
+                    Referral activity will
+                    appear here after a friend
+                    uses it and creates an
+                    eligible order.
                   </p>
                 </div>
               )}
             </section>
 
-            <section className="rounded-3xl border border-[#284239]/10 bg-white p-5 shadow-sm sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-                How It Works
+            <section className="rounded-[2rem] bg-[#153f32] p-6 text-white shadow-sm sm:p-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#f4b0a8]">
+                Your Referral Perk
               </p>
 
-              <h2 className="mt-1 font-serif text-2xl font-semibold text-[#153f32]">
-                Share. Shop. Earn.
+              <h2 className="mt-2 font-serif text-3xl font-semibold">
+                20% off an eligible order
               </h2>
 
-              <div className="mt-5 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl bg-[#faf7f1] p-4">
-                  <p className="font-serif text-2xl font-semibold text-[#e76d61]">
-                    1
-                  </p>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/70">
+                Referral rewards are issued
+                securely to your account after
+                the referred customer
+                completes a qualifying paid
+                order.
+              </p>
 
-                  <p className="mt-2 font-semibold text-[#153f32]">
-                    Share your link
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-[#607068]">
-                    Send your personal Port Petals
-                    referral link to a friend.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-[#faf7f1] p-4">
-                  <p className="font-serif text-2xl font-semibold text-[#e76d61]">
-                    2
-                  </p>
-
-                  <p className="mt-2 font-semibold text-[#153f32]">
-                    They shop
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-[#607068]">
-                    Their referral is linked to
-                    their eligible Port Petals
-                    purchase.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-[#faf7f1] p-4">
-                  <p className="font-serif text-2xl font-semibold text-[#e76d61]">
-                    3
-                  </p>
-
-                  <p className="mt-2 font-semibold text-[#153f32]">
-                    You earn
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-[#607068]">
-                    After their qualifying order
-                    is paid, your referral reward
-                    becomes eligible.
-                  </p>
-                </div>
-              </div>
+              <Link
+                href="/account/rewards?tab=wallet"
+                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#153f32]"
+              >
+                View Reward Wallet
+              </Link>
             </section>
           </div>
         </div>
