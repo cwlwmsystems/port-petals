@@ -50,15 +50,20 @@ export default function ProductImageGallery({
     <div>
       <div className="overflow-hidden rounded-[2rem] border border-[#284239]/10 bg-white shadow-[0_18px_50px_rgba(42,66,57,0.12)]">
         <div className="relative aspect-square bg-[#f5f1ea] sm:aspect-[4/3]">
-          <Image
-            src={selectedImage.publicUrl}
-            alt={selectedImage.alt_text ?? productName}
-            fill
-            priority
-            unoptimized
-            sizes="(max-width: 1023px) 100vw, 44vw"
-            className="object-cover"
-          />
+          <div
+            key={selectedImage.id}
+            className="pp-scale-in absolute inset-0"
+          >
+            <Image
+              src={selectedImage.publicUrl}
+              alt={selectedImage.alt_text ?? productName}
+              fill
+              priority
+              unoptimized
+              sizes="(max-width: 1023px) 100vw, 44vw"
+              className="object-cover"
+            />
+          </div>
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/10 to-transparent" />
         </div>
@@ -82,7 +87,7 @@ export default function ProductImageGallery({
                     image.alt_text ?? productName
                   }`}
                   aria-pressed={selected}
-                  className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-white transition active:scale-[0.98] sm:w-24 ${
+                  className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-white transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] sm:w-24 ${
                     selected
                       ? "border-[#e76d61] shadow-sm"
                       : "border-transparent hover:border-[#284239]/20"

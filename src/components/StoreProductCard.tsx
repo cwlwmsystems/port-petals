@@ -134,7 +134,7 @@ export default function StoreProductCard({
   }
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-[1.8rem] border border-[#284239]/10 bg-white/70 shadow-[0_12px_35px_rgba(42,66,57,0.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_22px_55px_rgba(42,66,57,0.16)] focus-within:-translate-y-1.5">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-[1.8rem] border border-[#284239]/10 bg-white/70 shadow-[0_12px_35px_rgba(42,66,57,0.08)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#e76d61]/20 hover:shadow-[0_22px_55px_rgba(42,66,57,0.15)] focus-within:-translate-y-1 focus-within:border-[#e76d61]/20">
       <Link
         href={href}
         aria-label={`View ${name}`}
@@ -148,7 +148,7 @@ export default function StoreProductCard({
           fill
           unoptimized
           sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
-          className="object-contain p-2 transition duration-500 group-hover:scale-[1.04]"
+          className="object-contain p-2 transition-transform duration-500 ease-out group-hover:scale-[1.035]"
         />
 
         {featured && (

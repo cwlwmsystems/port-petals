@@ -287,11 +287,11 @@ export default function SiteHeader() {
             </button>
 
             <div
-              className={`absolute left-1/2 top-full w-[390px] -translate-x-1/2 transition-all duration-200 ${
+              className={`absolute left-1/2 top-full w-[390px] origin-top -translate-x-1/2 transition-all duration-200 ease-out ${
                 desktopMenu ===
                 "shop"
-                  ? "visible translate-y-0 opacity-100"
-                  : "invisible translate-y-2 opacity-0"
+                  ? "visible translate-y-0 scale-100 opacity-100"
+                  : "invisible translate-y-2 scale-[0.98] opacity-0"
               }`}
             >
               <div className="overflow-hidden rounded-[1.4rem] border border-[#284239]/10 bg-[#fffaf3] p-2 shadow-[0_22px_60px_rgba(42,66,57,0.16)]">
@@ -410,8 +410,8 @@ export default function SiteHeader() {
               className={`absolute left-1/2 top-full w-[360px] -translate-x-1/2 transition-all duration-200 ${
                 desktopMenu ===
                 "occasions"
-                  ? "visible translate-y-0 opacity-100"
-                  : "invisible translate-y-2 opacity-0"
+                  ? "visible translate-y-0 scale-100 opacity-100"
+                  : "invisible translate-y-2 scale-[0.98] opacity-0"
               }`}
             >
               <div className="overflow-hidden rounded-[1.4rem] border border-[#284239]/10 bg-[#fffaf3] p-2 shadow-[0_22px_60px_rgba(42,66,57,0.16)]">

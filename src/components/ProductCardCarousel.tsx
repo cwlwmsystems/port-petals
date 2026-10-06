@@ -48,7 +48,10 @@ export default function ProductCardCarousel({
 
   return (
     <div>
-      <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-3">
+      <div
+        key={pageIndex}
+        className="pp-fade-up grid gap-7 md:grid-cols-2 xl:grid-cols-3"
+      >
         {visibleItems}
       </div>
 
@@ -60,7 +63,7 @@ export default function ProductCardCarousel({
           aria-label="Previous products"
           className={`inline-flex h-11 w-11 items-center justify-center rounded-full border text-xl font-semibold shadow-sm transition ${
             canGoBack
-              ? "border-[#284239]/15 bg-white text-[#284239] hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              ? "border-[#284239]/15 bg-white text-[#284239] hover:-translate-y-0.5 hover:border-[#e76d61]/40 hover:text-[#e76d61] hover:shadow-md active:scale-[0.96]"
               : "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] text-[#a8aaa6]"
           }`}
         >
@@ -78,7 +81,7 @@ export default function ProductCardCarousel({
           aria-label="Next products"
           className={`inline-flex h-11 w-11 items-center justify-center rounded-full border text-xl font-semibold shadow-sm transition ${
             canGoNext
-              ? "border-[#284239]/15 bg-white text-[#284239] hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              ? "border-[#284239]/15 bg-white text-[#284239] hover:-translate-y-0.5 hover:border-[#e76d61]/40 hover:text-[#e76d61] hover:shadow-md active:scale-[0.96]"
               : "cursor-not-allowed border-[#284239]/10 bg-[#f2f0ec] text-[#a8aaa6]"
           }`}
         >

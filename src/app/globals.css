@@ -24,3 +24,148 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* =========================================================
+   PORT PETALS INTERACTION SYSTEM
+   ========================================================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: #f8e1dc;
+  color: #153f32;
+}
+
+a,
+button,
+input,
+select,
+textarea,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  transition-timing-function: cubic-bezier(
+    0.22,
+    1,
+    0.36,
+    1
+  );
+}
+
+button:not(:disabled) {
+  transform-origin: center;
+}
+
+button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+:focus-visible {
+  outline: 2px solid #e76d61;
+  outline-offset: 3px;
+}
+
+/* Soft entrance for menus, drawers, galleries, and carousel pages */
+@keyframes pp-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pp-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pp-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pp-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pp-cart-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.14);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pp-fade-up {
+  animation: pp-fade-up 240ms
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pp-scale-in {
+  animation: pp-scale-in 220ms
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pp-drawer-in {
+  animation: pp-slide-in-right 280ms
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pp-overlay-in {
+  animation: pp-overlay-in 220ms ease-out;
+}
+
+.pp-cart-pop {
+  animation: pp-cart-pop 320ms
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

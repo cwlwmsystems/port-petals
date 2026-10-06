@@ -101,13 +101,13 @@ export default function CartLink() {
               type="button"
               aria-label="Close cart"
               onClick={() => setOpen(false)}
-              className="absolute inset-0 bg-[#14261f]/45 backdrop-blur-[2px]"
+              className="pp-overlay-in absolute inset-0 bg-[#14261f]/45 backdrop-blur-[2px]"
             />
 
             {/* DRAWER */}
             <aside
               onPointerDown={cancelAutoClose}
-              className="absolute right-0 top-0 flex h-dvh w-full max-w-[440px] flex-col bg-[#fffaf3] shadow-[-24px_0_70px_rgba(20,38,31,0.25)]"
+              className="pp-drawer-in absolute right-0 top-0 flex h-dvh w-full max-w-[440px] flex-col bg-[#fffaf3] shadow-[-24px_0_70px_rgba(20,38,31,0.25)]"
             >
               {/* HEADER */}
               <div className="flex shrink-0 items-center justify-between border-b border-[#284239]/10 px-6 py-5">
