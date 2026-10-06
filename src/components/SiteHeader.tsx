@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import AccountHeaderLink from "@/components/AccountHeaderLink";
 import CartLink from "@/components/CartLink";
 
 const shopLinks = [
@@ -477,6 +478,7 @@ export default function SiteHeader() {
 
         {/* CART + MOBILE MENU */}
         <div className="flex shrink-0 items-center gap-2">
+          <AccountHeaderLink />
           <CartLink />
 
           <button
