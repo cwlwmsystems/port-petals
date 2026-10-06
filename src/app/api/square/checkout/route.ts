@@ -70,6 +70,9 @@ export async function POST(request: Request) {
           referral_discount_amount,
           referral_discount_percent,
           referral_reward_code,
+          petals_discount_amount,
+          petals_discount_percent,
+          reward_name,
           square_order_id,
           square_payment_link_id,
           square_checkout_url
@@ -197,6 +200,27 @@ export async function POST(request: Request) {
         )
       );
 
+    const petalsDiscountCents =
+      moneyToCents(
+        Number(
+          order.petals_discount_amount ??
+          0
+        )
+      );
+
+    if (
+      referralDiscountCents > 0 &&
+      petalsDiscountCents > 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "This order contains incompatible merchandise discounts.",
+        },
+        { status: 409 }
+      );
+    }
+
     const calculatedTotalCents =
       squareLineItems.reduce(
         (sum, item) =>
@@ -205,7 +229,8 @@ export async function POST(request: Request) {
             Number(item.quantity),
         0
       ) -
-      referralDiscountCents;
+      referralDiscountCents -
+      petalsDiscountCents;
 
     const expectedTotalCents = moneyToCents(
       Number(order.total)
@@ -259,33 +284,55 @@ export async function POST(request: Request) {
             reference_id: order.order_number,
             line_items: squareLineItems,
 
-            ...(referralDiscountCents > 0
-              ? {
-                  discounts: [
-                    {
-                      name:
-                        order.referral_discount_percent
-                          ? `Referral Reward — ${Number(
+            ...(
+              referralDiscountCents > 0 ||
+              petalsDiscountCents > 0
+                ? {
+                    discounts: [
+                      referralDiscountCents > 0
+                        ? {
+                            name:
                               order.referral_discount_percent
-                            )}% Off`
-                          : "Referral Reward",
+                                ? `Referral Reward — ${Number(
+                                    order.referral_discount_percent
+                                  )}% Off`
+                                : "Referral Reward",
 
-                      type:
-                        "FIXED_AMOUNT",
+                            type:
+                              "FIXED_AMOUNT",
 
-                      scope:
-                        "ORDER",
+                            scope:
+                              "ORDER",
 
-                      amount_money: {
-                        amount:
-                          referralDiscountCents,
-                        currency:
-                          "USD",
-                      },
-                    },
-                  ],
-                }
-              : {}),
+                            amount_money: {
+                              amount:
+                                referralDiscountCents,
+                              currency:
+                                "USD",
+                            },
+                          }
+                        : {
+                            name:
+                              order.reward_name ??
+                              "Petals Reward",
+
+                            type:
+                              "FIXED_AMOUNT",
+
+                            scope:
+                              "ORDER",
+
+                            amount_money: {
+                              amount:
+                                petalsDiscountCents,
+                              currency:
+                                "USD",
+                            },
+                          },
+                    ],
+                  }
+                : {}
+            ),
           },
 
           payment_note:

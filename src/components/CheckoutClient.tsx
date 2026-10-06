@@ -23,6 +23,7 @@ type IssuedReward = {
   name: string;
   redemptionCode: string;
   petalsCost: number;
+  rewardType: string;
   expiresAt: string | null;
 };
 
@@ -43,6 +44,15 @@ type CreatedOrder = {
   paymentStatus: string;
   rewardName?: string | null;
   rewardCode?: string | null;
+  rewardType?: string | null;
+
+  originalDeliveryFee?: number;
+  deliveryRewardAmount?: number;
+  deliveryRewardName?: string | null;
+  deliveryRewardCode?: string | null;
+
+  petalsDiscountAmount?: number;
+  petalsDiscountPercent?: number | null;
 
   referralDiscountAmount?: number;
   referralDiscountPercent?: number | null;
@@ -120,6 +130,11 @@ export default function CheckoutClient() {
   ] = useState("");
 
   const [
+    selectedDeliveryRewardId,
+    setSelectedDeliveryRewardId,
+  ] = useState("");
+
+  const [
     referralRewards,
     setReferralRewards,
   ] = useState<ReferralDiscountReward[]>([]);
@@ -174,7 +189,8 @@ export default function CheckoutClient() {
               redemption_code,
               expires_at,
               customer_rewards (
-                name
+                name,
+                reward_type
               )
             `)
             .eq(
@@ -231,6 +247,11 @@ export default function CheckoutClient() {
                   Number(
                     row.petals_cost
                   ),
+
+                rewardType:
+                  relatedReward?.reward_type ??
+                  "free_gift",
+
                 expiresAt:
                   row.expires_at,
               };
@@ -511,6 +532,10 @@ export default function CheckoutClient() {
               selectedRewardId ||
               null,
 
+            deliveryRewardRedemptionId:
+              selectedDeliveryRewardId ||
+              null,
+
             referralRewardId:
               selectedReferralRewardId ||
               null,
@@ -543,7 +568,8 @@ export default function CheckoutClient() {
         );
 
         throw new Error(
-          "We couldn't prepare your order. Please review your information and try again."
+          result.error ??
+            "We couldn't prepare your order. Please review your information and try again."
         );
       }
 
@@ -746,6 +772,65 @@ export default function CheckoutClient() {
               </div>
 
               {Number(
+                createdOrder.deliveryRewardAmount ??
+                0
+              ) > 0 && (
+                <>
+                  <div className="mt-3 flex justify-between gap-4 text-sm">
+                    <span>
+                      Local Delivery
+                    </span>
+
+                    <strong className="text-[#718078] line-through">
+                      {formatPrice(
+                        Number(
+                          createdOrder.originalDeliveryFee ??
+                          createdOrder.deliveryRewardAmount
+                        )
+                      )}
+                    </strong>
+                  </div>
+
+                  <div className="mt-3 flex justify-between gap-4 text-sm text-[#31583b]">
+                    <span>
+                      Free Local Delivery Reward
+                    </span>
+
+                    <strong>
+                      -
+                      {formatPrice(
+                        Number(
+                          createdOrder.deliveryRewardAmount
+                        )
+                      )}
+                    </strong>
+                  </div>
+                </>
+              )}
+
+              {Number(
+                createdOrder.petalsDiscountAmount ??
+                0
+              ) > 0 && (
+                <div className="mt-3 flex justify-between gap-4 text-sm text-[#31583b]">
+                  <span>
+                    {createdOrder.petalsDiscountPercent
+                      ? `Petals Reward — ${createdOrder.petalsDiscountPercent}% Off`
+                      : "Petals Reward Discount"}
+                  </span>
+
+                  <strong>
+                    -
+                    {formatPrice(
+                      Number(
+                        createdOrder.petalsDiscountAmount
+                      )
+                    )}
+                  </strong>
+                </div>
+              )}
+
+              {Number(
                 createdOrder.referralDiscountAmount ??
                 0
               ) > 0 && (
@@ -809,10 +894,36 @@ export default function CheckoutClient() {
                   )}
 
                   <p className="mt-2 text-xs leading-5 text-[#607068]">
-                    This free reward will be
-                    fulfilled with your order.
-                    It does not change the
-                    amount charged by Square.
+                    {Number(
+                      createdOrder.petalsDiscountAmount ??
+                      0
+                    ) > 0
+                      ? "This Petals reward has been applied to your eligible merchandise."
+                      : "This free gift will be fulfilled with your order."}
+                  </p>
+                </div>
+              )}
+
+              {createdOrder.deliveryRewardName && (
+                <div className="mt-4 rounded-xl bg-[#edf3e7] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#31583b]">
+                    Delivery Reward
+                  </p>
+
+                  <p className="mt-1 font-semibold text-[#153f32]">
+                    {createdOrder.deliveryRewardName}
+                  </p>
+
+                  {createdOrder.deliveryRewardCode && (
+                    <p className="mt-1 font-mono text-xs text-[#607068]">
+                      {createdOrder.deliveryRewardCode}
+                    </p>
+                  )}
+
+                  <p className="mt-2 text-xs leading-5 text-[#607068]">
+                    Your eligible local
+                    delivery fee has been
+                    removed from this order.
                   </p>
                 </div>
               )}
@@ -1149,7 +1260,17 @@ export default function CheckoutClient() {
                         Do not use a reward
                       </option>
 
-                      {issuedRewards.map(
+                      {issuedRewards
+                        .filter(
+                          (reward) =>
+                            !(
+                              reward.rewardType ===
+                                "special_perk" &&
+                              reward.name ===
+                                "Free Local Delivery"
+                            )
+                        )
+                        .map(
                         (reward) => (
                           <option
                             key={
@@ -1170,11 +1291,84 @@ export default function CheckoutClient() {
 
                   {selectedRewardId && (
                     <div className="mt-4 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
-                      This reward will be
-                      reserved for this order.
-                      Your merchandise and
-                      delivery total will not
-                      change.
+                      {["fixed_discount", "percent_discount"].includes(
+                        issuedRewards.find(
+                          (reward) =>
+                            reward.id ===
+                            selectedRewardId
+                        )?.rewardType ?? ""
+                      )
+                        ? "This Petals discount will be calculated securely from your merchandise total. Merchandise discounts cannot be combined with a referral discount."
+                        : "This reward will be reserved for this order and fulfilled with your purchase."}
+                    </div>
+                  )}
+
+                  {issuedRewards.some(
+                    (reward) =>
+                      reward.rewardType ===
+                        "special_perk" &&
+                      reward.name ===
+                        "Free Local Delivery"
+                  ) && (
+                    <div className="mt-6 border-t border-[#284239]/10 pt-5">
+                      <label className="grid gap-2">
+                        <span className="text-sm font-semibold text-[#153f32]">
+                          Delivery perk
+                        </span>
+
+                        <select
+                          name="deliveryRewardRedemptionId"
+                          value={
+                            selectedDeliveryRewardId
+                          }
+                          onChange={(event) =>
+                            setSelectedDeliveryRewardId(
+                              event.target.value
+                            )
+                          }
+                          className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+                        >
+                          <option value="">
+                            Do not use a delivery perk
+                          </option>
+
+                          {issuedRewards
+                            .filter(
+                              (reward) =>
+                                reward.rewardType ===
+                                  "special_perk" &&
+                                reward.name ===
+                                  "Free Local Delivery"
+                            )
+                            .map(
+                              (reward) => (
+                                <option
+                                  key={
+                                    reward.id
+                                  }
+                                  value={
+                                    reward.id
+                                  }
+                                >
+                                  {reward.name}
+                                  {" — "}
+                                  {reward.redemptionCode}
+                                </option>
+                              )
+                            )}
+                        </select>
+                      </label>
+
+                      {selectedDeliveryRewardId && (
+                        <div className="mt-4 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
+                          Free Local Delivery
+                          will remove the eligible
+                          paid local delivery fee.
+                          It may be combined with
+                          a gift or eligible
+                          merchandise reward.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

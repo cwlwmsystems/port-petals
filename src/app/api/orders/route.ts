@@ -38,6 +38,7 @@ type CheckoutRequest = {
   notes?: string;
 
   rewardRedemptionId?: string | null;
+  deliveryRewardRedemptionId?: string | null;
   referralRewardId?: string | null;
 
   items: CheckoutItem[];
@@ -167,6 +168,12 @@ export async function POST(request: Request) {
         100
       ) || null;
 
+    const deliveryRewardRedemptionId =
+      cleanText(
+        body.deliveryRewardRedemptionId,
+        100
+      ) || null;
+
     const referralRewardId =
       cleanText(
         body.referralRewardId,
@@ -282,6 +289,19 @@ export async function POST(request: Request) {
       body.fulfillmentType,
       body.deliveryArea
     );
+
+    let effectiveDeliveryFee =
+      deliveryFee;
+
+    let deliveryRewardAmount =
+      0;
+
+    let petalsDiscountAmount =
+      0;
+
+    let petalsDiscountPercent:
+      number | null =
+      null;
 
     const deliveryAddress = cleanText(
       body.deliveryAddress,
@@ -1279,6 +1299,8 @@ export async function POST(request: Request) {
           id: string;
           name: string;
           code: string | null;
+          rewardType: string;
+          discountAmount: number;
         }
       | null =
       null;
@@ -1426,7 +1448,10 @@ export async function POST(request: Request) {
           .select(`
             id,
             name,
-            active
+            active,
+            redeemable,
+            reward_type,
+            discount_value
           `)
           .eq(
             "id",
@@ -1458,6 +1483,207 @@ export async function POST(request: Request) {
         );
       }
 
+      if (
+        reward.redeemable !== true
+      ) {
+        await releaseClaimedReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That Petals reward is not currently redeemable.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const isFixedPetalsDiscount =
+        reward.reward_type ===
+          "fixed_discount" &&
+        reward.name ===
+          "$15 Off Your Order";
+
+      const isPercentPetalsDiscount =
+        reward.reward_type ===
+          "percent_discount" &&
+        reward.name ===
+          "20% Off Merchandise";
+
+      const isMerchandisePetalsDiscount =
+        isFixedPetalsDiscount ||
+        isPercentPetalsDiscount;
+
+      if (
+        isMerchandisePetalsDiscount
+      ) {
+        /*
+         * Only one merchandise discount may
+         * apply to an order.
+         *
+         * Referral discount:
+         *   merchandise discount
+         *
+         * Petals discount:
+         *   merchandise discount
+         *
+         * They cannot stack.
+         */
+        if (
+          (
+            reservedReferralReward
+              ?.amount ?? 0
+          ) > 0
+        ) {
+          await releaseClaimedReward();
+
+          await supabase
+            .from("orders")
+            .delete()
+            .eq("id", order.id);
+
+          return NextResponse.json(
+            {
+              error:
+                "A Petals merchandise discount cannot be combined with a referral discount. Please choose one merchandise discount.",
+            },
+            { status: 409 }
+          );
+        }
+
+
+        /*
+         * FIXED-DOLLAR REWARD
+         */
+        if (isFixedPetalsDiscount) {
+          const fixedDiscountValue =
+            Number(
+              reward.discount_value ??
+              0
+            );
+
+          if (
+            !Number.isFinite(
+              fixedDiscountValue
+            ) ||
+            fixedDiscountValue <= 0
+          ) {
+            await releaseClaimedReward();
+
+            await supabase
+              .from("orders")
+              .delete()
+              .eq("id", order.id);
+
+            throw new Error(
+              "Petals reward has an invalid discount value."
+            );
+          }
+
+          petalsDiscountAmount =
+            Math.min(
+              subtotal,
+              Math.round(
+                fixedDiscountValue *
+                100
+              ) / 100
+            );
+
+          petalsDiscountPercent =
+            null;
+        }
+
+
+        /*
+         * PERCENTAGE REWARD
+         */
+        if (isPercentPetalsDiscount) {
+          const percentDiscountValue =
+            Number(
+              reward.discount_value ??
+              0
+            );
+
+          if (
+            !Number.isFinite(
+              percentDiscountValue
+            ) ||
+            percentDiscountValue <= 0 ||
+            percentDiscountValue > 100
+          ) {
+            await releaseClaimedReward();
+
+            await supabase
+              .from("orders")
+              .delete()
+              .eq("id", order.id);
+
+            throw new Error(
+              "Petals reward has an invalid discount percentage."
+            );
+          }
+
+          petalsDiscountPercent =
+            percentDiscountValue;
+
+          petalsDiscountAmount =
+            Math.min(
+              subtotal,
+              Math.round(
+                (
+                  subtotal *
+                  (
+                    percentDiscountValue /
+                    100
+                  )
+                ) *
+                100
+              ) / 100
+            );
+        }
+
+
+        /*
+         * AUTHORITATIVE ORDER TOTAL
+         */
+        total =
+          Math.max(
+            0,
+            Math.round(
+              (
+                subtotal -
+                petalsDiscountAmount +
+                effectiveDeliveryFee +
+                taxAmount
+              ) *
+              100
+            ) / 100
+          );
+
+      } else if (
+        reward.reward_type !==
+        "free_gift"
+      ) {
+        await releaseClaimedReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That Petals reward belongs in a different reward category or is not supported yet.",
+          },
+          { status: 409 }
+        );
+      }
+
       const {
         error:
           attachRewardError,
@@ -1473,6 +1699,14 @@ export async function POST(request: Request) {
 
             reward_code:
               claimedReward.redemption_code,
+
+            petals_discount_amount:
+              petalsDiscountAmount,
+
+            petals_discount_percent:
+              petalsDiscountPercent,
+
+            total,
           })
           .eq(
             "id",
@@ -1501,6 +1735,10 @@ export async function POST(request: Request) {
         name: reward.name,
         code:
           claimedReward.redemption_code,
+        rewardType:
+          reward.reward_type,
+        discountAmount:
+          petalsDiscountAmount,
       };
 
       const {
@@ -1523,6 +1761,15 @@ export async function POST(request: Request) {
                 reward.name,
               reward_code:
                 claimedReward.redemption_code,
+
+              reward_type:
+                reward.reward_type,
+
+              petals_discount_amount:
+                petalsDiscountAmount,
+
+              petals_discount_percent:
+                petalsDiscountPercent,
             },
           });
 
@@ -1530,6 +1777,339 @@ export async function POST(request: Request) {
         console.error(
           "Unable to record Petals reward reservation event:",
           rewardEventError
+        );
+      }
+    }
+
+    let reservedDeliveryReward:
+      | {
+          id: string;
+          name: string;
+          code: string | null;
+        }
+      | null =
+      null;
+
+    /*
+     * DELIVERY PETALS REWARD
+     *
+     * Delivery perks use their own order slot so they may
+     * coexist with one merchandise/gift Petals reward.
+     */
+    if (deliveryRewardRedemptionId) {
+      if (!customerUserId) {
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "Sign in to use a delivery reward.",
+          },
+          { status: 401 }
+        );
+      }
+
+      const {
+        data: claimedDeliveryReward,
+        error: claimDeliveryRewardError,
+      } =
+        await supabase
+          .from(
+            "customer_reward_redemptions"
+          )
+          .update({
+            status: "reserved",
+            order_id: order.id,
+          })
+          .eq(
+            "id",
+            deliveryRewardRedemptionId
+          )
+          .eq(
+            "user_id",
+            customerUserId
+          )
+          .eq(
+            "status",
+            "issued"
+          )
+          .is(
+            "order_id",
+            null
+          )
+          .select(`
+            id,
+            reward_id,
+            redemption_code,
+            expires_at
+          `)
+          .maybeSingle();
+
+      if (
+        claimDeliveryRewardError ||
+        !claimedDeliveryReward
+      ) {
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That delivery reward is no longer available.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const releaseClaimedDeliveryReward =
+        async () => {
+          await supabase
+            .from(
+              "customer_reward_redemptions"
+            )
+            .update({
+              status: "issued",
+              order_id: null,
+            })
+            .eq(
+              "id",
+              claimedDeliveryReward.id
+            )
+            .eq(
+              "user_id",
+              customerUserId
+            )
+            .eq(
+              "status",
+              "reserved"
+            )
+            .eq(
+              "order_id",
+              order.id
+            );
+        };
+
+      if (
+        claimedDeliveryReward.expires_at &&
+        new Date(
+          claimedDeliveryReward.expires_at
+        ).getTime() <= Date.now()
+      ) {
+        await releaseClaimedDeliveryReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That delivery reward has expired.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const {
+        data: deliveryReward,
+        error: deliveryRewardError,
+      } =
+        await supabase
+          .from(
+            "customer_rewards"
+          )
+          .select(`
+            id,
+            name,
+            active,
+            redeemable,
+            reward_type
+          `)
+          .eq(
+            "id",
+            claimedDeliveryReward.reward_id
+          )
+          .eq(
+            "active",
+            true
+          )
+          .maybeSingle();
+
+      if (
+        deliveryRewardError ||
+        !deliveryReward ||
+        deliveryReward.redeemable !==
+          true ||
+        deliveryReward.reward_type !==
+          "special_perk" ||
+        deliveryReward.name !==
+          "Free Local Delivery"
+      ) {
+        await releaseClaimedDeliveryReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That delivery reward cannot be used on this order.",
+          },
+          { status: 409 }
+        );
+      }
+
+      if (
+        body.fulfillmentType !==
+          "delivery" ||
+        deliveryFee <= 0
+      ) {
+        await releaseClaimedDeliveryReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "Free Local Delivery can only be used on an order with a paid local delivery fee.",
+          },
+          { status: 409 }
+        );
+      }
+
+      effectiveDeliveryFee = 0;
+      deliveryRewardAmount =
+        deliveryFee;
+
+      total =
+        Math.max(
+          0,
+          Math.round(
+            (
+              subtotal -
+              (
+                reservedReferralReward
+                  ?.amount ?? 0
+              ) -
+              petalsDiscountAmount +
+              effectiveDeliveryFee +
+              taxAmount
+            ) *
+            100
+          ) / 100
+        );
+
+      const {
+        error:
+          attachDeliveryRewardError,
+      } =
+        await supabase
+          .from("orders")
+          .update({
+            delivery_reward_redemption_id:
+              claimedDeliveryReward.id,
+
+            delivery_reward_name:
+              deliveryReward.name,
+
+            delivery_reward_code:
+              claimedDeliveryReward.redemption_code,
+
+            delivery_fee:
+              effectiveDeliveryFee,
+
+            original_delivery_fee:
+              deliveryFee,
+
+            delivery_reward_amount:
+              deliveryRewardAmount,
+
+            total,
+          })
+          .eq(
+            "id",
+            order.id
+          )
+          .eq(
+            "customer_user_id",
+            customerUserId
+          );
+
+      if (attachDeliveryRewardError) {
+        await releaseClaimedDeliveryReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        throw new Error(
+          "Unable to attach the delivery reward to this order."
+        );
+      }
+
+      reservedDeliveryReward = {
+        id:
+          claimedDeliveryReward.id,
+
+        name:
+          deliveryReward.name,
+
+        code:
+          claimedDeliveryReward.redemption_code,
+      };
+
+      const {
+        error:
+          deliveryRewardEventError,
+      } =
+        await supabase
+          .from("order_events")
+          .insert({
+            order_id:
+              order.id,
+
+            event_type:
+              "delivery_reward_reserved",
+
+            message:
+              `Delivery reward reserved: ${deliveryReward.name}.`,
+
+            metadata: {
+              delivery_reward_redemption_id:
+                claimedDeliveryReward.id,
+
+              reward_name:
+                deliveryReward.name,
+
+              reward_code:
+                claimedDeliveryReward.redemption_code,
+
+              original_delivery_fee:
+                deliveryFee,
+
+              delivery_reward_amount:
+                deliveryRewardAmount,
+            },
+          });
+
+      if (
+        deliveryRewardEventError
+      ) {
+        console.error(
+          "Unable to record delivery reward event:",
+          deliveryRewardEventError
         );
       }
     }
@@ -2003,15 +2583,42 @@ export async function POST(request: Request) {
       orderId: order.id,
       orderNumber: order.order_number,
       subtotal,
-      deliveryFee,
+
+      deliveryFee:
+        effectiveDeliveryFee,
+
+      originalDeliveryFee:
+        deliveryRewardAmount > 0
+          ? deliveryFee
+          : effectiveDeliveryFee,
+
+      deliveryRewardAmount,
+
+      deliveryRewardName:
+        reservedDeliveryReward?.name ??
+        null,
+
+      deliveryRewardCode:
+        reservedDeliveryReward?.code ??
+        null,
+
+      petalsDiscountAmount,
+      petalsDiscountPercent,
+
       taxAmount,
       total,
       paymentStatus: "unpaid",
+
       rewardName:
         reservedReward?.name ??
         null,
+
       rewardCode:
         reservedReward?.code ??
+        null,
+
+      rewardType:
+        reservedReward?.rewardType ??
         null,
 
       referralApplied:
