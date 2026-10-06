@@ -67,6 +67,9 @@ export async function POST(request: Request) {
           delivery_fee,
           tax_amount,
           total,
+          referral_discount_amount,
+          referral_discount_percent,
+          referral_reward_code,
           square_order_id,
           square_payment_link_id,
           square_checkout_url
@@ -186,6 +189,14 @@ export async function POST(request: Request) {
       });
     }
 
+    const referralDiscountCents =
+      moneyToCents(
+        Number(
+          order.referral_discount_amount ??
+          0
+        )
+      );
+
     const calculatedTotalCents =
       squareLineItems.reduce(
         (sum, item) =>
@@ -193,7 +204,8 @@ export async function POST(request: Request) {
           item.base_price_money.amount *
             Number(item.quantity),
         0
-      );
+      ) -
+      referralDiscountCents;
 
     const expectedTotalCents = moneyToCents(
       Number(order.total)
@@ -246,6 +258,34 @@ export async function POST(request: Request) {
             location_id: locationId,
             reference_id: order.order_number,
             line_items: squareLineItems,
+
+            ...(referralDiscountCents > 0
+              ? {
+                  discounts: [
+                    {
+                      name:
+                        order.referral_discount_percent
+                          ? `Referral Reward — ${Number(
+                              order.referral_discount_percent
+                            )}% Off`
+                          : "Referral Reward",
+
+                      type:
+                        "FIXED_AMOUNT",
+
+                      scope:
+                        "ORDER",
+
+                      amount_money: {
+                        amount:
+                          referralDiscountCents,
+                        currency:
+                          "USD",
+                      },
+                    },
+                  ],
+                }
+              : {}),
           },
 
           payment_note:

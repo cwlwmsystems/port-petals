@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getEarliestFulfillmentDate } from "@/lib/orders/fulfillment-date";
 
 type CheckoutItem = {
@@ -34,6 +36,9 @@ type CheckoutRequest = {
   deliveryZip?: string;
 
   notes?: string;
+
+  rewardRedemptionId?: string | null;
+  referralRewardId?: string | null;
 
   items: CheckoutItem[];
 };
@@ -129,10 +134,44 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as CheckoutRequest;
 
+    const authSupabase =
+      await createServerClient();
+
+    const { data: claimsData } =
+      await authSupabase.auth.getClaims();
+
+    const customerUserId =
+      claimsData?.claims?.sub ?? null;
+
+    const cookieStore =
+      await cookies();
+
+    const referralCookieCode =
+      cleanText(
+        cookieStore.get(
+          "port_petals_referral"
+        )?.value,
+        50
+      )
+        .toUpperCase() ||
+      null;
+
     const customerName = cleanText(body.customerName, 100);
     const customerEmail = cleanText(body.customerEmail, 200);
     const customerPhone = cleanText(body.customerPhone, 50);
     const notes = cleanText(body.notes, 1000);
+
+    const rewardRedemptionId =
+      cleanText(
+        body.rewardRedemptionId,
+        100
+      ) || null;
+
+    const referralRewardId =
+      cleanText(
+        body.referralRewardId,
+        100
+      ) || null;
 
     const requestedFulfillmentDate =
       cleanText(
@@ -522,7 +561,7 @@ export async function POST(request: Request) {
 
     const taxAmount = 0;
 
-    const total =
+    let total =
       Math.round(
         (subtotal + deliveryFee + taxAmount) * 100
       ) / 100;
@@ -550,6 +589,7 @@ export async function POST(request: Request) {
           customer_name: customerName,
           customer_email: customerEmail,
           customer_phone: customerPhone,
+          customer_user_id: customerUserId,
 
           fulfillment_type: body.fulfillmentType,
 
@@ -616,6 +656,882 @@ export async function POST(request: Request) {
         .eq("id", order.id);
 
       throw new Error(itemsError.message);
+    }
+
+    let reservedReferralReward:
+      | {
+          id: string;
+          code: string;
+          percent: number;
+          amount: number;
+        }
+      | null =
+      null;
+
+    /*
+     * REFERRAL DISCOUNT REWARD
+     *
+     * The browser supplies only the reward UUID.
+     * The discount percentage, ownership and status
+     * all come from the database.
+     */
+    if (referralRewardId) {
+      if (!customerUserId) {
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "Sign in to use a referral reward.",
+          },
+          { status: 401 }
+        );
+      }
+
+      const {
+        data: claimedReferralReward,
+        error: claimedReferralRewardError,
+      } =
+        await supabase
+          .from(
+            "customer_referral_rewards"
+          )
+          .update({
+            status: "reserved",
+            order_id: order.id,
+          })
+          .eq(
+            "id",
+            referralRewardId
+          )
+          .eq(
+            "user_id",
+            customerUserId
+          )
+          .eq(
+            "status",
+            "issued"
+          )
+          .is(
+            "order_id",
+            null
+          )
+          .select(`
+            id,
+            reward_percent,
+            reward_code,
+            expires_at
+          `)
+          .maybeSingle();
+
+      if (
+        claimedReferralRewardError ||
+        !claimedReferralReward
+      ) {
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That referral reward is no longer available.",
+          },
+          { status: 409 }
+        );
+      }
+
+      if (
+        claimedReferralReward.expires_at &&
+        new Date(
+          claimedReferralReward.expires_at
+        ).getTime() <= Date.now()
+      ) {
+        await supabase
+          .from(
+            "customer_referral_rewards"
+          )
+          .update({
+            status: "expired",
+            order_id: null,
+          })
+          .eq(
+            "id",
+            claimedReferralReward.id
+          )
+          .eq(
+            "status",
+            "reserved"
+          )
+          .eq(
+            "order_id",
+            order.id
+          );
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That referral reward has expired.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const rewardPercent =
+        Number(
+          claimedReferralReward.reward_percent
+        );
+
+      if (
+        !Number.isFinite(
+          rewardPercent
+        ) ||
+        rewardPercent <= 0 ||
+        rewardPercent > 100
+      ) {
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        throw new Error(
+          "Referral reward has an invalid discount percentage."
+        );
+      }
+
+      const discountAmount =
+        Math.round(
+          subtotal *
+          (
+            rewardPercent /
+            100
+          ) *
+          100
+        ) / 100;
+
+      total =
+        Math.max(
+          0,
+          Math.round(
+            (
+              subtotal -
+              discountAmount +
+              deliveryFee +
+              taxAmount
+            ) *
+            100
+          ) / 100
+        );
+
+      const {
+        error:
+          updateDiscountedOrderError,
+      } =
+        await supabase
+          .from("orders")
+          .update({
+            referral_reward_id:
+              claimedReferralReward.id,
+
+            referral_reward_code:
+              claimedReferralReward.reward_code,
+
+            referral_discount_percent:
+              rewardPercent,
+
+            referral_discount_amount:
+              discountAmount,
+
+            total,
+          })
+          .eq(
+            "id",
+            order.id
+          )
+          .eq(
+            "customer_user_id",
+            customerUserId
+          );
+
+      if (
+        updateDiscountedOrderError
+      ) {
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        throw new Error(
+          "Unable to apply the referral discount."
+        );
+      }
+
+      reservedReferralReward = {
+        id:
+          claimedReferralReward.id,
+
+        code:
+          claimedReferralReward.reward_code,
+
+        percent:
+          rewardPercent,
+
+        amount:
+          discountAmount,
+      };
+
+      const {
+        error:
+          referralRewardEventError,
+      } =
+        await supabase
+          .from("order_events")
+          .insert({
+            order_id:
+              order.id,
+
+            event_type:
+              "referral_reward_reserved",
+
+            message:
+              `${rewardPercent}% referral reward applied.`,
+
+            metadata: {
+              referral_reward_id:
+                claimedReferralReward.id,
+
+              referral_reward_code:
+                claimedReferralReward.reward_code,
+
+              discount_percent:
+                rewardPercent,
+
+              discount_amount:
+                discountAmount,
+            },
+          });
+
+      if (
+        referralRewardEventError
+      ) {
+        console.error(
+          "Unable to record referral reward event:",
+          referralRewardEventError
+        );
+      }
+    }
+
+    let attachedReferral:
+      | {
+          id: string;
+          code: string;
+        }
+      | null =
+      null;
+
+    /*
+     * CUSTOMER REFERRAL ATTRIBUTION
+     *
+     * The browser never submits a referrer user ID.
+     * The referral code comes from the HttpOnly cookie
+     * created by /r/[code].
+     *
+     * Security rules:
+     * - customer must be authenticated
+     * - referral code must exist
+     * - self-referrals are rejected
+     * - referred customer can only be attributed once
+     * - first valid referrer wins
+     * - qualifying order is claimed conditionally
+     *
+     * Referral tracking is secondary to the sale.
+     * A referral-system error must not prevent the
+     * customer from placing an otherwise valid order.
+     */
+    if (
+      customerUserId &&
+      referralCookieCode
+    ) {
+      try {
+        const {
+          data: referralProfile,
+          error: referralProfileError,
+        } =
+          await supabase
+            .from(
+              "customer_referral_profiles"
+            )
+            .select(`
+              user_id,
+              referral_code
+            `)
+            .eq(
+              "referral_code",
+              referralCookieCode
+            )
+            .maybeSingle();
+
+        if (referralProfileError) {
+          throw referralProfileError;
+        }
+
+        if (
+          referralProfile &&
+          referralProfile.user_id !==
+            customerUserId
+        ) {
+          let {
+            data: customerReferral,
+            error:
+              customerReferralError,
+          } =
+            await supabase
+              .from(
+                "customer_referrals"
+              )
+              .select(`
+                id,
+                referrer_user_id,
+                referred_user_id,
+                referral_code,
+                status,
+                qualifying_order_id
+              `)
+              .eq(
+                "referred_user_id",
+                customerUserId
+              )
+              .maybeSingle();
+
+          if (customerReferralError) {
+            throw customerReferralError;
+          }
+
+          /*
+           * Create attribution only when this
+           * customer has never been referred.
+           */
+          if (!customerReferral) {
+            const {
+              data: createdReferral,
+              error:
+                createReferralError,
+            } =
+              await supabase
+                .from(
+                  "customer_referrals"
+                )
+                .insert({
+                  referrer_user_id:
+                    referralProfile.user_id,
+
+                  referred_user_id:
+                    customerUserId,
+
+                  referral_code:
+                    referralProfile.referral_code,
+
+                  status:
+                    "pending",
+
+                  reward_percent:
+                    20,
+                })
+                .select(`
+                  id,
+                  referrer_user_id,
+                  referred_user_id,
+                  referral_code,
+                  status,
+                  qualifying_order_id
+                `)
+                .maybeSingle();
+
+            if (createReferralError) {
+              /*
+               * A simultaneous request may have won
+               * the unique referred_user_id race.
+               * Re-read instead of overwriting.
+               */
+              const {
+                data:
+                  racedReferral,
+                error:
+                  racedReferralError,
+              } =
+                await supabase
+                  .from(
+                    "customer_referrals"
+                  )
+                  .select(`
+                    id,
+                    referrer_user_id,
+                    referred_user_id,
+                    referral_code,
+                    status,
+                    qualifying_order_id
+                  `)
+                  .eq(
+                    "referred_user_id",
+                    customerUserId
+                  )
+                  .maybeSingle();
+
+              if (
+                racedReferralError
+              ) {
+                throw (
+                  racedReferralError
+                );
+              }
+
+              customerReferral =
+                racedReferral;
+            } else {
+              customerReferral =
+                createdReferral;
+            }
+          }
+
+          /*
+           * First attribution wins.
+           *
+           * A later referral cookie from another
+           * person cannot replace the original
+           * referrer.
+           */
+          if (
+            customerReferral &&
+            customerReferral.referrer_user_id ===
+              referralProfile.user_id &&
+            customerReferral.status ===
+              "pending" &&
+            !customerReferral.qualifying_order_id
+          ) {
+            const {
+              data: claimedReferral,
+              error:
+                claimReferralError,
+            } =
+              await supabase
+                .from(
+                  "customer_referrals"
+                )
+                .update({
+                  qualifying_order_id:
+                    order.id,
+                })
+                .eq(
+                  "id",
+                  customerReferral.id
+                )
+                .eq(
+                  "referred_user_id",
+                  customerUserId
+                )
+                .eq(
+                  "referrer_user_id",
+                  referralProfile.user_id
+                )
+                .eq(
+                  "status",
+                  "pending"
+                )
+                .is(
+                  "qualifying_order_id",
+                  null
+                )
+                .select(`
+                  id,
+                  referral_code
+                `)
+                .maybeSingle();
+
+            if (claimReferralError) {
+              throw claimReferralError;
+            }
+
+            if (claimedReferral) {
+              const {
+                error:
+                  attachReferralError,
+              } =
+                await supabase
+                  .from("orders")
+                  .update({
+                    referral_id:
+                      claimedReferral.id,
+
+                    referral_code:
+                      claimedReferral.referral_code,
+                  })
+                  .eq(
+                    "id",
+                    order.id
+                  )
+                  .eq(
+                    "customer_user_id",
+                    customerUserId
+                  );
+
+              if (
+                attachReferralError
+              ) {
+                /*
+                 * Compensation:
+                 * release the referral claim if the
+                 * order snapshot could not be saved.
+                 */
+                await supabase
+                  .from(
+                    "customer_referrals"
+                  )
+                  .update({
+                    qualifying_order_id:
+                      null,
+                  })
+                  .eq(
+                    "id",
+                    claimedReferral.id
+                  )
+                  .eq(
+                    "qualifying_order_id",
+                    order.id
+                  )
+                  .eq(
+                    "status",
+                    "pending"
+                  );
+
+                throw attachReferralError;
+              }
+
+              attachedReferral = {
+                id:
+                  claimedReferral.id,
+
+                code:
+                  claimedReferral.referral_code,
+              };
+
+              const {
+                error:
+                  referralEventError,
+              } =
+                await supabase
+                  .from(
+                    "order_events"
+                  )
+                  .insert({
+                    order_id:
+                      order.id,
+
+                    event_type:
+                      "customer_referral_attached",
+
+                    message:
+                      "Customer referral attached to qualifying order.",
+
+                    metadata: {
+                      referral_id:
+                        claimedReferral.id,
+
+                      referral_code:
+                        claimedReferral.referral_code,
+
+                      referrer_user_id:
+                        referralProfile.user_id,
+                    },
+                  });
+
+              if (
+                referralEventError
+              ) {
+                console.error(
+                  "Unable to record referral attribution event:",
+                  referralEventError
+                );
+              }
+            }
+          }
+        }
+      } catch (
+        referralAttributionError
+      ) {
+        console.error(
+          "Unable to attribute customer referral:",
+          referralAttributionError
+        );
+      }
+    }
+
+    let reservedReward:
+      | {
+          id: string;
+          name: string;
+          code: string | null;
+        }
+      | null =
+      null;
+
+    /*
+     * PETALS REWARD RESERVATION
+     *
+     * The browser supplies only a redemption UUID.
+     * Ownership, status and availability are
+     * verified here using the authenticated user
+     * derived from the Supabase session.
+     *
+     * The conditional UPDATE is the claim:
+     * only an issued, unreserved reward belonging
+     * to this customer can transition to reserved.
+     */
+    if (rewardRedemptionId) {
+      if (!customerUserId) {
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "Sign in to use a Petals reward.",
+          },
+          { status: 401 }
+        );
+      }
+
+      const {
+        data: claimedReward,
+        error: claimRewardError,
+      } =
+        await supabase
+          .from(
+            "customer_reward_redemptions"
+          )
+          .update({
+            status: "reserved",
+            order_id: order.id,
+          })
+          .eq(
+            "id",
+            rewardRedemptionId
+          )
+          .eq(
+            "user_id",
+            customerUserId
+          )
+          .eq(
+            "status",
+            "issued"
+          )
+          .is(
+            "order_id",
+            null
+          )
+          .select(`
+            id,
+            reward_id,
+            redemption_code,
+            expires_at
+          `)
+          .maybeSingle();
+
+      if (
+        claimRewardError ||
+        !claimedReward
+      ) {
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That Petals reward is no longer available. Please choose another reward or continue without one.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const releaseClaimedReward =
+        async () => {
+          await supabase
+            .from(
+              "customer_reward_redemptions"
+            )
+            .update({
+              status: "issued",
+              order_id: null,
+            })
+            .eq(
+              "id",
+              claimedReward.id
+            )
+            .eq(
+              "user_id",
+              customerUserId
+            )
+            .eq(
+              "status",
+              "reserved"
+            )
+            .eq(
+              "order_id",
+              order.id
+            );
+        };
+
+      if (
+        claimedReward.expires_at &&
+        new Date(
+          claimedReward.expires_at
+        ).getTime() <= Date.now()
+      ) {
+        await releaseClaimedReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That Petals reward has expired.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const {
+        data: reward,
+        error: rewardError,
+      } =
+        await supabase
+          .from(
+            "customer_rewards"
+          )
+          .select(`
+            id,
+            name,
+            active
+          `)
+          .eq(
+            "id",
+            claimedReward.reward_id
+          )
+          .eq(
+            "active",
+            true
+          )
+          .maybeSingle();
+
+      if (
+        rewardError ||
+        !reward
+      ) {
+        await releaseClaimedReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        return NextResponse.json(
+          {
+            error:
+              "That Petals reward is no longer available.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const {
+        error:
+          attachRewardError,
+      } =
+        await supabase
+          .from("orders")
+          .update({
+            reward_redemption_id:
+              claimedReward.id,
+
+            reward_name:
+              reward.name,
+
+            reward_code:
+              claimedReward.redemption_code,
+          })
+          .eq(
+            "id",
+            order.id
+          )
+          .eq(
+            "customer_user_id",
+            customerUserId
+          );
+
+      if (attachRewardError) {
+        await releaseClaimedReward();
+
+        await supabase
+          .from("orders")
+          .delete()
+          .eq("id", order.id);
+
+        throw new Error(
+          "Unable to attach the Petals reward to this order."
+        );
+      }
+
+      reservedReward = {
+        id: claimedReward.id,
+        name: reward.name,
+        code:
+          claimedReward.redemption_code,
+      };
+
+      const {
+        error:
+          rewardEventError,
+      } =
+        await supabase
+          .from("order_events")
+          .insert({
+            order_id:
+              order.id,
+            event_type:
+              "petals_reward_reserved",
+            message:
+              `Petals reward reserved: ${reward.name}.`,
+            metadata: {
+              reward_redemption_id:
+                claimedReward.id,
+              reward_name:
+                reward.name,
+              reward_code:
+                claimedReward.redemption_code,
+            },
+          });
+
+      if (rewardEventError) {
+        console.error(
+          "Unable to record Petals reward reservation event:",
+          rewardEventError
+        );
+      }
     }
 
     /*
@@ -1091,6 +2007,29 @@ export async function POST(request: Request) {
       taxAmount,
       total,
       paymentStatus: "unpaid",
+      rewardName:
+        reservedReward?.name ??
+        null,
+      rewardCode:
+        reservedReward?.code ??
+        null,
+
+      referralApplied:
+        Boolean(
+          attachedReferral
+        ),
+
+      referralDiscountAmount:
+        reservedReferralReward?.amount ??
+        0,
+
+      referralDiscountPercent:
+        reservedReferralReward?.percent ??
+        null,
+
+      referralRewardCode:
+        reservedReferralReward?.code ??
+        null,
     });
   } catch (error) {
     console.error("Order creation error:", error);

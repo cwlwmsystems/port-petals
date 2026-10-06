@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useCart } from "@/components/CartProvider";
 import CheckoutProgress from "@/components/CheckoutProgress";
+import { createClient } from "@/lib/supabase/client";
 
 type FulfillmentType = "pickup" | "delivery";
 
@@ -17,6 +18,21 @@ type DeliveryArea =
   | "three-to-eight"
   | "smethport-eldred";
 
+type IssuedReward = {
+  id: string;
+  name: string;
+  redemptionCode: string;
+  petalsCost: number;
+  expiresAt: string | null;
+};
+
+type ReferralDiscountReward = {
+  id: string;
+  rewardPercent: number;
+  rewardCode: string;
+  expiresAt: string | null;
+};
+
 type CreatedOrder = {
   orderId: string;
   orderNumber: string;
@@ -25,6 +41,12 @@ type CreatedOrder = {
   taxAmount: number;
   total: number;
   paymentStatus: string;
+  rewardName?: string | null;
+  rewardCode?: string | null;
+
+  referralDiscountAmount?: number;
+  referralDiscountPercent?: number | null;
+  referralRewardCode?: string | null;
 };
 
 function formatPrice(price: number) {
@@ -76,6 +98,243 @@ export default function CheckoutClient() {
     leadTimeError,
     setLeadTimeError,
   ] = useState("");
+
+  const [
+    issuedRewards,
+    setIssuedRewards,
+  ] = useState<IssuedReward[]>([]);
+
+  const [
+    loadingRewards,
+    setLoadingRewards,
+  ] = useState(true);
+
+  const [
+    signedInCustomer,
+    setSignedInCustomer,
+  ] = useState(false);
+
+  const [
+    selectedRewardId,
+    setSelectedRewardId,
+  ] = useState("");
+
+  const [
+    referralRewards,
+    setReferralRewards,
+  ] = useState<ReferralDiscountReward[]>([]);
+
+  const [
+    selectedReferralRewardId,
+    setSelectedReferralRewardId,
+  ] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadRewards() {
+      setLoadingRewards(true);
+
+      try {
+        const supabase =
+          createClient();
+
+        const {
+          data: claimsData,
+        } =
+          await supabase.auth.getClaims();
+
+        const userId =
+          claimsData?.claims?.sub;
+
+        if (!userId) {
+          if (active) {
+            setSignedInCustomer(false);
+            setIssuedRewards([]);
+          }
+
+          return;
+        }
+
+        if (active) {
+          setSignedInCustomer(true);
+        }
+
+        const {
+          data,
+          error: rewardsError,
+        } =
+          await supabase
+            .from(
+              "customer_reward_redemptions"
+            )
+            .select(`
+              id,
+              petals_cost,
+              redemption_code,
+              expires_at,
+              customer_rewards (
+                name
+              )
+            `)
+            .eq(
+              "user_id",
+              userId
+            )
+            .eq(
+              "status",
+              "issued"
+            )
+            .order(
+              "created_at",
+              {
+                ascending: false,
+              }
+            );
+
+        if (rewardsError) {
+          throw rewardsError;
+        }
+
+        const now = Date.now();
+
+        const rewards: IssuedReward[] =
+          (data ?? [])
+            .filter((row) => {
+              if (!row.expires_at) {
+                return true;
+              }
+
+              return (
+                new Date(
+                  row.expires_at
+                ).getTime() > now
+              );
+            })
+            .map((row) => {
+              const relatedReward =
+                Array.isArray(
+                  row.customer_rewards
+                )
+                  ? row.customer_rewards[0]
+                  : row.customer_rewards;
+
+              return {
+                id: row.id,
+                name:
+                  relatedReward?.name ??
+                  "Port Petals Reward",
+                redemptionCode:
+                  row.redemption_code ??
+                  "",
+                petalsCost:
+                  Number(
+                    row.petals_cost
+                  ),
+                expiresAt:
+                  row.expires_at,
+              };
+            });
+
+        if (active) {
+          setIssuedRewards(
+            rewards
+          );
+        }
+
+        const {
+          data: referralRewardData,
+          error: referralRewardError,
+        } =
+          await supabase
+            .from(
+              "customer_referral_rewards"
+            )
+            .select(`
+              id,
+              reward_percent,
+              reward_code,
+              expires_at
+            `)
+            .eq(
+              "user_id",
+              userId
+            )
+            .eq(
+              "status",
+              "issued"
+            )
+            .order(
+              "created_at",
+              {
+                ascending: false,
+              }
+            );
+
+        if (referralRewardError) {
+          throw referralRewardError;
+        }
+
+        const referralDiscounts:
+          ReferralDiscountReward[] =
+          (
+            referralRewardData ??
+            []
+          )
+            .filter((row) => {
+              if (!row.expires_at) {
+                return true;
+              }
+
+              return (
+                new Date(
+                  row.expires_at
+                ).getTime() >
+                now
+              );
+            })
+            .map((row) => ({
+              id: row.id,
+
+              rewardPercent:
+                Number(
+                  row.reward_percent
+                ),
+
+              rewardCode:
+                row.reward_code,
+
+              expiresAt:
+                row.expires_at,
+            }));
+
+        if (active) {
+          setReferralRewards(
+            referralDiscounts
+          );
+        }
+      } catch (caughtError) {
+        console.error(
+          "Unable to load issued Petals rewards:",
+          caughtError
+        );
+
+        if (active) {
+          setIssuedRewards([]);
+        }
+      } finally {
+        if (active) {
+          setLoadingRewards(false);
+        }
+      }
+    }
+
+    void loadRewards();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (items.length === 0) {
@@ -247,6 +506,14 @@ export default function CheckoutClient() {
 
             notes:
               formData.get("notes"),
+
+            rewardRedemptionId:
+              selectedRewardId ||
+              null,
+
+            referralRewardId:
+              selectedReferralRewardId ||
+              null,
 
             items: items.map((item) => ({
               productId: item.productId,
@@ -478,6 +745,29 @@ export default function CheckoutClient() {
                 </strong>
               </div>
 
+              {Number(
+                createdOrder.referralDiscountAmount ??
+                0
+              ) > 0 && (
+                <div className="mt-3 flex justify-between gap-4 text-sm text-[#31583b]">
+                  <span>
+                    Referral Reward
+                    {createdOrder.referralDiscountPercent
+                      ? ` (${createdOrder.referralDiscountPercent}% off)`
+                      : ""}
+                  </span>
+
+                  <strong>
+                    -
+                    {formatPrice(
+                      Number(
+                        createdOrder.referralDiscountAmount
+                      )
+                    )}
+                  </strong>
+                </div>
+              )}
+
               {createdOrder.taxAmount > 0 && (
                 <div className="mt-3 flex justify-between gap-4 text-sm">
                   <span>Tax</span>
@@ -487,6 +777,43 @@ export default function CheckoutClient() {
                       createdOrder.taxAmount
                     )}
                   </strong>
+                </div>
+              )}
+
+              {createdOrder.referralRewardCode && (
+                <div className="mt-4 rounded-xl bg-[#edf3e7] p-4 text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#31583b]">
+                    Referral Reward Applied
+                  </p>
+
+                  <p className="mt-1 font-mono text-xs text-[#607068]">
+                    {createdOrder.referralRewardCode}
+                  </p>
+                </div>
+              )}
+
+              {createdOrder.rewardName && (
+                <div className="mt-4 rounded-xl bg-[#edf3e7] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#31583b]">
+                    Petals Reward
+                  </p>
+
+                  <p className="mt-1 font-semibold text-[#153f32]">
+                    {createdOrder.rewardName}
+                  </p>
+
+                  {createdOrder.rewardCode && (
+                    <p className="mt-1 font-mono text-xs text-[#607068]">
+                      {createdOrder.rewardCode}
+                    </p>
+                  )}
+
+                  <p className="mt-2 text-xs leading-5 text-[#607068]">
+                    This free reward will be
+                    fulfilled with your order.
+                    It does not change the
+                    amount charged by Square.
+                  </p>
                 </div>
               )}
 
@@ -693,6 +1020,165 @@ export default function CheckoutClient() {
                   marketing preferences.
                 </p>
               </div>
+            </section>
+
+            {/* REFERRAL DISCOUNT */}
+            {signedInCustomer &&
+              referralRewards.length > 0 && (
+                <section className="rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-6">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                    Referral Reward
+                  </p>
+
+                  <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+                    Use Your Referral Discount
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-6 text-[#607068]">
+                    Referral discounts apply to
+                    merchandise. Delivery is not
+                    discounted.
+                  </p>
+
+                  <label className="mt-4 grid gap-2">
+                    <span className="text-sm font-semibold text-[#153f32]">
+                      Available discount
+                    </span>
+
+                    <select
+                      name="referralRewardId"
+                      value={
+                        selectedReferralRewardId
+                      }
+                      onChange={(event) =>
+                        setSelectedReferralRewardId(
+                          event.target.value
+                        )
+                      }
+                      className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+                    >
+                      <option value="">
+                        Do not use a referral reward
+                      </option>
+
+                      {referralRewards.map(
+                        (reward) => (
+                          <option
+                            key={reward.id}
+                            value={reward.id}
+                          >
+                            {reward.rewardPercent}%
+                            {" Off — "}
+                            {reward.rewardCode}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </label>
+
+                  {selectedReferralRewardId && (
+                    <div className="mt-4 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
+                      Your referral reward will be
+                      validated and calculated
+                      securely when the order is
+                      created.
+                    </div>
+                  )}
+                </section>
+              )}
+
+            {/* PETALS REWARD */}
+            <section className="rounded-2xl border border-[#284239]/10 bg-white p-4 shadow-sm sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
+                Petals Rewards
+              </p>
+
+              <h2 className="mt-1 font-serif text-xl font-semibold text-[#153f32] sm:text-2xl">
+                Use a Petals Reward
+              </h2>
+
+              {loadingRewards ? (
+                <p className="mt-3 text-sm leading-6 text-[#607068]">
+                  Checking your available
+                  rewards...
+                </p>
+              ) : !signedInCustomer ? (
+                <div className="mt-4 rounded-xl bg-[#faf7f1] p-4">
+                  <p className="text-sm leading-6 text-[#607068]">
+                    Have a Petals reward?
+                    Sign in before placing your
+                    order to use it.
+                  </p>
+
+                  <Link
+                    href="/account/login?next=/checkout"
+                    className="mt-3 inline-flex min-h-10 items-center justify-center rounded-full border border-[#284239]/15 px-4 py-2 text-sm font-semibold text-[#153f32]"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              ) : issuedRewards.length === 0 ? (
+                <div className="mt-4 rounded-xl bg-[#faf7f1] p-4">
+                  <p className="text-sm leading-6 text-[#607068]">
+                    You do not currently have
+                    an issued Petals reward.
+                    Keep growing your Petals
+                    in My Account.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <label className="grid gap-2">
+                    <span className="text-sm font-semibold text-[#153f32]">
+                      Available reward
+                    </span>
+
+                    <select
+                      name="rewardRedemptionId"
+                      value={
+                        selectedRewardId
+                      }
+                      onChange={(event) =>
+                        setSelectedRewardId(
+                          event.target.value
+                        )
+                      }
+                      className="min-h-12 rounded-xl border border-[#284239]/15 bg-white px-4 py-3 text-base outline-none focus:border-[#e76d61]"
+                    >
+                      <option value="">
+                        Do not use a reward
+                      </option>
+
+                      {issuedRewards.map(
+                        (reward) => (
+                          <option
+                            key={
+                              reward.id
+                            }
+                            value={
+                              reward.id
+                            }
+                          >
+                            {reward.name}
+                            {" — "}
+                            {reward.redemptionCode}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </label>
+
+                  {selectedRewardId && (
+                    <div className="mt-4 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6 text-[#36594c]">
+                      This reward will be
+                      reserved for this order.
+                      Your merchandise and
+                      delivery total will not
+                      change.
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
 
             {/* FULFILLMENT */}

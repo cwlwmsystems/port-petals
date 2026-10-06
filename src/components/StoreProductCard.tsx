@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/components/CartProvider";
+import WishlistButton from "@/components/WishlistButton";
 
 type StockVariant = {
   quantity: number | null;
@@ -142,6 +143,13 @@ export default function StoreProductCard({
       />
 
       <div className="relative h-56 overflow-hidden sm:h-64">
+        <div className="absolute right-4 top-4 z-30">
+          <WishlistButton
+            productId={productId}
+            compact
+          />
+        </div>
+
         <Image
           src={imageUrl}
           alt={imageAlt}
