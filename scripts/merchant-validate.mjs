@@ -398,7 +398,7 @@ dataRows.forEach(
 
     const isShirt =
       link.includes(
-        "/shirts/"
+        "/apparel/"
       );
 
     if (isShirt) {

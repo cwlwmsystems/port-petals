@@ -434,7 +434,7 @@ export default function GiftGuidesPage() {
             ["I want something beautiful and classic.", "Start with flowers.", "/flowers"],
             ["I want something cozy and easy.", "Browse candles.", "/candles"],
             ["I want something personal.", "Look at custom creations.", "/custom"],
-            ["I want something wearable.", "Browse shirts.", "/shirts"],
+            ["I want something wearable.", "Browse apparel.", "/apparel"],
             ["I want something local.", "Shop Port Allegany Gator gear.", "/gators"],
             ["I have a very specific idea.", "Start a custom request.", "/custom/request"],
           ].map(([question, answer, href], index) => (

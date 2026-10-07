@@ -340,7 +340,7 @@ function getSeasonalFeature(
         description:
           "Browse fun shirts and creative designs for the season.",
         label: "Shop Shirts →",
-        href: "/shirts",
+        href: "/apparel",
       },
       {
         icon: "✦",
@@ -368,7 +368,7 @@ function getSeasonalFeature(
     },
     secondary: {
       label: "Browse Shirts",
-      href: "/shirts",
+      href: "/apparel",
     },
     cards: [
       {
@@ -385,7 +385,7 @@ function getSeasonalFeature(
         description:
           "Find shirts and designs for games, events, and everyday Gator pride.",
         label: "Shop Shirts →",
-        href: "/shirts",
+        href: "/apparel",
       },
       {
         icon: "✦",

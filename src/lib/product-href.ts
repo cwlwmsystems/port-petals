@@ -15,7 +15,7 @@ export function getProductHref(
       return `/candles/${product.slug}`;
 
     case "shirts":
-      return `/shirts/${product.slug}`;
+      return `/apparel/${product.slug}`;
 
     case "gators":
       return `/gators/${product.slug}`;
@@ -29,7 +29,7 @@ export function getProductHref(
       return `/flowers/${product.slug}`;
 
     case "apparel":
-      return `/shirts/${product.slug}`;
+      return `/apparel/${product.slug}`;
 
     case "gator-gear":
       return `/gators/${product.slug}`;

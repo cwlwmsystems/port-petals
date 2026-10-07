@@ -123,7 +123,7 @@ export default async function EditProductPage({
         : product.category === "custom"
           ? `/custom/${product.slug}`
           : product.category === "shirts"
-            ? `/shirts/${product.slug}`
+            ? `/apparel/${product.slug}`
             : product.category === "gators"
               ? `/gators/${product.slug}`
               : null;

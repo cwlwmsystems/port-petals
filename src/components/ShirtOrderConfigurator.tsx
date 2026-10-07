@@ -279,7 +279,7 @@ export default function ShirtOrderConfigurator({
         selectedVariant?.id ?? null,
       productName,
       slug: productSlug,
-      productPath: `/shirts/${productSlug}`,
+      productPath: `/apparel/${productSlug}`,
       imageUrl,
       unitPrice: selectedPrice,
       garmentType:

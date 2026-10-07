@@ -446,7 +446,7 @@ export default function SeasonalIdeasPage() {
             ["Flowers", "/flowers"],
             ["Candles", "/candles"],
             ["Custom", "/custom"],
-            ["Shirts", "/shirts"],
+            ["Shirts", "/apparel"],
             ["Gator Gear", "/gators"],
           ].map(([title, href]) => (
             <Link

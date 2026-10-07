@@ -151,7 +151,7 @@ function getProductHref(
       return `/gators/${product.slug}`;
 
     case "shirts":
-      return `/shirts/${product.slug}`;
+      return `/apparel/${product.slug}`;
 
     case "flowers":
       return `/flowers/${product.slug}`;

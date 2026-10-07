@@ -61,7 +61,7 @@ export function buildShirtProductGroupStructuredData(
   product: ShirtProductInput
 ) {
   const baseUrl = absoluteUrl(
-    `/shirts/${product.slug}`
+    `/apparel/${product.slug}`
   );
 
   const description =

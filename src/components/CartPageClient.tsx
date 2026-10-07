@@ -122,7 +122,7 @@ export default function CartPageClient() {
                     <Link
                       href={
                         item.productPath ??
-                        `/shirts/${item.slug}`
+                        `/apparel/${item.slug}`
                       }
                       aria-label={`View ${item.productName}`}
                       className="block"
@@ -146,7 +146,7 @@ export default function CartPageClient() {
                       <Link
                         href={
                           item.productPath ??
-                          `/shirts/${item.slug}`
+                          `/apparel/${item.slug}`
                         }
                         className="font-serif text-lg font-semibold leading-snug text-[#153f32] transition hover:text-[#e76d61] sm:text-xl"
                       >

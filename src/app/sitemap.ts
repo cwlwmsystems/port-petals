@@ -60,10 +60,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
 
-    /*
-     * Legacy category storefronts remain indexed because their
-     * product-detail routes are still active and customer-facing.
-     */
     {
       url: `${baseUrl}/candles`,
       changeFrequency: "weekly",
@@ -71,11 +67,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/custom`,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/shirts`,
       changeFrequency: "weekly",
       priority: 0.6,
     },
@@ -166,7 +157,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
 
     ...shirts.map((product) => ({
-      url: `${baseUrl}/shirts/${product.slug}`,
+      url: `${baseUrl}/apparel/${product.slug}`,
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),

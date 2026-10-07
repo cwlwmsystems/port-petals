@@ -246,7 +246,7 @@ function getProductHref(
       return `/candles/${product.slug}`;
 
     case "shirts":
-      return `/shirts/${product.slug}`;
+      return `/apparel/${product.slug}`;
 
     case "gators":
       return `/gators/${product.slug}`;

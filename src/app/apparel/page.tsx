@@ -7,14 +7,14 @@ import {
 } from "@/lib/apparel";
 
 export const metadata: Metadata = {
-  title: "Apparel",
+  title: "Custom Apparel & Shirts in Port Allegany, PA",
   description:
     "Shop custom shirts, hoodies, crewnecks, and personalized apparel from Port Petals in Port Allegany, Pennsylvania.",
   alternates: {
     canonical: "/apparel",
   },
   openGraph: {
-    title: "Apparel | Port Petals",
+    title: "Custom Apparel & Shirts | Port Petals",
     description:
       "Custom shirts, wearable gifts, personalized apparel, and Port Petals designs.",
     url: "/apparel",
@@ -125,7 +125,7 @@ function ApparelCard({
 
   return (
     <StoreProductCard
-      href={`/shirts/${product.slug}`}
+      href={`/apparel/${product.slug}`}
       productId={product.id}
       slug={product.slug}
       name={product.name}

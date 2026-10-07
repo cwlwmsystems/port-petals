@@ -172,7 +172,7 @@ function getProductHref(product) {
     case "candles":
       return `/candles/${product.slug}`;
     case "shirts":
-      return `/shirts/${product.slug}`;
+      return `/apparel/${product.slug}`;
     case "gators":
       return `/gators/${product.slug}`;
     case "custom":
@@ -183,7 +183,7 @@ function getProductHref(product) {
     case "flowers":
       return `/flowers/${product.slug}`;
     case "apparel":
-      return `/shirts/${product.slug}`;
+      return `/apparel/${product.slug}`;
     case "gator-gear":
       return `/gators/${product.slug}`;
     default:

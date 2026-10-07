@@ -86,7 +86,7 @@ function getProductPath(
     case "custom":
       return `/custom/${slug}`;
     case "shirts":
-      return `/shirts/${slug}`;
+      return `/apparel/${slug}`;
     case "gators":
       return `/gators/${slug}`;
     default:
