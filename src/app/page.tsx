@@ -256,7 +256,6 @@ export default function Home() {
                     src={category.image}
                     alt={category.name}
                     fill
-                    quality={60}
                     sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1279px) calc(50vw - 32px), 240px"
                     className="object-cover transition duration-500 group-hover:scale-[1.04]"
                   />
