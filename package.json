@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "deploy:prod": "bash scripts/deploy-production.sh"
+    "deploy:prod": "bash scripts/deploy-production.sh",
+    "merchant:export": "node scripts/merchant-export.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
