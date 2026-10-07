@@ -220,8 +220,9 @@ export default function SiteHeader() {
           <Image
             src="/port-petals-logo-transparent.png"
             alt="Port Petals"
-            width={190}
-            height={120}
+            width={165}
+            height={104}
+            sizes="(max-width: 639px) 118px, (max-width: 1023px) 155px, 165px"
             className="h-auto w-[118px] sm:w-[155px] lg:w-[165px]"
             priority
           />
