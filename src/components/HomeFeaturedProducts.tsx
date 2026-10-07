@@ -80,6 +80,7 @@ function HomeFeaturedProductCard({
             src={product.imageUrl}
             alt={product.imageAlt}
             fill
+            unoptimized
             sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1279px) calc(50vw - 36px), 390px"
             className="object-contain p-2 transition-transform duration-500 group-hover:scale-[1.035]"
           />
