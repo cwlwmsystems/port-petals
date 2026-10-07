@@ -162,15 +162,15 @@ export default function Home() {
       </section>
 
       {/* LOCAL FLORIST CONTEXT */}
-      <section className="border-b border-[#284239]/10 bg-[#fffaf3]">
-        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_.8fr] lg:items-center">
+      <section className="border-y border-[#284239]/10 bg-[#fffaf3]">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10 lg:py-14">
+          <div className="grid gap-8 lg:grid-cols-[1.25fr_.75fr] lg:items-end">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#e76d61]">
                 Your Local Port Allegany Florist
               </p>
 
-              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-[-0.03em] text-[#153f32] sm:text-4xl">
+              <h2 className="mt-3 max-w-4xl font-serif text-3xl font-semibold tracking-[-0.03em] text-[#153f32] sm:text-4xl">
                 Flowers, gifts, and personal touches from right here in Port Allegany.
               </h2>
 
@@ -183,27 +183,29 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3 lg:justify-end">
+            <div className="flex flex-col gap-4 lg:items-end">
               <Link
                 href="/flowers"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
+                className="inline-flex min-h-12 w-fit items-center justify-center rounded-full bg-[#e76d61] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
               >
-                Shop Fresh Flowers
+                Shop Fresh Flowers →
               </Link>
 
-              <Link
-                href="/weddings"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-6 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-              >
-                Wedding Flowers
-              </Link>
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-[#36594c]">
+                <Link
+                  href="/weddings"
+                  className="transition hover:text-[#e76d61]"
+                >
+                  Wedding Flowers →
+                </Link>
 
-              <Link
-                href="/occasions"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-6 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-              >
-                Shop by Occasion
-              </Link>
+                <Link
+                  href="/occasions"
+                  className="transition hover:text-[#e76d61]"
+                >
+                  Shop by Occasion →
+                </Link>
+              </div>
             </div>
           </div>
         </div>
