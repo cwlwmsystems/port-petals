@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "deploy:prod": "bash scripts/deploy-production.sh",
-    "merchant:export": "node scripts/merchant-export.mjs"
+    "merchant:export": "node scripts/merchant-export.mjs",
+    "merchant:validate": "node scripts/merchant-validate.mjs",
+    "merchant:check": "npm run merchant:export && npm run merchant:validate"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
