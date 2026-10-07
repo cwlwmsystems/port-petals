@@ -1,6 +1,8 @@
 import type {
   Metadata,
 } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Link from "next/link";
 import {
   occasionDefinitions,
@@ -23,9 +25,23 @@ export const metadata: Metadata = {
   },
 };
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+      {
+        name: "Home",
+        path: "/",
+      },
+      {
+        name: "Occasions",
+        path: "/occasions",
+      },
+  ]);
+
 export default function OccasionsPage() {
   return (
     <main className="min-h-screen bg-[#faf7f1] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       <section className="relative isolate overflow-hidden border-b border-[#284239]/10 bg-[linear-gradient(135deg,#f7e8e2_0%,#f8efe7_42%,#e8efe7_100%)]">
         <div className="pointer-events-none absolute -left-20 top-6 h-72 w-72 rounded-full bg-[#e76d61]/10 blur-3xl" />
         <div className="pointer-events-none absolute right-0 top-0 h-80 w-80 rounded-full bg-[#8dad91]/15 blur-3xl" />

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -38,9 +40,23 @@ const sections = [
   },
 ];
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+      {
+        name: "Home",
+        path: "/",
+      },
+      {
+        name: "Journal",
+        path: "/journal",
+      },
+  ]);
+
 export default function JournalPage() {
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,#f7eadc_0%,#faefe5_48%,#edf3e7_100%)]" />
         <div className="absolute -left-20 top-10 -z-10 h-72 w-72 rounded-full bg-[#efa99f]/35 blur-[90px]" />

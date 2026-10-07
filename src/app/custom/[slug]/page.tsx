@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import { buildProductStructuredData } from "@/lib/seo/product";
 import JsonLd from "@/components/JsonLd";
 import Link from "next/link";
@@ -136,6 +137,22 @@ export default async function CustomItemPage({
       }
     );
 
+  const breadcrumbStructuredData =
+    buildBreadcrumbStructuredData([
+      {
+        name: "Home",
+        path: "/",
+      },
+      {
+        name: "Custom Items",
+        path: "/custom",
+      },
+      {
+        name: product.name,
+        path: `/custom/${product.slug}`,
+      },
+    ]);
+
   const startingPrice = getStartingPrice(
     product.base_price,
     product.variants
@@ -213,6 +230,7 @@ export default async function CustomItemPage({
   return (
     <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
       <JsonLd data={productStructuredData} />
+      <JsonLd data={breadcrumbStructuredData} />
       {/* BREADCRUMB */}
       <section className="mx-auto max-w-7xl px-5 pt-7 sm:px-8 lg:px-10">
         <nav

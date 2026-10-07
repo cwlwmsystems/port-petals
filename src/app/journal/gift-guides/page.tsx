@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -53,9 +55,27 @@ const occasionCards = [
   },
 ];
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+      {
+        name: "Home",
+        path: "/",
+      },
+      {
+        name: "Journal",
+        path: "/journal",
+      },
+      {
+        name: "Gift Guides",
+        path: "/journal/gift-guides",
+      },
+  ]);
+
 export default function GiftGuidesPage() {
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,#f7eadc_0%,#faefe5_48%,#edf3e7_100%)]" />

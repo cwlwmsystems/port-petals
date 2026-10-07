@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Image from "next/image";
 import Link from "next/link";
 import WeddingInquiryForm from "@/components/WeddingInquiryForm";
@@ -477,6 +479,19 @@ function WeddingProductCard({
   );
 }
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+      {
+        name: "Home",
+        path: "/",
+      },
+      {
+        name: "Weddings",
+        path: "/weddings",
+      },
+  ]);
+
 export default async function WeddingsPage() {
   const products =
     await getPublishedWeddingProducts();
@@ -495,6 +510,7 @@ export default async function WeddingsPage() {
 
   return (
     <main className="min-h-screen bg-[#faf7f1] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       {/* HERO */}
       <section className="relative isolate overflow-hidden border-b border-[#284239]/10 bg-[linear-gradient(135deg,#f7eee9_0%,#f2e6e4_35%,#edf1e8_72%,#faf7f1_100%)]">
         <div className="pointer-events-none absolute -left-20 top-10 h-72 w-72 rounded-full bg-[#e7c4c1]/20 blur-3xl" />

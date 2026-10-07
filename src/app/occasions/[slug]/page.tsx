@@ -1,6 +1,8 @@
 import type {
   Metadata,
 } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Link from "next/link";
 import {
   notFound,
@@ -282,6 +284,22 @@ export default async function OccasionPage({
     notFound();
   }
 
+  const breadcrumbStructuredData =
+    buildBreadcrumbStructuredData([
+      {
+        name: "Home",
+        path: "/",
+      },
+      {
+        name: "Occasions",
+        path: "/occasions",
+      },
+      {
+        name: occasion.label,
+        path: `/occasions/${occasion.slug}`,
+      },
+    ]);
+
   const darkHero =
     occasion.slug ===
       "homecoming-prom" ||
@@ -314,6 +332,7 @@ export default async function OccasionPage({
 
   return (
     <main className="min-h-screen bg-[#faf7f1] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       <section
         className={`relative isolate overflow-hidden border-b border-[#284239]/10 ${occasion.heroClass}`}
       >

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -7,9 +9,27 @@ export const metadata: Metadata = {
     "Port Petals shop updates, seasonal collections, new products, local events, and Port Allegany Gator gear news.",
 };
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+      {
+        name: "Home",
+        path: "/",
+      },
+      {
+        name: "Journal",
+        path: "/journal",
+      },
+      {
+        name: "Shop News",
+        path: "/journal/shop-news",
+      },
+  ]);
+
 export default function ShopNewsPage() {
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       <section className="border-b border-[#284239]/10 bg-[#f1e8dc]">
         <div className="mx-auto max-w-5xl px-5 py-16 sm:px-8 lg:px-10">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#36594c]">
