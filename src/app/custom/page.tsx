@@ -6,18 +6,20 @@ import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
+  title:
+    "Custom & Personalized Gifts in Port Allegany, PA",
+  description:
+    "Shop custom and personalized gifts from Port Petals in Port Allegany, PA, including sports designs, signs, tumblers, seasonal decor, woodcrafts, and made-to-order creations.",
   alternates: {
     canonical: "/custom",
   },
   openGraph: {
-    title: "Custom Items",
+    title:
+      "Custom & Personalized Gifts | Port Petals",
     description:
-      "Browse personalized gifts, sports designs, seasonal decor, tumblers, woodcrafts, and custom items from Port Petals in Port Allegany, Pennsylvania.",
+      "Personalized gifts, sports designs, signs, tumblers, woodcrafts, seasonal decor, and custom creations from Port Petals in Port Allegany.",
     url: "/custom",
   },
-  title: "Custom Items",
-  description:
-    "Browse personalized gifts, sports designs, seasonal decor, tumblers, woodcrafts, and custom items from Port Petals in Port Allegany, Pennsylvania.",
 };
 
 function getStartingPrice(
@@ -248,6 +250,40 @@ export default async function CustomItemsPage() {
                 sizes="(max-width: 1023px) 100vw, 45vw"
                 className="object-cover"
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* LOCAL CUSTOM GIFT CONTEXT */}
+      <section className="border-b border-[#284239]/10 bg-[#fffaf3]">
+        <div className="mx-auto max-w-7xl px-5 py-9 sm:px-8 lg:px-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+            Personalized in Port Allegany
+          </p>
+
+          <div className="mt-3 grid gap-6 lg:grid-cols-[1.2fr_.8fr] lg:items-center">
+            <p className="max-w-3xl leading-7 text-[#607068]">
+              Port Petals creates personalized and made-to-order gifts for
+              names, teams, school events, holidays, celebrations, homes, and
+              other special ideas. Browse current custom items or send a
+              request when you need something more specific.
+            </p>
+
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link
+                href="/custom/request"
+                className="rounded-full bg-[#e76d61] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
+              >
+                Request a Custom Item
+              </Link>
+
+              <Link
+                href="/gifts"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Browse Gifts
+              </Link>
             </div>
           </div>
         </div>

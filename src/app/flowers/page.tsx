@@ -6,18 +6,20 @@ import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
+  title:
+    "Flower Delivery & Fresh Flowers in Port Allegany, PA",
+  description:
+    "Order fresh flowers, bouquets, seasonal arrangements, birthday flowers, sympathy flowers, and Prom or Homecoming flowers from Port Petals in Port Allegany, PA. Pickup and eligible local delivery are available.",
   alternates: {
     canonical: "/flowers",
   },
   openGraph: {
-    title: "Fresh Flowers",
+    title:
+      "Flower Delivery & Fresh Flowers | Port Petals",
     description:
-      "Shop fresh flowers, seasonal arrangements, bouquets, and Homecoming and Prom flowers from Port Petals in Port Allegany, Pennsylvania.",
+      "Fresh bouquets, arrangements, sympathy flowers, celebration flowers, and Prom or Homecoming flowers from Port Petals in Port Allegany, Pennsylvania.",
     url: "/flowers",
   },
-  title: "Fresh Flowers",
-  description:
-    "Shop fresh flower arrangements, bouquets, seasonal flowers, and prom or homecoming flowers from Port Petals in Port Allegany, Pennsylvania.",
 };
 
 function getStartingPrice(
@@ -237,6 +239,54 @@ export default async function FlowersPage() {
                 sizes="(max-width: 1023px) 100vw, 45vw"
                 className="object-cover"
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* LOCAL FLOWER DELIVERY CONTEXT */}
+      <section className="border-b border-[#284239]/10 bg-[#fffaf3]">
+        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
+          <div className="grid gap-7 lg:grid-cols-[1.15fr_.85fr] lg:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+                Flowers in Port Allegany
+              </p>
+
+              <h2 className="mt-3 font-serif text-3xl font-semibold text-[#153f32]">
+                Fresh flowers for celebrations, comfort, and everyday moments.
+              </h2>
+
+              <p className="mt-4 max-w-3xl leading-7 text-[#607068]">
+                Port Petals creates fresh flower arrangements and bouquets in
+                Port Allegany for birthdays, anniversaries, congratulations,
+                sympathy, Prom, Homecoming, and everyday gifting. Local pickup
+                is available, with eligible local flower delivery offered based
+                on the destination.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link
+                href="/occasions"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Flowers by Occasion
+              </Link>
+
+              <Link
+                href="/weddings"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Wedding Flowers
+              </Link>
+
+              <Link
+                href="/fulfillment"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Pickup & Delivery
+              </Link>
             </div>
           </div>
         </div>

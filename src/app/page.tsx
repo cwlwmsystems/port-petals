@@ -6,8 +6,19 @@ import NewWebsiteNotice from "@/components/NewWebsiteNotice";
 import HomeFeaturedProducts from "@/components/HomeFeaturedProducts";
 
 export const metadata: Metadata = {
+  title:
+    "Florist & Flower Shop in Port Allegany, PA",
+  description:
+    "Shop fresh flowers, gifts, custom creations, apparel, seasonal favorites, and Port Allegany Gator gear from Port Petals. Local pickup and eligible flower delivery are available in the Port Allegany area.",
   alternates: {
     canonical: "/",
+  },
+  openGraph: {
+    title:
+      "Port Petals | Florist & Flower Shop in Port Allegany, PA",
+    description:
+      "Fresh flowers, gifts, personalized creations, apparel, and hometown favorites from Port Petals in Port Allegany, Pennsylvania.",
+    url: "/",
   },
 };
 
@@ -147,6 +158,54 @@ export default function Home() {
               "polygon(0 54%, 8% 66%, 18% 75%, 29% 72%, 40% 60%, 51% 49%, 63% 51%, 75% 64%, 88% 75%, 100% 69%, 100% 80%, 88% 86%, 75% 76%, 63% 63%, 51% 61%, 40% 72%, 29% 84%, 18% 87%, 8% 78%, 0 66%)",
           }}
         />
+      </section>
+
+      {/* LOCAL FLORIST CONTEXT */}
+      <section className="border-b border-[#284239]/10 bg-[#fffaf3]">
+        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_.8fr] lg:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#e76d61]">
+                Your Local Port Allegany Florist
+              </p>
+
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-[-0.03em] text-[#153f32] sm:text-4xl">
+                Flowers, gifts, and personal touches from right here in Port Allegany.
+              </h2>
+
+              <p className="mt-4 max-w-3xl leading-7 text-[#607068]">
+                Port Petals is a local flower and gift shop serving Port
+                Allegany with fresh floral arrangements, thoughtful gifts,
+                custom creations, wedding flowers, seasonal favorites, and
+                hometown Gator gear. Order online for pickup or choose eligible
+                local delivery when available.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link
+                href="/flowers"
+                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
+              >
+                Shop Fresh Flowers
+              </Link>
+
+              <Link
+                href="/weddings"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-6 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Wedding Flowers
+              </Link>
+
+              <Link
+                href="/occasions"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-6 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Shop by Occasion
+              </Link>
+            </div>
+          </div>
+        </div>
       </section>
 
       <SeasonalCallout />

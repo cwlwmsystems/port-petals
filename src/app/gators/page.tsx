@@ -6,18 +6,20 @@ import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
+  title:
+    "Port Allegany Gator Gear, Apparel & Gifts",
+  description:
+    "Shop Port Allegany Gator gear, apparel, accessories, personalized player gifts, school-spirit items, and hometown favorites from Port Petals.",
   alternates: {
     canonical: "/gators",
   },
   openGraph: {
-    title: "Gator Gear",
+    title:
+      "Port Allegany Gator Gear | Port Petals",
     description:
-      "Shop Port Allegany Gator gear, sports gifts, apparel, personalized items, and hometown favorites from Port Petals.",
+      "Shop Gator apparel, personalized player gear, accessories, school-spirit gifts, and hometown favorites from Port Petals.",
     url: "/gators",
   },
-  title: "Gator Gear",
-  description:
-    "Shop Port Allegany Gator gear, apparel, accessories, and personalized gifts from Port Petals in Port Allegany, Pennsylvania.",
 };
 
 function getStartingPrice(
@@ -225,6 +227,41 @@ export default async function GatorsPage() {
               <span>✓ Port Allegany pride</span>
               <span>✓ Personalized options available</span>
               <span>✓ Pickup & local delivery</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* LOCAL GATOR GEAR CONTEXT */}
+      <section className="border-b border-[#284239]/10 bg-[#fffaf3] text-[#284239]">
+        <div className="mx-auto max-w-7xl px-5 py-9 sm:px-8 lg:px-10">
+          <div className="grid gap-6 lg:grid-cols-[1.2fr_.8fr] lg:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76500]">
+                Port Allegany School Spirit
+              </p>
+
+              <p className="mt-3 max-w-3xl leading-7 text-[#607068]">
+                Shop local Port Allegany Gator apparel, player-personalized
+                items, accessories, school-spirit gifts, and seasonal gear for
+                students, athletes, families, alumni, and fans.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link
+                href="/custom"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#ff7315]/50 hover:text-[#e76500]"
+              >
+                Personalized Items
+              </Link>
+
+              <Link
+                href="/seasonal"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#ff7315]/50 hover:text-[#e76500]"
+              >
+                Seasonal Favorites
+              </Link>
             </div>
           </div>
         </div>

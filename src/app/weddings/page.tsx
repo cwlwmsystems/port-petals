@@ -11,17 +11,18 @@ import {
 } from "@/lib/weddings";
 
 export const metadata: Metadata = {
-  title: "Wedding Flowers & Event Florals",
+  title:
+    "Wedding Florist & Wedding Flowers in Port Allegany, PA",
   description:
-    "Plan wedding flowers with Port Petals in Port Allegany, Pennsylvania. Explore bridal bouquets, ceremony florals, centerpieces, reception flowers, wedding-party flowers, and custom floral consultations.",
+    "Plan wedding flowers with Port Petals, a local florist in Port Allegany, PA. Explore bridal bouquets, ceremony flowers, centerpieces, reception florals, wedding-party flowers, and custom floral consultations.",
   alternates: {
     canonical: "/weddings",
   },
   openGraph: {
     title:
-      "Wedding Flowers & Events | Port Petals",
+      "Wedding Florist & Wedding Flowers | Port Petals",
     description:
-      "Wedding floral planning, bridal bouquets, ceremony flowers, reception florals, centerpieces, and custom consultations from Port Petals.",
+      "Wedding bouquets, ceremony flowers, reception florals, centerpieces, wedding-party flowers, and custom floral planning from Port Petals in Port Allegany.",
     url: "/weddings",
   },
 };
@@ -599,6 +600,46 @@ export default async function WeddingsPage() {
                   </div>
                 )
               )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* LOCAL WEDDING FLORIST CONTEXT */}
+      <section className="border-b border-[#284239]/10 bg-[#fffaf3]">
+        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
+          <div className="max-w-4xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+              Wedding Florist • Port Allegany
+            </p>
+
+            <h2 className="mt-3 font-serif text-3xl font-semibold text-[#153f32] sm:text-4xl">
+              Local wedding flowers planned around your day.
+            </h2>
+
+            <p className="mt-4 leading-7 text-[#607068]">
+              Port Petals works with couples planning wedding flowers in and
+              around Port Allegany, from bridal and bridesmaid bouquets to
+              boutonnieres, corsages, ceremony flowers, centerpieces, reception
+              florals, and statement installations. Every wedding begins with
+              the actual venue, color palette, priorities, quantities, and
+              floral budget rather than a one-size-fits-all package.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/flowers"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Browse Fresh Flowers
+              </Link>
+
+              <Link
+                href="/occasions"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Other Occasions
+              </Link>
             </div>
           </div>
         </div>

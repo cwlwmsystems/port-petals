@@ -9,18 +9,19 @@ import {
 } from "@/lib/occasions";
 
 export const metadata: Metadata = {
-  title: "Shop by Occasion",
+  title:
+    "Flowers & Gifts for Every Occasion in Port Allegany",
   description:
-    "Shop flowers, gifts, apparel, seasonal favorites, and Port Allegany Gator gear by occasion at Port Petals.",
+    "Find flowers and gifts for birthdays, anniversaries, sympathy, congratulations, Prom, Homecoming, graduation, holidays, and other special occasions at Port Petals.",
   alternates: {
     canonical:
       "/occasions",
   },
   openGraph: {
     title:
-      "Shop by Occasion | Port Petals",
+      "Flowers & Gifts for Every Occasion | Port Petals",
     description:
-      "Find flowers, gifts, personalized items, apparel, and local favorites for life's special moments.",
+      "Shop flowers, personalized gifts, apparel, seasonal favorites, and local Port Allegany finds for life's special moments.",
     url: "/occasions",
   },
 };

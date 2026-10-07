@@ -7,16 +7,18 @@ import {
 } from "@/lib/gifts";
 
 export const metadata: Metadata = {
-  title: "Gifts & Decor",
+  title:
+    "Gifts & Personalized Gifts in Port Allegany, PA",
   description:
-    "Shop candles, wax melts, personalized gifts, slates, wood signs, mugs, gift sets, and handmade decor from Port Petals in Port Allegany, Pennsylvania.",
+    "Shop candles, personalized gifts, mugs, gift sets, slates, wood signs, and handmade decor from Port Petals in Port Allegany, Pennsylvania.",
   alternates: {
     canonical: "/gifts",
   },
   openGraph: {
-    title: "Gifts & Decor | Port Petals",
+    title:
+      "Gifts & Personalized Gifts | Port Petals",
     description:
-      "Candles, personalized gifts, home decor, mugs, slates, signs, and thoughtful handmade creations from Port Petals.",
+      "Shop thoughtful gifts, candles, personalized pieces, mugs, signs, gift sets, and handmade decor from Port Petals in Port Allegany.",
     url: "/gifts",
   },
 };
@@ -368,6 +370,40 @@ export default async function GiftsPage() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* LOCAL GIFT SHOP CONTEXT */}
+      <section className="border-b border-[#284239]/10 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-9 sm:px-8 lg:px-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+            Gifts in Port Allegany
+          </p>
+
+          <div className="mt-3 grid gap-6 lg:grid-cols-[1.2fr_.8fr] lg:items-center">
+            <p className="max-w-3xl leading-7 text-[#607068]">
+              Looking for a thoughtful local gift? Port Petals offers candles,
+              personalized gifts, mugs, signs, gift sets, decor, and handmade
+              creations for birthdays, thank-yous, celebrations, holidays, and
+              everyday surprises.
+            </p>
+
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link
+                href="/custom"
+                className="rounded-full border border-[#284239]/15 px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Personalized Gifts
+              </Link>
+
+              <Link
+                href="/occasions"
+                className="rounded-full border border-[#284239]/15 px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Gifts by Occasion
+              </Link>
             </div>
           </div>
         </div>
