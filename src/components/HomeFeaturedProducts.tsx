@@ -161,7 +161,7 @@ export default async function HomeFeaturedProducts() {
       id: product.id,
       slug: product.slug,
       name: product.name,
-      categoryPath: "shirts",
+      categoryPath: "apparel",
       shortDescription: product.short_description,
       imageUrl:
         product.images[0]?.publicUrl ??
