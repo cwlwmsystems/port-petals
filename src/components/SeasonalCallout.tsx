@@ -1,8 +1,5 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 type SeasonalFeature = {
   eyebrow: string;
@@ -638,22 +635,13 @@ function getSeasonalFeature(
 }
 
 export default function SeasonalCallout() {
-  const [feature, setFeature] =
-    useState<SeasonalFeature | null>(null);
+  const easternDate =
+    getEasternDate();
 
-  const [easternDate, setEasternDate] =
-    useState<EasternDate | null>(null);
-
-  useEffect(() => {
-    const date = getEasternDate();
-
-    setEasternDate(date);
-    setFeature(getSeasonalFeature(date));
-  }, []);
-
-  if (!feature || !easternDate) {
-    return null;
-  }
+  const feature =
+    getSeasonalFeature(
+      easternDate
+    );
 
   const isOctober =
     easternDate.month === 10;
