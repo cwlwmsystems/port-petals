@@ -458,7 +458,11 @@ for (const product of products ?? []) {
     expiration_date: "",
 
     link:
-      `${SITE_URL}${getProductHref(product)}`,
+      isShirt && variant
+        ? `${SITE_URL}${getProductHref(product)}?variant=${encodeURIComponent(
+            variant.id
+          )}`
+        : `${SITE_URL}${getProductHref(product)}`,
 
     mobile_link: "",
 
