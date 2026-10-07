@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import { buildProductStructuredData } from "@/lib/seo/product";
+import { buildShirtProductGroupStructuredData } from "@/lib/seo/product-variants";
 import JsonLd from "@/components/JsonLd";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,6 +18,10 @@ import StickyProductCTA from "@/components/StickyProductCTA";
 type ShirtPageProps = {
   params: Promise<{
     slug: string;
+  }>;
+
+  searchParams?: Promise<{
+    variant?: string | string[];
   }>;
 };
 
@@ -123,8 +128,21 @@ export async function generateMetadata({
 
 export default async function ShirtPage({
   params,
+  searchParams,
 }: ShirtPageProps) {
   const { slug } = await params;
+
+  const resolvedSearchParams =
+    searchParams
+      ? await searchParams
+      : {};
+
+  const requestedVariantId =
+    Array.isArray(
+      resolvedSearchParams.variant
+    )
+      ? resolvedSearchParams.variant[0]
+      : resolvedSearchParams.variant;
 
   const [product, allShirts] =
     await Promise.all([
@@ -143,6 +161,11 @@ export default async function ShirtPage({
         pathname:
           `/shirts/${product.slug}`,
       }
+    );
+
+  const productGroupStructuredData =
+    buildShirtProductGroupStructuredData(
+      product
     );
 
   const breadcrumbStructuredData =
@@ -188,6 +211,18 @@ export default async function ShirtPage({
       trackInventory:
         variant.track_inventory,
     }));
+
+  const requestedVariant =
+    requestedVariantId
+      ? shirtVariants.find(
+          (variant) =>
+            variant.id ===
+            requestedVariantId
+        )
+      : undefined;
+
+  const initialVariantId =
+    requestedVariant?.id;
 
   const trackedVariantQuantity =
     product.variants
@@ -242,6 +277,7 @@ export default async function ShirtPage({
   return (
     <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
       <JsonLd data={productStructuredData} />
+      <JsonLd data={productGroupStructuredData} />
       <JsonLd data={breadcrumbStructuredData} />
       {/* BREADCRUMB */}
       <section className="mx-auto max-w-7xl px-5 pt-7 sm:px-8 lg:px-10">
@@ -440,6 +476,9 @@ export default async function ShirtPage({
                   product.track_inventory
                 }
                 variants={shirtVariants}
+                initialVariantId={
+                  initialVariantId
+                }
                 presetDesign={presetDesign}
                 personalizable={
                   product.customizable

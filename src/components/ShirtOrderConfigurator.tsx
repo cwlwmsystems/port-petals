@@ -24,6 +24,7 @@ type ShirtOrderConfiguratorProps = {
   baseQuantity: number | null;
   baseTrackInventory: boolean;
   variants: ShirtVariantOption[];
+  initialVariantId?: string;
   presetDesign: boolean;
   personalizable: boolean;
   pickupAvailable: boolean;
@@ -69,6 +70,7 @@ export default function ShirtOrderConfigurator({
   baseQuantity,
   baseTrackInventory,
   variants,
+  initialVariantId,
   presetDesign,
   personalizable,
   pickupAvailable,
@@ -82,13 +84,21 @@ export default function ShirtOrderConfigurator({
     (variant) => variant.garmentType
   );
 
-  const firstVariant = variants[0];
+  const firstVariant =
+    variants.find(
+      (variant) =>
+        variant.id ===
+        initialVariantId
+    ) ??
+    variants[0];
 
   const [selectedVariantId, setSelectedVariantId] =
     useState(firstVariant?.id ?? "");
 
   const [selectedGarmentType, setSelectedGarmentType] =
-    useState(firstVariant?.garmentType ?? "");
+    useState(
+      firstVariant?.garmentType ?? ""
+    );
 
   const [selectedColor, setSelectedColor] =
     useState(firstVariant?.color ?? "");
