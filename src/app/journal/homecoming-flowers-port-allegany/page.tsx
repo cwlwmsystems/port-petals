@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
+import JournalFeatureLayout, {
+  FeatureChecklist,
+  FeatureComparison,
+  FeatureIntro,
+  FeaturePullQuote,
+  FeatureSection,
+  FeatureTimeline,
+} from "@/components/journal/JournalFeatureLayout";
 import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 
 const canonicalPath =
@@ -27,7 +34,8 @@ export const metadata: Metadata = {
     url: canonicalPath,
     images: [
       {
-        url: "/journal/seasonal/autumn.jpg",
+        url:
+          "/journal/seasonal/autumn.jpg",
         alt:
           "Fall and Homecoming inspiration from Port Petals in Port Allegany",
       },
@@ -63,6 +71,8 @@ const articleStructuredData = {
     "@type": "WebPage",
     "@id": canonicalUrl,
   },
+  datePublished: "2026-10-07",
+  dateModified: "2026-10-07",
   author: {
     "@type": "Organization",
     name: "Port Petals",
@@ -78,32 +88,55 @@ const articleStructuredData = {
   url: canonicalUrl,
 };
 
-const planningSteps = [
+const guideItems = [
+  {
+    label: "What to order",
+    href: "#what-to-order",
+  },
+  {
+    label: "Corsage vs. boutonniere",
+    href: "#corsage-or-boutonniere",
+  },
+  {
+    label: "Choosing colors",
+    href: "#choosing-colors",
+  },
+  {
+    label: "When to order",
+    href: "#when-to-order",
+  },
+  {
+    label: "Local Homecoming flowers",
+    href: "#local-homecoming",
+  },
+];
+
+const timeline = [
   {
     title: "Choose the flower type",
     text:
-      "Decide whether you need a wrist corsage, boutonniere, bouquet, or another floral piece for the event.",
+      "Decide whether you need a wrist corsage, boutonniere, bouquet, matching set, or another floral piece.",
   },
   {
-    title: "Know the colors",
+    title: "Gather the colors",
     text:
-      "Dress colors, suit or shirt colors, school colors, and personal preferences can all help guide the flower and ribbon choices.",
+      "A dress photo, suit or shirt color, ribbon preference, and school colors can all help shape the design.",
   },
   {
-    title: "Coordinate when you want to",
+    title: "Share the important details",
     text:
-      "Matching does not have to mean identical. Coordinating colors, flowers, ribbon, or accent details can create a polished look without making every piece the same.",
+      "Mention colors you especially want, colors you want to avoid, and whether you want the pieces to coordinate.",
   },
   {
-    title: "Order before the last minute",
+    title: "Place the order early",
     text:
-      "Homecoming is a busy floral period. Ordering ahead gives Port Petals more time to plan the design and work with the available flowers and requested colors.",
+      "Homecoming demand is concentrated around one weekend, so earlier orders provide more planning flexibility.",
   },
 ];
 
 export default function HomecomingFlowersArticlePage() {
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+    <>
       <JsonLd
         data={breadcrumbStructuredData}
       />
@@ -112,75 +145,50 @@ export default function HomecomingFlowersArticlePage() {
         data={articleStructuredData}
       />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-[#284239]/10">
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(110deg,#f7eadc_0%,#faefe5_45%,#edf3e7_100%)]" />
+      <JournalFeatureLayout
+        category="Homecoming"
+        title="Homecoming flowers in Port Allegany"
+        introduction="Corsages, boutonnieres, color coordination, and what to know before you order for the big night."
+        imageSrc="/journal/seasonal/autumn.jpg"
+        imageAlt="Homecoming and fall flower inspiration from Port Petals in Port Allegany"
+        publishedDate="October 7, 2026"
+        readingTime="6 min read"
+        guideItems={guideItems}
+        relatedArticles={[
+          {
+            eyebrow: "Sympathy Guide",
+            title:
+              "Sympathy flowers in Port Allegany",
+            description:
+              "What to send, how to choose an arrangement, and how to keep the gesture thoughtful.",
+            href:
+              "/journal/sympathy-flowers-port-allegany",
+          },
+          {
+            eyebrow: "Seasonal Inspiration",
+            title:
+              "Seasonal ideas from Port Petals",
+            description:
+              "Flowers, gifts, school spirit, celebrations and inspiration throughout the year.",
+            href:
+              "/journal/seasonal-ideas",
+          },
+        ]}
+      >
+        <FeatureIntro>
+          Homecoming has a way of making the small
+          details feel important. Flowers are one
+          of those details: visible enough to
+          complete the look, personal enough to
+          carry a little meaning, and simple enough
+          to plan well when you know what to bring.
+        </FeatureIntro>
 
-        <div className="absolute -left-20 top-10 -z-10 h-72 w-72 rounded-full bg-[#efa99f]/30 blur-[90px]" />
-
-        <div className="absolute -right-20 bottom-0 -z-10 h-80 w-80 rounded-full bg-[#c9e2ba]/40 blur-[100px]" />
-
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-10 lg:py-20">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#e76d61]">
-              Port Petals Journal · Homecoming
-            </p>
-
-            <h1 className="mt-4 max-w-4xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
-              Homecoming flowers in Port Allegany:
-              corsages, boutonnieres & ordering tips
-            </h1>
-
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#52655d]">
-              Homecoming flowers are a small detail
-              that can pull the entire look together.
-              Whether you need a corsage,
-              boutonniere, matching set, or another
-              floral piece, a little planning makes
-              ordering much easier.
-            </p>
-
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                href="/occasions/homecoming-prom"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#d85b50]"
-              >
-                Shop Homecoming Flowers
-              </Link>
-
-              <Link
-                href="/flowers"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#284239]/15 bg-white px-6 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-              >
-                Browse Fresh Flowers
-              </Link>
-            </div>
-          </div>
-
-          <div className="relative min-h-[340px] overflow-hidden rounded-[2rem] border border-white/70 shadow-[0_20px_55px_rgba(42,66,57,0.12)] sm:min-h-[440px]">
-            <Image
-              src="/journal/seasonal/autumn.jpg"
-              alt="Homecoming and fall flower inspiration from Port Petals in Port Allegany"
-              fill
-              priority
-              sizes="(max-width: 1023px) 100vw, 45vw"
-              className="object-cover"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* INTRODUCTION */}
-      <section className="mx-auto max-w-5xl px-5 py-14 sm:px-8 lg:px-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-          Planning Your Flowers
-        </p>
-
-        <h2 className="mt-3 font-serif text-4xl font-semibold tracking-[-0.03em] text-[#153f32]">
-          What should you order for Homecoming?
-        </h2>
-
-        <div className="mt-6 space-y-5 text-base leading-8 text-[#607068]">
+        <FeatureSection
+          id="what-to-order"
+          eyebrow="Planning Your Flowers"
+          title="What should you order for Homecoming?"
+        >
           <p>
             The most familiar Homecoming flower
             choices are wrist corsages and
@@ -191,279 +199,160 @@ export default function HomecomingFlowersArticlePage() {
           </p>
 
           <p>
-            The right choice depends on the outfit,
-            personal preference, and the look you
-            want. Some people coordinate a corsage
-            and boutonniere as a pair, while others
-            choose flowers independently based on
-            each person&apos;s colors and style.
+            Some couples coordinate the two pieces
+            closely. Others simply use a shared
+            color, ribbon, flower, or accent so the
+            designs feel connected without being
+            identical.
           </p>
 
           <p>
-            Port Petals can help customers in Port
-            Allegany plan Homecoming flowers around
-            available flower selections, outfit
-            colors, ribbon, and the overall feel of
-            the event.
+            The best choice depends on the outfit,
+            personal preference, available flowers,
+            and the overall look you want for the
+            evening.
           </p>
-        </div>
-      </section>
+        </FeatureSection>
 
-      {/* CORSAGE VS BOUTONNIERE */}
-      <section className="bg-[#fffaf3]">
-        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#36594c]">
-            Corsage or Boutonniere?
+        <FeatureSection
+          id="corsage-or-boutonniere"
+          eyebrow="The Classics"
+          title="Corsage or boutonniere?"
+        >
+          <FeatureComparison
+            leftTitle="Wrist Corsage"
+            leftText="A floral piece worn on the wrist. Corsages can incorporate flowers, greenery, ribbon, texture, and accent colors that complement the dress or overall palette."
+            rightTitle="Boutonniere"
+            rightText="A smaller floral piece worn on the upper garment. Boutonnieres can coordinate with a corsage while still keeping their own simpler, more tailored design."
+          />
+
+          <p>
+            Neither piece has to match the other
+            perfectly. In fact, coordinating rather
+            than copying often creates a more
+            polished result.
+          </p>
+        </FeatureSection>
+
+        <FeaturePullQuote>
+          Matching does not have to mean identical.
+          A shared color or detail can be enough to
+          tie the whole look together.
+        </FeaturePullQuote>
+
+        <FeatureSection
+          id="choosing-colors"
+          eyebrow="Color & Coordination"
+          title="Bring the colors you are working with"
+        >
+          <p>
+            Knowing the outfit colors is one of the
+            most useful parts of planning Homecoming
+            flowers. A phone photo is often more
+            helpful than trying to describe a very
+            specific shade from memory.
           </p>
 
-          <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-            Two traditional Homecoming choices.
-          </h2>
+          <p>
+            Flowers do not always need to match the
+            clothing exactly. Neutral blooms,
+            complementary tones, ribbon, greenery,
+            and accent colors can create a more
+            balanced finished piece.
+          </p>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            <article className="rounded-[1.8rem] border border-[#284239]/10 bg-white p-7 shadow-sm">
-              <h3 className="font-serif text-3xl font-semibold text-[#153f32]">
-                Wrist Corsages
+          <FeatureChecklist
+            eyebrow="Before You Order"
+            title="Bring these details with you"
+            items={[
+              "A photo or clear description of the dress or outfit colors.",
+              "Suit, shirt, tie, or jacket colors if you are coordinating a boutonniere.",
+              "Any flower or ribbon colors you especially want — or want to avoid.",
+              "School-spirit details, personal preferences, or other accents you would like considered.",
+            ]}
+          />
+        </FeatureSection>
+
+        <FeatureSection
+          id="when-to-order"
+          eyebrow="Plan Ahead"
+          title="When should you order Homecoming flowers?"
+        >
+          <p>
+            Homecoming demand is concentrated around
+            a specific weekend. Ordering ahead gives
+            Port Petals more time to plan the design
+            and work with the flowers and colors
+            available for the event.
+          </p>
+
+          <FeatureTimeline
+            items={timeline}
+          />
+
+          <p>
+            Last-minute orders may still be possible,
+            but earlier planning gives you the most
+            flexibility.
+          </p>
+        </FeatureSection>
+
+        <FeatureSection
+          id="local-homecoming"
+          eyebrow="Here in Port Allegany"
+          title="Homecoming flowers with a little hometown pride"
+        >
+          <p>
+            Port Petals serves Port Allegany with
+            fresh flowers, custom creations, apparel,
+            gifts, and hometown Gator gear. During
+            Homecoming season, those pieces naturally
+            overlap.
+          </p>
+
+          <p>
+            Flowers can coordinate with school
+            colors, while Gator apparel or a
+            personalized item can carry the
+            celebration beyond the dance itself.
+          </p>
+
+          <div className="mt-9 overflow-hidden rounded-[2rem] bg-[#153f32] text-[#fffaf3]">
+            <div className="p-7 sm:p-9">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#a8e69a]">
+                Ready for Homecoming?
+              </p>
+
+              <h3 className="mt-3 max-w-2xl font-serif text-3xl font-semibold leading-tight sm:text-4xl">
+                Flowers for the night.
+                Gator pride for everything around it.
               </h3>
 
-              <p className="mt-4 leading-7 text-[#607068]">
-                Wrist corsages are designed to be
-                worn comfortably while still adding
-                flowers and color to the outfit.
-                Flower selection, ribbon, and accents
-                can be coordinated with the dress or
-                overall color palette.
+              <p className="mt-4 max-w-2xl leading-7 text-white/70">
+                Browse current Homecoming flower
+                options or add a little Port Allegany
+                spirit with hometown gear.
               </p>
-            </article>
 
-            <article className="rounded-[1.8rem] border border-[#284239]/10 bg-white p-7 shadow-sm">
-              <h3 className="font-serif text-3xl font-semibold text-[#153f32]">
-                Boutonnieres
-              </h3>
-
-              <p className="mt-4 leading-7 text-[#607068]">
-                Boutonnieres are compact floral
-                pieces typically worn on the upper
-                garment. They can coordinate with a
-                corsage or use complementary flowers,
-                greenery, and colors.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      {/* COLOR PLANNING */}
-      <section className="mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:px-10">
-        <div className="grid gap-9 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-              Colors & Coordination
-            </p>
-
-            <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-              Bring the colors you are working with.
-            </h2>
-
-            <p className="mt-5 leading-7 text-[#607068]">
-              Knowing the outfit colors is one of
-              the most useful parts of planning
-              Homecoming flowers. A photo, color
-              reference, or simple description can
-              help guide the design.
-            </p>
-
-            <p className="mt-4 leading-7 text-[#607068]">
-              Flowers do not always need to match the
-              clothing exactly. Neutral flowers,
-              complementary tones, ribbon, greenery,
-              and accent colors can often create a
-              more balanced finished piece.
-            </p>
-          </div>
-
-          <div className="grid gap-4">
-            {[
-              [
-                "Dress or outfit color",
-                "Bring a photo or describe the main colors as accurately as possible.",
-              ],
-              [
-                "Suit, shirt, or tie color",
-                "These details can help coordinate a boutonniere with the rest of the look.",
-              ],
-              [
-                "Preferred flower colors",
-                "If there is a color you especially want—or want to avoid—mention it when ordering.",
-              ],
-              [
-                "School-spirit accents",
-                "Orange, black, and other Port Allegany-inspired details may be useful for customers who want a stronger school-spirit look.",
-              ],
-            ].map(([title, text]) => (
-              <article
-                key={title}
-                className="rounded-[1.5rem] border border-[#284239]/10 bg-white/75 p-6"
-              >
-                <h3 className="font-semibold text-[#153f32]">
-                  {title}
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-[#607068]">
-                  {text}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ORDERING TIMELINE */}
-      <section className="bg-[#284239] text-[#fffaf3]">
-        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#a8e69a]">
-            Order Early
-          </p>
-
-          <h2 className="mt-3 max-w-4xl font-serif text-4xl font-semibold">
-            How early should you order Homecoming
-            flowers?
-          </h2>
-
-          <p className="mt-5 max-w-3xl leading-7 text-white/75">
-            Homecoming creates concentrated demand
-            around a specific date. Ordering ahead is
-            the best way to give the florist time to
-            plan and to improve the chances of getting
-            the colors and overall style you want.
-          </p>
-
-          <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {planningSteps.map(
-              (step, index) => (
-                <article
-                  key={step.title}
-                  className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6"
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
+                <Link
+                  href="/occasions/homecoming-prom"
+                  className="font-semibold text-white underline decoration-[#e76d61] decoration-2 underline-offset-4"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e76d61] text-sm font-bold text-white">
-                    {index + 1}
-                  </div>
+                  Shop Homecoming Flowers →
+                </Link>
 
-                  <h3 className="mt-4 font-serif text-xl font-semibold">
-                    {step.title}
-                  </h3>
-
-                  <p className="mt-3 text-sm leading-6 text-white/70">
-                    {step.text}
-                  </p>
-                </article>
-              )
-            )}
+                <Link
+                  href="/gators"
+                  className="font-semibold text-white/75 transition hover:text-white"
+                >
+                  Browse Gator Gear →
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* LOCAL */}
-      <section className="mx-auto max-w-5xl px-5 py-14 sm:px-8 lg:px-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-          Local Homecoming Flowers
-        </p>
-
-        <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-          Homecoming flowers from Port Petals in Port
-          Allegany.
-        </h2>
-
-        <p className="mt-5 leading-8 text-[#607068]">
-          Port Petals serves Port Allegany with fresh
-          flowers, custom creations, apparel, gifts,
-          and hometown Gator gear. During Homecoming
-          season, customers can browse available
-          floral options online and contact the shop
-          when they need help coordinating colors or
-          planning a specific design.
-        </p>
-
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          <Link
-            href="/occasions/homecoming-prom"
-            className="group rounded-[1.6rem] border border-[#284239]/10 bg-white/75 p-6 transition hover:-translate-y-1 hover:border-[#e76d61]/30"
-          >
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-              Flowers
-            </p>
-
-            <h3 className="mt-3 font-serif text-2xl font-semibold text-[#153f32]">
-              Homecoming & Prom
-            </h3>
-
-            <span className="mt-5 inline-flex text-sm font-semibold text-[#36594c]">
-              Shop flowers →
-            </span>
-          </Link>
-
-          <Link
-            href="/gators"
-            className="group rounded-[1.6rem] border border-[#284239]/10 bg-white/75 p-6 transition hover:-translate-y-1 hover:border-[#e76d61]/30"
-          >
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-              School Spirit
-            </p>
-
-            <h3 className="mt-3 font-serif text-2xl font-semibold text-[#153f32]">
-              Port Allegany Gator Gear
-            </h3>
-
-            <span className="mt-5 inline-flex text-sm font-semibold text-[#36594c]">
-              Shop Gator Gear →
-            </span>
-          </Link>
-
-          <Link
-            href="/custom/request"
-            className="group rounded-[1.6rem] border border-[#284239]/10 bg-white/75 p-6 transition hover:-translate-y-1 hover:border-[#e76d61]/30"
-          >
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e76d61]">
-              Personalized
-            </p>
-
-            <h3 className="mt-3 font-serif text-2xl font-semibold text-[#153f32]">
-              Request Something Custom
-            </h3>
-
-            <span className="mt-5 inline-flex text-sm font-semibold text-[#36594c]">
-              Start a request →
-            </span>
-          </Link>
-        </div>
-      </section>
-
-      {/* FINAL CTA */}
-      <section className="border-t border-[#284239]/10 bg-[#edf3e7]">
-        <div className="mx-auto max-w-4xl px-5 py-14 text-center sm:px-8 lg:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#36594c]">
-            Planning for Homecoming?
-          </p>
-
-          <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-            Start your Homecoming flower order early.
-          </h2>
-
-          <p className="mx-auto mt-4 max-w-2xl leading-7 text-[#607068]">
-            Browse current Homecoming flower options
-            and contact Port Petals if you need help
-            choosing colors or coordinating your
-            floral pieces.
-          </p>
-
-          <Link
-            href="/occasions/homecoming-prom"
-            className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full bg-[#e76d61] px-7 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
-          >
-            Shop Homecoming Flowers
-          </Link>
-        </div>
-      </section>
-    </main>
+        </FeatureSection>
+      </JournalFeatureLayout>
+    </>
   );
 }

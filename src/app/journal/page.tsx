@@ -1,192 +1,435 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
-import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Journal | Flower Care, Gift Ideas & Port Petals News",
+  title:
+    "Journal | Flower Guides, Gift Ideas & Port Petals Stories",
   description:
-    "Explore flower care tips, seasonal inspiration, gift guides, and shop news from Port Petals in Port Allegany, Pennsylvania.",
+    "Explore flower guides, seasonal inspiration, thoughtful gift ideas, Port Allegany stories, and shop updates from Port Petals.",
+  alternates: {
+    canonical: "/journal",
+  },
 };
-
-const featuredArticles = [
-  {
-    title:
-      "Homecoming Flowers in Port Allegany: Corsages, Boutonnieres & Ordering Tips",
-    description:
-      "Plan Homecoming flowers with guidance on corsages, boutonnieres, colors, coordinating designs, and when to place your order.",
-    href:
-      "/journal/homecoming-flowers-port-allegany",
-    label: "Homecoming Guide",
-  },
-  {
-    title:
-      "Sympathy Flowers in Port Allegany: What to Send & How to Choose",
-    description:
-      "Learn how to choose sympathy flowers, arrangement styles, colors, messages, and timing with guidance from Port Petals.",
-    href:
-      "/journal/sympathy-flowers-port-allegany",
-    label: "Sympathy Guide",
-  },
-];
-
-const sections = [
-  {
-    title: "Seasonal Ideas",
-    description:
-      "Fresh inspiration for holidays, school events, celebrations, changing seasons, and thoughtful local gifts.",
-    href: "/journal/seasonal-ideas",
-    label: "Seasonal Inspiration",
-  },
-  {
-    title: "Flower Care",
-    description:
-      "Simple guidance to help fresh flowers and arrangements stay beautiful for as long as possible.",
-    href: "/journal/flower-care",
-    label: "Flower Care",
-  },
-  {
-    title: "Gift Guides",
-    description:
-      "Ideas for pairing flowers, candles, custom creations, shirts, and local gifts for different occasions.",
-    href: "/journal/gift-guides",
-    label: "Gift Ideas",
-  },
-  {
-    title: "Shop News",
-    description:
-      "New products, seasonal collections, local events, Port Allegany Gator gear, and updates from Port Petals.",
-    href: "/journal/shop-news",
-    label: "From the Shop",
-  },
-];
-
 
 const breadcrumbStructuredData =
   buildBreadcrumbStructuredData([
-      {
-        name: "Home",
-        path: "/",
-      },
-      {
-        name: "Journal",
-        path: "/journal",
-      },
+    {
+      name: "Home",
+      path: "/",
+    },
+    {
+      name: "Journal",
+      path: "/journal",
+    },
   ]);
+
+const secondaryStories = [
+  {
+    eyebrow: "Sympathy Guide",
+    title:
+      "Sympathy flowers in Port Allegany",
+    description:
+      "What to send, how to choose an arrangement, what to write, and how to keep the gesture thoughtful.",
+    href:
+      "/journal/sympathy-flowers-port-allegany",
+    image:
+      "/collections/fresh-flowers.jpg",
+    imageAlt:
+      "Fresh floral arrangements from Port Petals",
+    readTime: "6 min read",
+  },
+  {
+    eyebrow: "Flower Care",
+    title:
+      "How to care for fresh flowers",
+    description:
+      "Simple ways to help fresh-cut flowers stay hydrated, clean, and beautiful for as long as possible.",
+    href:
+      "/journal/flower-care",
+    image:
+      "/collections/fresh-flowers.jpg",
+    imageAlt:
+      "Fresh flowers from Port Petals",
+    readTime: "7 min read",
+  },
+];
+
+const departments = [
+  {
+    number: "01",
+    label: "Flower Care",
+    title:
+      "Make the flowers last",
+    description:
+      "Practical guidance for water, stems, placement, vase care, and getting more enjoyment from fresh flowers.",
+    href:
+      "/journal/flower-care",
+  },
+  {
+    number: "02",
+    label: "Gift Guides",
+    title:
+      "Choose something that feels personal",
+    description:
+      "Ideas for combining flowers, candles, custom creations, apparel, and hometown favorites.",
+    href:
+      "/journal/gift-guides",
+  },
+  {
+    number: "03",
+    label: "Seasonal Ideas",
+    title:
+      "Follow the rhythm of the year",
+    description:
+      "Spring celebrations, summer gifting, Homecoming, football, holidays, and the moments between them.",
+    href:
+      "/journal/seasonal-ideas",
+  },
+  {
+    number: "04",
+    label: "Shop News",
+    title:
+      "See what is happening at Port Petals",
+    description:
+      "New products, seasonal collections, local announcements, school-spirit releases, and meaningful shop updates.",
+    href:
+      "/journal/shop-news",
+  },
+];
 
 export default function JournalPage() {
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+    <main className="min-h-screen bg-[#fffdf9] text-[#284239]">
       <JsonLd data={breadcrumbStructuredData} />
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,#f7eadc_0%,#faefe5_48%,#edf3e7_100%)]" />
-        <div className="absolute -left-20 top-10 -z-10 h-72 w-72 rounded-full bg-[#efa99f]/35 blur-[90px]" />
-        <div className="absolute -right-16 bottom-0 -z-10 h-80 w-80 rounded-full bg-[#c9e2ba]/45 blur-[100px]" />
 
-        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#36594c]">
-            Port Petals Journal
-          </p>
+      {/* MASTHEAD */}
+      <section className="border-b border-[#284239]/10 bg-[#f7f1e8]">
+        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#e76d61]">
+                Stories · Guides · Inspiration
+              </p>
 
-          <h1 className="mt-4 max-w-4xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
-            Ideas, care tips, and a little inspiration from the shop.
-          </h1>
+              <h1 className="mt-2 font-serif text-5xl font-semibold tracking-[-0.05em] text-[#153f32] sm:text-6xl">
+                Port Petals Journal
+              </h1>
+            </div>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#52655d]">
-            Explore useful flower-care guidance, seasonal ideas, gift
-            inspiration, and updates from Port Petals in Port Allegany,
-            Pennsylvania.
-          </p>
+            <p className="max-w-xl text-sm leading-7 text-[#607068] sm:text-right">
+              Flowers, thoughtful gifting, seasonal
+              ideas, hometown moments, and useful
+              advice from the shop in Port Allegany.
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 pt-14 sm:px-8 lg:px-10">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-            Featured Guides
+      {/* FEATURE STORY */}
+      <section className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+        <Link
+          href="/journal/homecoming-flowers-port-allegany"
+          className="group relative block min-h-[580px] overflow-hidden rounded-[2rem] bg-[#153f32] sm:min-h-[650px] lg:min-h-[690px]"
+        >
+          <Image
+            src="/journal/seasonal/autumn.jpg"
+            alt="Fall Homecoming inspiration from Port Petals in Port Allegany"
+            fill
+            priority
+            sizes="(max-width: 1279px) calc(100vw - 40px), 1200px"
+            className="object-cover transition duration-700 group-hover:scale-[1.02]"
+          />
+
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,35,28,.92)_0%,rgba(12,35,28,.72)_44%,rgba(12,35,28,.24)_75%,rgba(12,35,28,.08)_100%)]" />
+
+          <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#112f27]/85 to-transparent" />
+
+          <div className="relative flex min-h-[580px] flex-col justify-between p-7 sm:min-h-[650px] sm:p-10 lg:min-h-[690px] lg:p-12">
+            <div className="flex items-center justify-between">
+              <span className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/85 backdrop-blur-sm">
+                Featured Story
+              </span>
+
+              <span className="hidden text-xs font-semibold uppercase tracking-[0.22em] text-white/55 sm:block">
+                Homecoming · 6 min read
+              </span>
+            </div>
+
+            <div className="max-w-4xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#ffd0c8]">
+                Homecoming in Port Allegany
+              </p>
+
+              <h2 className="mt-4 max-w-4xl font-serif text-5xl font-semibold leading-[.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-[5rem]">
+                Flowers for the night.
+                Hometown pride for everything around it.
+              </h2>
+
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/72">
+                Corsages, boutonnieres, color
+                coordination, and what to know before
+                you place your Homecoming order.
+              </p>
+
+              <span className="mt-7 inline-flex items-center font-semibold text-white">
+                Read the feature
+                <span className="ml-2 transition-transform group-hover:translate-x-1">
+                  →
+                </span>
+              </span>
+            </div>
+          </div>
+        </Link>
+      </section>
+
+      {/* EDITOR'S PICKS */}
+      <section className="mx-auto max-w-7xl px-5 pb-16 pt-5 sm:px-8 lg:px-10">
+        <div className="flex items-end justify-between gap-6 border-b border-[#284239]/10 pb-5">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#e76d61]">
+              Editor&apos;s Picks
+            </p>
+
+            <h2 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.035em] text-[#153f32] sm:text-4xl">
+              Worth reading next.
+            </h2>
+          </div>
+
+          <span className="hidden text-sm text-[#718078] sm:block">
+            From the Port Petals Journal
+          </span>
+        </div>
+
+        <div className="mt-8 grid gap-8 md:grid-cols-2">
+          {secondaryStories.map((story) => (
+            <Link
+              key={story.href}
+              href={story.href}
+              className="group"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden rounded-[1.7rem] bg-[#f1ece5]">
+                <Image
+                  src={story.image}
+                  alt={story.imageAlt}
+                  fill
+                  sizes="(max-width: 767px) calc(100vw - 40px), 580px"
+                  className="object-cover transition duration-500 group-hover:scale-[1.025]"
+                />
+              </div>
+
+              <div className="pt-5">
+                <div className="flex items-center gap-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+                    {story.eyebrow}
+                  </p>
+
+                  <span className="h-1 w-1 rounded-full bg-[#9da8a2]" />
+
+                  <span className="text-xs text-[#7b8881]">
+                    {story.readTime}
+                  </span>
+                </div>
+
+                <h3 className="mt-3 max-w-xl font-serif text-3xl font-semibold leading-tight tracking-[-0.03em] text-[#153f32] transition group-hover:text-[#36594c]">
+                  {story.title}
+                </h3>
+
+                <p className="mt-3 max-w-xl leading-7 text-[#607068]">
+                  {story.description}
+                </p>
+
+                <span className="mt-5 inline-flex text-sm font-semibold text-[#36594c] transition group-hover:text-[#e76d61]">
+                  Read the guide →
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* EDITORIAL BREAK */}
+      <section className="bg-[#153f32] text-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:px-10 lg:py-16">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#a8e69a]">
+              From Port Allegany
+            </p>
+
+            <h2 className="mt-3 max-w-xl font-serif text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
+              Useful enough to save.
+              Local enough to feel familiar.
+            </h2>
+          </div>
+
+          <div>
+            <p className="max-w-2xl text-lg leading-8 text-white/70">
+              The Journal is where Port Petals can go
+              beyond the product page: how to care
+              for flowers, what to bring when
+              ordering a corsage, how to choose a
+              thoughtful gift, and what the season
+              means here at home.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* JOURNAL DEPARTMENTS */}
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+        <div className="max-w-3xl">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#e76d61]">
+            Explore the Journal
           </p>
 
-          <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-            Helpful ideas for what is happening now.
+          <h2 className="mt-3 font-serif text-4xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-5xl">
+            Find the kind of story you need.
           </h2>
         </div>
 
-        <div className="mt-7 grid gap-6">
-          {featuredArticles.map(
-            (article) => (
-              <Link
-                key={article.href}
-                href={article.href}
-                className="group rounded-[1.8rem] border border-[#284239]/10 bg-[#fffaf3] p-7 shadow-sm transition hover:-translate-y-1 hover:border-[#e76d61]/25 hover:shadow-[0_18px_45px_rgba(42,66,57,0.10)] sm:p-8"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-                  {article.label}
-                </p>
+        <div className="mt-10 border-t border-[#284239]/12">
+          {departments.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="group grid gap-4 border-b border-[#284239]/12 py-7 transition sm:grid-cols-[65px_190px_1fr_auto] sm:items-center sm:gap-6"
+            >
+              <span className="font-serif text-xl text-[#a1aaa5]">
+                {item.number}
+              </span>
 
-                <h3 className="mt-3 max-w-4xl font-serif text-3xl font-semibold text-[#153f32]">
-                  {article.title}
+              <p className="text-xs font-semibold uppercase tracking-[0.21em] text-[#e76d61]">
+                {item.label}
+              </p>
+
+              <div>
+                <h3 className="font-serif text-2xl font-semibold tracking-[-0.025em] text-[#153f32] sm:text-3xl">
+                  {item.title}
                 </h3>
 
-                <p className="mt-4 max-w-3xl leading-7 text-[#607068]">
-                  {article.description}
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#607068]">
+                  {item.description}
                 </p>
+              </div>
 
-                <span className="mt-6 inline-flex text-sm font-semibold text-[#284239] transition group-hover:text-[#e76d61]">
-                  Read the guide →
-                </span>
-              </Link>
-            )
-          )}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:px-10">
-        <div className="grid gap-6 md:grid-cols-2">
-          {sections.map((section) => (
-            <Link
-              key={section.href}
-              href={section.href}
-              className="group rounded-[1.8rem] border border-[#284239]/10 bg-white/70 p-7 shadow-sm transition hover:-translate-y-1 hover:border-[#e76d61]/25 hover:shadow-[0_18px_45px_rgba(42,66,57,0.10)] sm:p-8"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-                {section.label}
-              </p>
-
-              <h2 className="mt-3 font-serif text-3xl font-semibold text-[#153f32]">
-                {section.title}
-              </h2>
-
-              <p className="mt-4 leading-7 text-[#607068]">
-                {section.description}
-              </p>
-
-              <span className="mt-6 inline-flex text-sm font-semibold text-[#284239] transition group-hover:text-[#e76d61]">
-                Explore {section.title} →
+              <span className="text-xl text-[#36594c] transition group-hover:translate-x-1 group-hover:text-[#e76d61]">
+                →
               </span>
             </Link>
           ))}
         </div>
+      </section>
 
-        <div className="mt-12 rounded-[2rem] bg-[#284239] p-8 text-[#fffaf3] sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#a8e69a]">
-            Looking for something special?
-          </p>
+      {/* SEASONAL FEATURE */}
+      <section className="bg-[#f7f1e8]">
+        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-10 lg:py-16">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem]">
+            <Image
+              src="/journal/seasonal/autumn.jpg"
+              alt="Seasonal inspiration from Port Petals"
+              fill
+              sizes="(max-width: 1023px) calc(100vw - 40px), 600px"
+              className="object-cover"
+            />
+          </div>
 
-          <h2 className="mt-3 font-serif text-3xl font-semibold">
-            Browse the Port Petals shop.
-          </h2>
+          <div className="lg:pl-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#e76d61]">
+              Seasonal Ideas
+            </p>
 
-          <p className="mt-4 max-w-2xl leading-7 text-[#e7dedc]">
-            Shop fresh flowers, candles, custom creations, shirts, and hometown
-            Gator gear online for local pickup or approved local delivery.
-          </p>
+            <h2 className="mt-3 font-serif text-4xl font-semibold leading-tight tracking-[-0.04em] text-[#153f32] sm:text-5xl">
+              Every season gives the shop a different story.
+            </h2>
 
-          <Link
-            href="/flowers"
-            className="mt-6 inline-flex rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
-          >
-            Shop Port Petals
-          </Link>
+            <p className="mt-5 max-w-xl leading-8 text-[#607068]">
+              Spring celebrations, summer color,
+              Homecoming and football, holiday
+              gifting, and winter traditions all
+              bring different flowers, products,
+              and moments into focus.
+            </p>
+
+            <Link
+              href="/journal/seasonal-ideas"
+              className="mt-7 inline-flex font-semibold text-[#36594c] underline decoration-[#e76d61] decoration-2 underline-offset-4"
+            >
+              Explore the seasons →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* SHOP NEWS */}
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
+        <div className="grid gap-8 border-b border-[#284239]/10 pb-14 lg:grid-cols-[.7fr_1.3fr] lg:items-start">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#e76d61]">
+              Shop News
+            </p>
+
+            <h2 className="mt-3 font-serif text-4xl font-semibold tracking-[-0.035em] text-[#153f32]">
+              What&apos;s happening at Port Petals.
+            </h2>
+          </div>
+
+          <div>
+            <p className="max-w-2xl text-lg leading-8 text-[#607068]">
+              New products, seasonal changes,
+              school-spirit releases, local events,
+              and shop announcements have their own
+              home in the Journal.
+            </p>
+
+            <Link
+              href="/journal/shop-news"
+              className="mt-6 inline-flex font-semibold text-[#36594c] underline decoration-[#e76d61] decoration-2 underline-offset-4"
+            >
+              Visit Shop News →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10 lg:pb-20">
+        <div className="overflow-hidden rounded-[2rem] bg-[#153f32] text-white">
+          <div className="grid gap-8 p-7 sm:p-9 lg:grid-cols-[1fr_auto] lg:items-end lg:p-11">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#a8e69a]">
+                From Inspiration to the Shop
+              </p>
+
+              <h2 className="mt-3 max-w-3xl font-serif text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
+                Find something that fits the moment.
+              </h2>
+
+              <p className="mt-4 max-w-2xl leading-7 text-white/70">
+                Browse fresh flowers, gifts,
+                apparel, custom creations, and
+                hometown Gator favorites from
+                Port Petals.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-3">
+              <Link
+                href="/flowers"
+                className="font-semibold text-white underline decoration-[#e76d61] decoration-2 underline-offset-4"
+              >
+                Shop Flowers →
+              </Link>
+
+              <Link
+                href="/gifts"
+                className="font-semibold text-white/70 transition hover:text-white"
+              >
+                Browse Gifts →
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </main>

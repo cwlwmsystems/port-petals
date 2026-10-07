@@ -1,498 +1,416 @@
 import type { Metadata } from "next";
-import JsonLd from "@/components/JsonLd";
-import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
-import Image from "next/image";
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import JournalFeatureLayout, {
+  FeatureChecklist,
+  FeatureIntro,
+  FeaturePullQuote,
+  FeatureSection,
+} from "@/components/journal/JournalFeatureLayout";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
+
+const canonicalPath =
+  "/journal/gift-guides";
+
+const canonicalUrl =
+  `https://www.portpetals.com${canonicalPath}`;
 
 export const metadata: Metadata = {
-  title: "Gift Guide | Flowers, Candles, Custom Gifts & Gator Gear",
+  title:
+    "Gift Guide | Flowers, Gifts & Thoughtful Ideas from Port Petals",
   description:
-    "Find thoughtful gift ideas from Port Petals in Port Allegany, Pennsylvania, including flowers, candles, custom creations, shirts, and hometown Gator gear.",
+    "Find thoughtful gift ideas from Port Petals in Port Allegany, including flowers, candles, custom creations, apparel, and hometown gifts.",
+  alternates: {
+    canonical: canonicalPath,
+  },
+  openGraph: {
+    type: "article",
+    title:
+      "Gift Guide | Flowers, Gifts & Thoughtful Ideas from Port Petals",
+    description:
+      "A practical guide to choosing thoughtful flowers, gifts, custom creations, apparel, and hometown favorites from Port Petals.",
+    url: canonicalPath,
+    images: [
+      {
+        url: "/collections/giftset.jpg",
+        alt:
+          "Gift ideas from Port Petals in Port Allegany",
+      },
+    ],
+  },
 };
-
-const occasionCards = [
-  {
-    title: "Birthday",
-    description:
-      "Bright flowers, candles, personalized gifts, or a favorite-color custom creation can make a birthday feel much more personal.",
-    href: "/flowers",
-    cta: "Browse Birthday Ideas",
-  },
-  {
-    title: "Thank You",
-    description:
-      "A small bouquet, candle, or custom gift can be a simple way to show appreciation without overcomplicating it.",
-    href: "/candles",
-    cta: "Find a Thank-You Gift",
-  },
-  {
-    title: "Congratulations",
-    description:
-      "Celebrate graduations, promotions, new jobs, awards, team achievements, and other milestones with flowers or a personalized keepsake.",
-    href: "/custom",
-    cta: "Shop Celebration Gifts",
-  },
-  {
-    title: "Thinking of You",
-    description:
-      "Flowers, a cozy candle, or a small local gift can be a thoughtful way to let someone know they are on your mind.",
-    href: "/flowers",
-    cta: "Send Something Thoughtful",
-  },
-  {
-    title: "School Spirit",
-    description:
-      "Port Allegany Gator gear, personalized shirts, signs, and hometown gifts are ideal for athletes, students, families, and fans.",
-    href: "/gators",
-    cta: "Shop Gator Gifts",
-  },
-  {
-    title: "Something One-of-a-Kind",
-    description:
-      "If the right gift does not already exist, Port Petals can help create something around a name, theme, color, activity, or occasion.",
-    href: "/custom/request",
-    cta: "Start a Custom Request",
-  },
-];
-
 
 const breadcrumbStructuredData =
   buildBreadcrumbStructuredData([
-      {
-        name: "Home",
-        path: "/",
-      },
-      {
-        name: "Journal",
-        path: "/journal",
-      },
-      {
-        name: "Gift Guides",
-        path: "/journal/gift-guides",
-      },
+    {
+      name: "Home",
+      path: "/",
+    },
+    {
+      name: "Journal",
+      path: "/journal",
+    },
+    {
+      name: "Gift Guides",
+      path: canonicalPath,
+    },
   ]);
+
+const articleStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline:
+    "Thoughtful Gift Ideas from Port Petals",
+  description:
+    "A guide to choosing flowers, gifts, custom creations, apparel, and hometown favorites from Port Petals in Port Allegany, Pennsylvania.",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": canonicalUrl,
+  },
+  datePublished: "2026-10-07",
+  dateModified: "2026-10-07",
+  author: {
+    "@type": "Organization",
+    name: "Port Petals",
+    url: "https://www.portpetals.com",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Port Petals",
+    url: "https://www.portpetals.com",
+  },
+  image:
+    "https://www.portpetals.com/collections/gifts.jpg",
+  url: canonicalUrl,
+};
+
+const guideItems = [
+  {
+    label: "Start with the person",
+    href: "#start-with-the-person",
+  },
+  {
+    label: "Flowers as a gift",
+    href: "#flowers",
+  },
+  {
+    label: "Candles & keepsakes",
+    href: "#candles-keepsakes",
+  },
+  {
+    label: "Custom gifts",
+    href: "#custom",
+  },
+  {
+    label: "Hometown gifts",
+    href: "#hometown",
+  },
+  {
+    label: "Build a gift combination",
+    href: "#gift-combinations",
+  },
+];
 
 export default function GiftGuidesPage() {
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
-      <JsonLd data={breadcrumbStructuredData} />
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(90deg,#f7eadc_0%,#faefe5_48%,#edf3e7_100%)]" />
-        <div className="absolute -left-20 top-10 -z-10 h-72 w-72 rounded-full bg-[#efa99f]/35 blur-[90px]" />
-        <div className="absolute -right-16 bottom-0 -z-10 h-80 w-80 rounded-full bg-[#c9e2ba]/45 blur-[100px]" />
+    <>
+      <JsonLd
+        data={breadcrumbStructuredData}
+      />
 
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_.9fr] lg:px-10 lg:py-18">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#36594c]">
-              Port Petals Journal
-            </p>
+      <JsonLd
+        data={articleStructuredData}
+      />
 
-            <h1 className="mt-4 max-w-3xl font-serif text-5xl font-semibold tracking-[-0.04em] text-[#153f32] sm:text-6xl">
-              Thoughtful gifts should feel personal.
-            </h1>
+      <JournalFeatureLayout
+        category="Gift Guide"
+        title="Thoughtful gifts start with the person"
+        introduction="Flowers, candles, custom creations, apparel, and hometown favorites all work differently. The best gift is the one that feels like it was chosen for someone — not simply picked from a shelf."
+        imageSrc="/collections/giftset.jpg"
+        imageAlt="Thoughtful gifts from Port Petals in Port Allegany"
+        publishedDate="October 7, 2026"
+        readingTime="7 min read"
+        guideItems={guideItems}
+        relatedArticles={[
+          {
+            eyebrow: "Flower Care",
+            title:
+              "How to care for fresh flowers",
+            description:
+              "Simple ways to help fresh flowers stay hydrated, clean, and beautiful longer.",
+            href:
+              "/journal/flower-care",
+          },
+          {
+            eyebrow: "Seasonal Inspiration",
+            title:
+              "Seasonal ideas from Port Petals",
+            description:
+              "Flowers, gifts, school spirit, holidays, and inspiration throughout the year.",
+            href:
+              "/journal/seasonal-ideas",
+          },
+        ]}
+      >
+        <FeatureIntro>
+          Gift giving becomes much easier when you
+          stop asking, “What should I buy?” and start
+          asking, “What would feel right for this
+          person?” A useful clue might be their
+          favorite color, something they collect, a
+          local connection, or simply the reason you
+          are thinking of them.
+        </FeatureIntro>
 
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#52655d]">
-              Start with the person, the occasion, or the feeling you want the
-              gift to create. Port Petals offers flowers, candles, custom
-              creations, shirts, and hometown gifts that can be mixed and
-              matched for something more meaningful.
-            </p>
-
-            <p className="mt-4 max-w-2xl leading-7 text-[#607068]">
-              This guide is designed to help when you know you want to give
-              something special but are not quite sure where to start.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative h-[210px] overflow-hidden rounded-[1.7rem] shadow-md">
-              <Image
-                src="/collections/fresh-flowers.jpg"
-                alt="Fresh flowers from Port Petals"
-                fill
-                priority
-                sizes="(max-width: 1023px) 50vw, 22vw"
-                className="object-cover"
-              />
-            </div>
-
-            <div className="relative h-[210px] overflow-hidden rounded-[1.7rem] shadow-md">
-              <Image
-                src="/collections/candles.jpg"
-                alt="Candles from Port Petals"
-                fill
-                sizes="(max-width: 1023px) 50vw, 22vw"
-                className="object-cover"
-              />
-            </div>
-
-            <div className="relative h-[210px] overflow-hidden rounded-[1.7rem] shadow-md">
-              <Image
-                src="/collections/customized-items.jpg"
-                alt="Custom creations from Port Petals"
-                fill
-                sizes="(max-width: 1023px) 50vw, 22vw"
-                className="object-cover"
-              />
-            </div>
-
-            <div className="relative h-[210px] overflow-hidden rounded-[1.7rem] shadow-md">
-              <Image
-                src="/collections/gators.jpg"
-                alt="Port Allegany Gator gifts from Port Petals"
-                fill
-                sizes="(max-width: 1023px) 50vw, 22vw"
-                className="object-cover"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Start here */}
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:px-10">
-        <div className="rounded-[2rem] bg-[#284239] p-8 text-[#fffaf3] sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#a8e69a]">
-            Not Sure What to Buy?
+        <FeatureSection
+          id="start-with-the-person"
+          eyebrow="Before You Shop"
+          title="Start with who they are, not what is on the shelf"
+        >
+          <p>
+            A thoughtful gift does not need to be
+            expensive or elaborate. Often, the most
+            memorable gifts are the ones that show
+            you noticed something about the person.
           </p>
 
-          <h2 className="mt-3 font-serif text-3xl font-semibold">
-            Start with these four questions.
-          </h2>
-
-          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["Who is it for?", "Think about their personality, hobbies, style, and interests."],
-              ["What is the occasion?", "Birthday, thank-you, celebration, sympathy, school event, or just because."],
-              ["How personal should it be?", "Ready-made gifts are easy; custom items can make the gift more specific."],
-              ["What is your budget?", "A thoughtful gift does not have to be large to feel meaningful."],
-            ].map(([title, description], index) => (
-              <article
-                key={title}
-                className="rounded-[1.3rem] border border-white/10 bg-white/5 p-5"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e76d61] text-xs font-bold text-white">
-                  {index + 1}
-                </div>
-
-                <h3 className="mt-4 font-serif text-xl font-semibold">
-                  {title}
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-[#e7dedc]">
-                  {description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* By occasion */}
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:px-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-          Shop by Occasion
-        </p>
-
-        <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-          Match the gift to the moment.
-        </h2>
-
-        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {occasionCards.map((item) => (
-            <article
-              key={item.title}
-              className="flex flex-col rounded-[1.7rem] border border-[#284239]/10 bg-white/70 p-7 shadow-sm"
-            >
-              <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
-                {item.title}
-              </h3>
-
-              <p className="mt-3 flex-1 text-sm leading-7 text-[#607068]">
-                {item.description}
-              </p>
-
-              <Link
-                href={item.href}
-                className="mt-6 inline-flex text-sm font-semibold text-[#284239] transition hover:text-[#e76d61]"
-              >
-                {item.cta} →
-              </Link>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* Gift personality */}
-      <section className="bg-[#edf3e7]">
-        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#36594c]">
-            Shop by Personality
+          <p>
+            Think about their style, favorite colors,
+            hobbies, home, personality, and the
+            occasion. Even one of those details can
+            point you toward something that feels
+            intentional.
           </p>
 
-          <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-            Think about what they naturally enjoy.
-          </h2>
+          <FeatureChecklist
+            eyebrow="A Simple Starting Point"
+            title="Ask yourself these four questions"
+            items={[
+              "What does this person genuinely enjoy?",
+              "Is the gift for a celebration, comfort, thanks, or simply because?",
+              "Would they appreciate something beautiful, useful, personal, or local?",
+              "Is there a color, hobby, team, memory, or theme that connects to them?",
+            ]}
+          />
+        </FeatureSection>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <FeaturePullQuote>
+          A good gift feels chosen. A great gift
+          feels understood.
+        </FeaturePullQuote>
+
+        <FeatureSection
+          id="flowers"
+          eyebrow="Fresh Flowers"
+          title="When flowers are the right gift"
+        >
+          <p>
+            Flowers work especially well when the
+            gesture itself matters. Birthdays,
+            anniversaries, congratulations,
+            sympathy, thank-you moments, and
+            just-because gifts can all be made more
+            personal with fresh flowers.
+          </p>
+
+          <p>
+            The arrangement does not always have to
+            be formal. Bright mixed flowers can feel
+            cheerful and spontaneous, while softer
+            palettes can feel calm, elegant, or
+            comforting.
+          </p>
+
+          <div className="mt-8 border-l-4 border-[#e76d61] bg-[#f7f1e8] px-6 py-5 sm:px-7">
+            <p className="font-serif text-xl font-semibold text-[#153f32]">
+              A useful rule
+            </p>
+
+            <p className="mt-2 text-sm leading-7 text-[#607068]">
+              If you are unsure what to choose,
+              start with the feeling you want the
+              gift to create: cheerful, romantic,
+              comforting, celebratory, or simple.
+            </p>
+          </div>
+        </FeatureSection>
+
+        <FeatureSection
+          id="candles-keepsakes"
+          eyebrow="Something That Lasts"
+          title="Candles and keepsakes extend the gesture"
+        >
+          <p>
+            A candle or keepsake can be a good choice
+            when you want something the recipient can
+            continue using after the occasion has
+            passed.
+          </p>
+
+          <p>
+            They also pair naturally with flowers.
+            A fresh arrangement brings immediate
+            color and life, while the accompanying
+            gift remains after the blooms have faded.
+          </p>
+
+          <p>
+            For sympathy, birthdays, thank-you
+            gifts, housewarmings, or small
+            celebrations, that combination can feel
+            especially complete.
+          </p>
+        </FeatureSection>
+
+        <FeatureSection
+          id="custom"
+          eyebrow="Make It Personal"
+          title="Custom gifts create the strongest personal connection"
+        >
+          <p>
+            Personalized gifts work best when the
+            customization has meaning rather than
+            simply adding a name to an object.
+          </p>
+
+          <p>
+            A phrase, date, school connection,
+            favorite color, family detail, or
+            hometown theme can turn a simple item
+            into something made specifically for the
+            recipient.
+          </p>
+
+          <p>
+            Custom work may require additional
+            planning time, so it is worth starting
+            earlier when the gift is tied to a
+            specific event or date.
+          </p>
+
+          <Link
+            href="/custom/request"
+            className="mt-2 inline-flex font-semibold text-[#36594c] underline decoration-[#e76d61] decoration-2 underline-offset-4"
+          >
+            Ask Port Petals about a custom creation →
+          </Link>
+        </FeatureSection>
+
+        <FeatureSection
+          id="hometown"
+          eyebrow="Port Allegany Pride"
+          title="Sometimes the best gift feels like home"
+        >
+          <p>
+            Hometown gifts can carry meaning that
+            goes beyond the item itself. Port
+            Allegany and Gator-themed pieces can
+            work for students, alumni, families,
+            teachers, coaches, visitors, or anyone
+            who feels connected to the community.
+          </p>
+
+          <p>
+            They can also make useful additions to
+            graduation gifts, Homecoming gifts,
+            school-event packages, or care packages
+            for someone living away from home.
+          </p>
+
+          <Link
+            href="/gators"
+            className="mt-2 inline-flex font-semibold text-[#36594c] underline decoration-[#e76d61] decoration-2 underline-offset-4"
+          >
+            Browse Gator Gear →
+          </Link>
+        </FeatureSection>
+
+        <FeatureSection
+          id="gift-combinations"
+          eyebrow="Build the Gift"
+          title="The best combinations mix different kinds of meaning"
+        >
+          <p>
+            Pairing two smaller items can sometimes
+            feel more thoughtful than choosing one
+            larger gift. The key is making sure the
+            pieces make sense together.
+          </p>
+
+          <div className="my-9 grid gap-4 sm:grid-cols-2">
             {[
-              [
-                "The Flower Lover",
-                "A fresh bouquet or arrangement is the natural place to start.",
-                "/flowers",
-              ],
-              [
-                "The Homebody",
-                "Candles and cozy home gifts work well for someone who loves a comfortable space.",
-                "/candles",
-              ],
-              [
-                "The Hometown Fan",
-                "Port Allegany Gator gear makes a strong local gift for students, families, athletes, and alumni.",
-                "/gators",
-              ],
-              [
-                "The Person Who Has Everything",
-                "A customized or personalized piece gives you more room to create something they do not already own.",
-                "/custom",
-              ],
-            ].map(([title, description, href]) => (
-              <Link
-                key={title}
-                href={href}
-                className="group rounded-[1.6rem] border border-[#284239]/10 bg-white/70 p-6 transition hover:-translate-y-1 hover:border-[#e76d61]/25"
+              {
+                title: "Flowers + Candle",
+                text:
+                  "A fresh, immediate gesture paired with something the recipient can continue enjoying.",
+              },
+              {
+                title: "Flowers + Custom Gift",
+                text:
+                  "A celebratory arrangement alongside something made specifically for the recipient.",
+              },
+              {
+                title: "Gator Gear + Flowers",
+                text:
+                  "A strong combination for school events, Homecoming, graduation, or hometown celebrations.",
+              },
+              {
+                title: "Keepsake + Card",
+                text:
+                  "Simple and personal when the message matters more than the size of the gift.",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-[1.5rem] border border-[#284239]/10 bg-[#f7f1e8] p-6"
               >
                 <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
-                  {title}
+                  {item.title}
                 </h3>
 
-                <p className="mt-3 text-sm leading-6 text-[#607068]">
-                  {description}
+                <p className="mt-3 text-sm leading-7 text-[#607068]">
+                  {item.text}
                 </p>
-
-                <span className="mt-5 inline-flex text-sm font-semibold text-[#284239] transition group-hover:text-[#e76d61]">
-                  Explore →
-                </span>
-              </Link>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Pairing ideas */}
-      <section className="mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:px-10">
-        <div className="grid gap-10 lg:grid-cols-[.95fr_1.05fr] lg:items-center">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-              Build a Better Gift
-            </p>
-
-            <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-              Pairing two simple things can make the gift feel more complete.
-            </h2>
-
-            <p className="mt-5 leading-7 text-[#607068]">
-              You do not always need one large item. A small combination often
-              feels more intentional and gives the recipient more to enjoy.
-            </p>
-          </div>
-
-          <div className="grid gap-4">
-            {[
-              [
-                "Flowers + Candle",
-                "A classic combination for birthdays, thank-you gifts, housewarmings, and thinking-of-you moments.",
-              ],
-              [
-                "Gator Gear + Personalized Item",
-                "A strong choice for senior nights, athletes, coaches, school events, and hometown celebrations.",
-              ],
-              [
-                "Flowers + Custom Keepsake",
-                "Pairs something beautiful for today with something the recipient can keep.",
-              ],
-              [
-                "Shirt + Gator Gift",
-                "Works well for students, parents, grandparents, alumni, and dedicated Port Allegany fans.",
-              ],
-            ].map(([title, description]) => (
-              <article
-                key={title}
-                className="rounded-[1.5rem] border border-[#284239]/10 bg-white/75 p-6"
-              >
-                <h3 className="font-serif text-xl font-semibold text-[#153f32]">
-                  {title}
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-[#607068]">
-                  {description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Budget guide */}
-      <section className="mx-auto max-w-6xl px-5 pb-14 sm:px-8 lg:px-10">
-        <div className="rounded-[2rem] border border-[#284239]/10 bg-[#faefe5] p-8 sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-            Gift Planning
-          </p>
-
-          <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-            Let the budget guide the size, not the thoughtfulness.
-          </h2>
-
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <div className="rounded-[1.5rem] bg-white/70 p-6">
-              <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
-                Small Gesture
-              </h3>
-              <p className="mt-3 text-sm leading-6 text-[#607068]">
-                Candles, small floral pieces, simple custom items, and local
-                gifts can still feel thoughtful without becoming a large
-                purchase.
+          <div className="mt-10 overflow-hidden rounded-[2rem] bg-[#153f32] text-[#fffaf3]">
+            <div className="p-7 sm:p-9">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#a8e69a]">
+                Find the right fit
               </p>
-            </div>
 
-            <div className="rounded-[1.5rem] bg-white/70 p-6">
-              <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
-                Something Special
+              <h3 className="mt-3 max-w-2xl font-serif text-3xl font-semibold leading-tight sm:text-4xl">
+                Start with the person.
+                We&apos;ll help with the rest.
               </h3>
-              <p className="mt-3 text-sm leading-6 text-[#607068]">
-                A larger arrangement, shirt, personalized product, or paired
-                gift works well when the occasion deserves a little more.
+
+              <p className="mt-4 max-w-2xl leading-7 text-white/70">
+                Browse gifts, flowers, hometown
+                favorites, and custom options from
+                Port Petals.
               </p>
+
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
+                <Link
+                  href="/gifts"
+                  className="font-semibold text-white underline decoration-[#e76d61] decoration-2 underline-offset-4"
+                >
+                  Browse Gifts →
+                </Link>
+
+                <Link
+                  href="/flowers"
+                  className="font-semibold text-white/75 transition hover:text-white"
+                >
+                  Shop Fresh Flowers →
+                </Link>
+              </div>
             </div>
-
-            <div className="rounded-[1.5rem] bg-white/70 p-6">
-              <h3 className="font-serif text-2xl font-semibold text-[#153f32]">
-                One-of-a-Kind
-              </h3>
-              <p className="mt-3 text-sm leading-6 text-[#607068]">
-                For major milestones or very specific ideas, a custom order can
-                be designed around the recipient and your approximate budget.
-              </p>
-            </div>
           </div>
-        </div>
-      </section>
-
-      {/* Local gifts */}
-      <section className="bg-[#284239] text-[#fffaf3]">
-        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1fr_.9fr] lg:px-10">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#a8e69a]">
-              Local & Hometown Gifts
-            </p>
-
-            <h2 className="mt-3 font-serif text-4xl font-semibold">
-              Sometimes the best gift is something that feels like home.
-            </h2>
-
-            <p className="mt-5 max-w-2xl leading-7 text-[#e7dedc]">
-              Port Allegany school spirit, local colors, personalized names and
-              numbers, and hometown-themed products can make especially
-              meaningful gifts for students, parents, grandparents, alumni,
-              coaches, and fans.
-            </p>
-
-            <Link
-              href="/gators"
-              className="mt-6 inline-flex rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
-            >
-              Shop Gator Gear
-            </Link>
-          </div>
-
-          <div className="relative min-h-[320px] overflow-hidden rounded-[2rem] border border-white/10">
-            <Image
-              src="/collections/gators.jpg"
-              alt="Port Allegany Gator gifts"
-              fill
-              sizes="(max-width: 1023px) 100vw, 45vw"
-              className="object-cover"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Decision helper */}
-      <section className="mx-auto max-w-6xl px-5 py-14 sm:px-8 lg:px-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-          Quick Decision Guide
-        </p>
-
-        <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
-          Still deciding?
-        </h2>
-
-        <div className="mt-8 overflow-hidden rounded-[1.8rem] border border-[#284239]/10 bg-white/70">
-          {[
-            ["I want something beautiful and classic.", "Start with flowers.", "/flowers"],
-            ["I want something cozy and easy.", "Browse candles.", "/candles"],
-            ["I want something personal.", "Look at custom creations.", "/custom"],
-            ["I want something wearable.", "Browse apparel.", "/apparel"],
-            ["I want something local.", "Shop Port Allegany Gator gear.", "/gators"],
-            ["I have a very specific idea.", "Start a custom request.", "/custom/request"],
-          ].map(([question, answer, href], index) => (
-            <div
-              key={question}
-              className={`grid gap-3 p-6 md:grid-cols-[1fr_1fr_auto] md:items-center ${
-                index !== 0 ? "border-t border-[#284239]/10" : ""
-              }`}
-            >
-              <p className="font-semibold text-[#153f32]">{question}</p>
-
-              <p className="text-sm text-[#607068]">{answer}</p>
-
-              <Link
-                href={href}
-                className="text-sm font-semibold text-[#284239] transition hover:text-[#e76d61]"
-              >
-                Explore →
-              </Link>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Custom CTA */}
-      <section className="mx-auto max-w-6xl px-5 pb-16 sm:px-8 lg:px-10">
-        <div className="rounded-[2rem] border border-[#e76d61]/15 bg-[#faefe5] p-8 text-center sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-            Need Help Choosing?
-          </p>
-
-          <h2 className="mt-3 font-serif text-3xl font-semibold text-[#153f32]">
-            Tell Port Petals who you are shopping for.
-          </h2>
-
-          <p className="mx-auto mt-4 max-w-2xl leading-7 text-[#607068]">
-            If you have an occasion, personality, theme, color, school
-            activity, or budget in mind but are not sure what to choose, reach
-            out and we can help narrow down the options.
-          </p>
-
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link
-              href="/custom/request"
-              className="inline-flex items-center justify-center rounded-full bg-[#e76d61] px-6 py-3 font-semibold text-white transition hover:bg-[#d85b50]"
-            >
-              Start a Custom Request
-            </Link>
-
-            <a
-              href="tel:+18146421253"
-              className="inline-flex items-center justify-center rounded-full border border-[#284239]/15 bg-white px-6 py-3 font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-            >
-              Call 814-642-1253
-            </a>
-          </div>
-        </div>
-      </section>
-    </main>
+        </FeatureSection>
+      </JournalFeatureLayout>
+    </>
   );
 }
