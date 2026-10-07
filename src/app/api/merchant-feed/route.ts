@@ -241,7 +241,7 @@ function titleCaseGarment(
     .join(" ");
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabaseUrl =
       process.env
@@ -616,6 +616,53 @@ export async function GET() {
       );
     }
 
+    const url =
+      new URL(request.url);
+
+    const format =
+      url.searchParams.get("format");
+
+    if (format === "tsv") {
+      const cleanTsvValue = (
+        value: unknown
+      ) =>
+        String(value ?? "")
+          .replace(/\\t/g, " ")
+          .replace(/\\r?\\n/g, " ")
+          .trim();
+
+      const tsv = [
+        HEADERS
+          .map(cleanTsvValue)
+          .join("\\t"),
+
+        ...rows.map(
+          (row) =>
+            row
+              .map(cleanTsvValue)
+              .join("\\t")
+        ),
+      ].join("\\n");
+
+      return new NextResponse(
+        `${tsv}\n`,
+        {
+          status: 200,
+
+          headers: {
+            "Content-Type":
+              "text/tab-separated-values; charset=utf-8",
+
+            "Content-Disposition":
+              'inline; filename="merchant-center-feed.tsv"',
+
+            "Cache-Control":
+              "no-store, max-age=0",
+          },
+        }
+      );
+    }
+
     const csv = [
       HEADERS
         .map(csvEscape)
@@ -627,7 +674,7 @@ export async function GET() {
             .map(csvEscape)
             .join(",")
       ),
-    ].join("\n");
+    ].join("\\n");
 
     return new NextResponse(
       `${csv}\n`,
