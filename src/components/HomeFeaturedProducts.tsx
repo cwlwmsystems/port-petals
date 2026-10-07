@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import StoreProductCard from "@/components/StoreProductCard";
 import { getPublishedFlowers } from "@/lib/flowers";
 import { getPublishedCandles } from "@/lib/candles";
 import { getPublishedCustomItems } from "@/lib/custom-items";
@@ -43,6 +43,118 @@ function getStartingPrice(
   ];
 
   return prices.length > 0 ? Math.min(...prices) : null;
+}
+
+function formatPrice(
+  price: number | null
+) {
+  if (price === null) {
+    return "Contact for price";
+  }
+
+  return new Intl.NumberFormat(
+    "en-US",
+    {
+      style: "currency",
+      currency: "USD",
+    }
+  ).format(price);
+}
+
+function HomeFeaturedProductCard({
+  product,
+}: {
+  product: NormalizedProduct;
+}) {
+  const href =
+    `/${product.categoryPath}/${product.slug}`;
+
+  return (
+    <article className="group overflow-hidden rounded-[1.8rem] border border-[#284239]/10 bg-white/70 shadow-[0_12px_35px_rgba(42,66,57,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(42,66,57,0.14)]">
+      <Link
+        href={href}
+        className="block h-full"
+      >
+        <div className="relative h-56 overflow-hidden sm:h-64">
+          <Image
+            src={product.imageUrl}
+            alt={product.imageAlt}
+            fill
+            sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1279px) calc(50vw - 36px), 390px"
+            className="object-contain p-2 transition-transform duration-500 group-hover:scale-[1.035]"
+          />
+
+          {product.featured && (
+            <span className="absolute left-4 top-4 rounded-full bg-[#fffaf3]/95 px-3 py-1.5 text-xs font-semibold text-[#e76d61]">
+              Port Petals Favorite
+            </span>
+          )}
+
+          {product.maker && (
+            <span className="absolute bottom-4 left-4 rounded-full bg-[#284239]/90 px-3 py-1.5 text-xs font-semibold text-white">
+              By {product.maker}
+            </span>
+          )}
+        </div>
+
+        <div className="p-5 sm:p-6">
+          <h3 className="font-serif text-xl font-semibold leading-snug text-[#153f32] sm:text-2xl">
+            {product.name}
+          </h3>
+
+          {product.shortDescription && (
+            <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#607068] sm:text-base">
+              {product.shortDescription}
+            </p>
+          )}
+
+          {(product.readyMade ||
+            product.customizable ||
+            product.madeToOrder) && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {product.readyMade && (
+                <span className="rounded-full bg-[#edf1f6] px-3 py-1 text-xs font-semibold text-[#536578]">
+                  Ready-Made
+                </span>
+              )}
+
+              {product.customizable && (
+                <span className="rounded-full bg-[#f8e1dc] px-3 py-1 text-xs font-semibold text-[#b9564c]">
+                  Customizable
+                </span>
+              )}
+
+              {product.madeToOrder && (
+                <span className="rounded-full bg-[#edf3e7] px-3 py-1 text-xs font-semibold text-[#36594c]">
+                  Made to Order
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="mt-5 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-sm text-[#718078]">
+                {product.variants.length > 0
+                  ? "Starting at"
+                  : "Price"}
+              </p>
+
+              <p className="mt-1 text-lg font-semibold text-[#e76d61]">
+                {formatPrice(
+                  product.startingPrice
+                )}
+              </p>
+            </div>
+
+            <span className="text-sm font-semibold text-[#36594c]">
+              View product →
+            </span>
+          </div>
+        </div>
+      </Link>
+    </article>
+  );
 }
 
 export default async function HomeFeaturedProducts() {
@@ -263,26 +375,9 @@ export default async function HomeFeaturedProducts() {
 
         <div className="mt-10 grid gap-7 md:grid-cols-2 xl:grid-cols-3">
           {featuredProducts.map((product) => (
-            <StoreProductCard
+            <HomeFeaturedProductCard
               key={`${product.categoryPath}-${product.id}`}
-              href={`/${product.categoryPath}/${product.slug}`}
-              productId={product.id}
-              slug={product.slug}
-              name={product.name}
-              shortDescription={product.shortDescription}
-              imageUrl={product.imageUrl}
-              imageAlt={product.imageAlt}
-              startingPrice={product.startingPrice}
-              featured={product.featured}
-              maker={product.maker}
-              readyMade={product.readyMade}
-              customizable={product.customizable}
-              madeToOrder={product.madeToOrder}
-              leadTimeDays={product.leadTimeDays}
-              basePrice={product.basePrice}
-              trackInventory={product.trackInventory}
-              quantity={product.quantity}
-              variants={product.variants}
+              product={product}
             />
           ))}
         </div>
