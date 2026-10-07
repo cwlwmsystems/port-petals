@@ -137,6 +137,7 @@ export default function Home() {
                 width={520}
                 height={400}
                 priority
+                sizes="(max-width: 1023px) 0px, 420px"
                 className="h-auto w-full mix-blend-multiply drop-shadow-[0_20px_40px_rgba(48,61,49,0.10)]"
               />
             </div>
@@ -255,7 +256,7 @@ export default function Home() {
                     src={category.image}
                     alt={category.name}
                     fill
-                    sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 20vw"
+                    sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1279px) calc(50vw - 32px), 240px"
                     className="object-cover transition duration-500 group-hover:scale-[1.04]"
                   />
                 ) : (
