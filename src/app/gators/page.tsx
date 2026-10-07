@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Image from "next/image";
 import Link from "next/link";
 import { getPublishedGatorGear } from "@/lib/gators";
@@ -137,6 +139,19 @@ function GatorProductCard({
   );
 }
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+    {
+      name: "Home",
+      path: "/",
+    },
+    {
+      name: "Gator Gear",
+      path: "/gators",
+    },
+  ]);
+
 export default async function GatorsPage() {
   const products = await getPublishedGatorGear();
 
@@ -174,6 +189,7 @@ export default async function GatorsPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-[#151515] text-[#fffaf3]">
         <div className="absolute inset-0 -z-30 bg-[radial-gradient(circle_at_12%_30%,rgba(255,115,21,.24),transparent_30%),radial-gradient(circle_at_80%_55%,rgba(255,115,21,.10),transparent_34%)]" />
@@ -261,6 +277,45 @@ export default async function GatorsPage() {
                 className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#ff7315]/50 hover:text-[#e76500]"
               >
                 Seasonal Favorites
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* GATOR OCCASIONS */}
+      <section className="border-b border-[#284239]/10 bg-[#f7f1e8] text-[#284239]">
+        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76500]">
+                Gator Gifts for the Big Moments
+              </p>
+
+              <h2 className="mt-2 font-serif text-3xl font-semibold text-[#153f32]">
+                Celebrate Port Allegany milestones.
+              </h2>
+
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607068]">
+                Shop school-spirit gear and personalized favorites for
+                Homecoming, Prom, graduation, senior celebrations, athletes,
+                families, and fans.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/occasions/homecoming-prom"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#ff7315]/50 hover:text-[#e76500]"
+              >
+                Homecoming & Prom
+              </Link>
+
+              <Link
+                href="/occasions/graduation"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#ff7315]/50 hover:text-[#e76500]"
+              >
+                Graduation Gifts
               </Link>
             </div>
           </div>

@@ -249,9 +249,23 @@ export async function generateMetadata({
     return {};
   }
 
+  const seoTitles: Record<string, string> = {
+    sympathy:
+      "Sympathy Flowers & Gifts in Port Allegany, PA",
+    birthdays:
+      "Birthday Flowers & Gifts in Port Allegany, PA",
+    "homecoming-prom":
+      "Homecoming & Prom Flowers in Port Allegany, PA",
+    graduation:
+      "Graduation Flowers & Gifts in Port Allegany, PA",
+  };
+
+  const seoTitle =
+    seoTitles[occasion.slug] ??
+    `${occasion.label} Flowers & Gifts in Port Allegany, PA`;
+
   return {
-    title:
-      occasion.label,
+    title: seoTitle,
     description:
       occasion.seoDescription,
     alternates: {
@@ -260,7 +274,7 @@ export async function generateMetadata({
     },
     openGraph: {
       title:
-        `${occasion.label} | Port Petals`,
+        `${seoTitle} | Port Petals`,
       description:
         occasion.seoDescription,
       url:

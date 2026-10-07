@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Image from "next/image";
 import Link from "next/link";
 import { getPublishedCustomItems } from "@/lib/custom-items";
@@ -142,6 +144,19 @@ function CustomProductCard({
   );
 }
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+    {
+      name: "Home",
+      path: "/",
+    },
+    {
+      name: "Custom",
+      path: "/custom",
+    },
+  ]);
+
 export default async function CustomItemsPage() {
   const products = await getPublishedCustomItems();
 
@@ -197,6 +212,7 @@ export default async function CustomItemsPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-[#f7eadc]">
         <div className="absolute inset-0 -z-30 bg-[linear-gradient(90deg,#f7eadc_0%,#faefe5_48%,#edf3e7_100%)]" />

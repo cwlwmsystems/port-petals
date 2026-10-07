@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Image from "next/image";
 import Link from "next/link";
 import { getPublishedShirts } from "@/lib/shirts";
@@ -152,6 +154,19 @@ function ShirtProductCard({
   );
 }
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+    {
+      name: "Home",
+      path: "/",
+    },
+    {
+      name: "Shirts",
+      path: "/shirts",
+    },
+  ]);
+
 export default async function ShirtsPage() {
   const products = await getPublishedShirts();
 
@@ -278,6 +293,7 @@ export default async function ShirtsPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-[#f7eadc]">
         <div className="absolute inset-0 -z-30 bg-[linear-gradient(90deg,#f7eadc_0%,#faefe5_48%,#edf3e7_100%)]" />
@@ -431,6 +447,45 @@ export default async function ShirtsPage() {
           </div>
         </section>
       )}
+
+      {/* SHIRT OCCASIONS */}
+      <section className="border-b border-[#284239]/10 bg-[#f7f1e8]">
+        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+                Shirts for Events & Celebrations
+              </p>
+
+              <h2 className="mt-2 font-serif text-3xl font-semibold text-[#153f32]">
+                Find apparel for the occasion.
+              </h2>
+
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607068]">
+                Browse printed and personalized shirts for school events,
+                Homecoming, graduation, sports, gifts, and seasonal
+                celebrations.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/occasions/homecoming-prom"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Homecoming & Prom
+              </Link>
+
+              <Link
+                href="/occasions/graduation"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Graduation
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* COLLECTION NAVIGATION */}
       {collections.length > 0 && (

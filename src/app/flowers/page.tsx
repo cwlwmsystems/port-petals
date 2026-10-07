@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Image from "next/image";
 import Link from "next/link";
 import { getPublishedFlowers } from "@/lib/flowers";
@@ -125,6 +127,19 @@ function FlowerCard({
   );
 }
 
+
+const breadcrumbStructuredData =
+  buildBreadcrumbStructuredData([
+    {
+      name: "Home",
+      path: "/",
+    },
+    {
+      name: "Flowers",
+      path: "/flowers",
+    },
+  ]);
+
 export default async function FlowersPage() {
   const products = await getPublishedFlowers();
 
@@ -184,6 +199,7 @@ export default async function FlowersPage() {
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-[#284239]">
+      <JsonLd data={breadcrumbStructuredData} />
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-[#f7eadc]">
         <div className="absolute inset-0 -z-30 bg-[linear-gradient(90deg,#f7eadc_0%,#faefe5_48%,#edf3e7_100%)]" />
@@ -286,6 +302,59 @@ export default async function FlowersPage() {
                 className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
               >
                 Pickup & Delivery
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* POPULAR OCCASIONS */}
+      <section className="border-b border-[#284239]/10 bg-[#f7f1e8]">
+        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+                Shop Flowers by Occasion
+              </p>
+
+              <h2 className="mt-2 font-serif text-3xl font-semibold text-[#153f32]">
+                Find flowers for the moment.
+              </h2>
+
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607068]">
+                Browse fresh flowers and related gifts for birthdays,
+                sympathy, Homecoming, Prom, graduation, and other special
+                occasions.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/occasions/birthdays"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Birthday Flowers
+              </Link>
+
+              <Link
+                href="/occasions/sympathy"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Sympathy Flowers
+              </Link>
+
+              <Link
+                href="/occasions/homecoming-prom"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Homecoming & Prom
+              </Link>
+
+              <Link
+                href="/occasions/graduation"
+                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
+              >
+                Graduation Flowers
               </Link>
             </div>
           </div>
