@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { buildProductStructuredData } from "@/lib/seo/product";
+import JsonLd from "@/components/JsonLd";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import CustomItemConfigurator from "@/components/CustomItemConfigurator";
@@ -125,6 +127,15 @@ export default async function CustomItemPage({
     notFound();
   }
 
+  const productStructuredData =
+    buildProductStructuredData(
+      product,
+      {
+        pathname:
+          `/custom/${product.slug}`,
+      }
+    );
+
   const startingPrice = getStartingPrice(
     product.base_price,
     product.variants
@@ -201,6 +212,7 @@ export default async function CustomItemPage({
 
   return (
     <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
+      <JsonLd data={productStructuredData} />
       {/* BREADCRUMB */}
       <section className="mx-auto max-w-7xl px-5 pt-7 sm:px-8 lg:px-10">
         <nav
