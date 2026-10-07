@@ -634,15 +634,15 @@ export async function GET(request: Request) {
       const tsv = [
         HEADERS
           .map(cleanTsvValue)
-          .join("\\t"),
+          .join("\t"),
 
         ...rows.map(
           (row) =>
             row
               .map(cleanTsvValue)
-              .join("\\t")
+              .join("\t")
         ),
-      ].join("\\n");
+      ].join("\n");
 
       return new NextResponse(
         `${tsv}\n`,
@@ -674,7 +674,7 @@ export async function GET(request: Request) {
             .map(csvEscape)
             .join(",")
       ),
-    ].join("\\n");
+    ].join("\n");
 
     return new NextResponse(
       `${csv}\n`,
