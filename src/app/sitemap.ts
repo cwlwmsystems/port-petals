@@ -101,6 +101,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/journal/sympathy-flowers-port-allegany`,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/journal/flower-care`,
       changeFrequency: "monthly",
       priority: 0.5,

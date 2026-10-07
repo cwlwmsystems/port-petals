@@ -19,6 +19,15 @@ const featuredArticles = [
       "/journal/homecoming-flowers-port-allegany",
     label: "Homecoming Guide",
   },
+  {
+    title:
+      "Sympathy Flowers in Port Allegany: What to Send & How to Choose",
+    description:
+      "Learn how to choose sympathy flowers, arrangement styles, colors, messages, and timing with guidance from Port Petals.",
+    href:
+      "/journal/sympathy-flowers-port-allegany",
+    label: "Sympathy Guide",
+  },
 ];
 
 const sections = [
