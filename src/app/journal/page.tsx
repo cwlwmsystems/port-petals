@@ -9,6 +9,18 @@ export const metadata: Metadata = {
     "Explore flower care tips, seasonal inspiration, gift guides, and shop news from Port Petals in Port Allegany, Pennsylvania.",
 };
 
+const featuredArticles = [
+  {
+    title:
+      "Homecoming Flowers in Port Allegany: Corsages, Boutonnieres & Ordering Tips",
+    description:
+      "Plan Homecoming flowers with guidance on corsages, boutonnieres, colors, coordinating designs, and when to place your order.",
+    href:
+      "/journal/homecoming-flowers-port-allegany",
+    label: "Homecoming Guide",
+  },
+];
+
 const sections = [
   {
     title: "Seasonal Ideas",
@@ -76,6 +88,46 @@ export default function JournalPage() {
             inspiration, and updates from Port Petals in Port Allegany,
             Pennsylvania.
           </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 pt-14 sm:px-8 lg:px-10">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+            Featured Guides
+          </p>
+
+          <h2 className="mt-3 font-serif text-4xl font-semibold text-[#153f32]">
+            Helpful ideas for what is happening now.
+          </h2>
+        </div>
+
+        <div className="mt-7 grid gap-6">
+          {featuredArticles.map(
+            (article) => (
+              <Link
+                key={article.href}
+                href={article.href}
+                className="group rounded-[1.8rem] border border-[#284239]/10 bg-[#fffaf3] p-7 shadow-sm transition hover:-translate-y-1 hover:border-[#e76d61]/25 hover:shadow-[0_18px_45px_rgba(42,66,57,0.10)] sm:p-8"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
+                  {article.label}
+                </p>
+
+                <h3 className="mt-3 max-w-4xl font-serif text-3xl font-semibold text-[#153f32]">
+                  {article.title}
+                </h3>
+
+                <p className="mt-4 max-w-3xl leading-7 text-[#607068]">
+                  {article.description}
+                </p>
+
+                <span className="mt-6 inline-flex text-sm font-semibold text-[#284239] transition group-hover:text-[#e76d61]">
+                  Read the guide →
+                </span>
+              </Link>
+            )
+          )}
         </div>
       </section>
 
