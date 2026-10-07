@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AdminLayout({
+export default function AccountLayout({
   children,
 }: {
   children: ReactNode;

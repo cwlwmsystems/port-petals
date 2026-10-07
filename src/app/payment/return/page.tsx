@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import PaymentReturnClient from "@/components/PaymentReturnClient";
+
+export const metadata: Metadata = {
+  title: "Order Confirmation",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
 
 type PaymentReturnPageProps = {
   searchParams: Promise<{
