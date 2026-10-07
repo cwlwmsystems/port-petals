@@ -17,7 +17,8 @@ export const metadata: Metadata = {
       "Shop printed shirts, sports apparel, seasonal designs, and personalized shirts from Port Petals in Port Allegany, Pennsylvania.",
     url: "/shirts",
   },
-  title: "Shirts",
+  title:
+    "Custom Shirts & Printed Apparel in Port Allegany, PA",
   description:
     "Shop printed shirts, sports apparel, seasonal designs, and personalized shirts from Port Petals in Port Allegany, Pennsylvania.",
 };
