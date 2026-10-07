@@ -222,6 +222,7 @@ export default function SiteHeader() {
             alt="Port Petals"
             width={165}
             height={104}
+            quality={60}
             sizes="(max-width: 639px) 118px, (max-width: 1023px) 155px, 165px"
             className="h-auto w-[118px] sm:w-[155px] lg:w-[165px]"
             priority
