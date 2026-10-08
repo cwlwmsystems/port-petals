@@ -361,7 +361,7 @@ const collectionsByDepartment: Record<
     { value: "occasion", label: "Everyday & Occasion" },
     { value: "prom-homecoming", label: "Prom & Homecoming" },
     {
-      value: "Sympathy Arrangements",
+      value: "sympathy-arrangements",
       label: "Sympathy Arrangements",
     },
   ],
@@ -369,14 +369,14 @@ const collectionsByDepartment: Record<
   "gifts-decor": [
     { value: "candle-bouquets", label: "Candle Bouquets" },
     { value: "tarts", label: "Wax Melts / Tarts" },
-    { value: "Gift-Bouquets", label: "Gift Bouquets & Sets" },
+    { value: "gift-bouquets", label: "Gift Bouquets & Sets" },
     { value: "personalized", label: "Personalized Gifts" },
     { value: "home-decor", label: "Home Decor" },
   ],
 
   apparel: [
     {
-      value: "Sports-Screen-Prints",
+      value: "sports-screen-prints",
       label: "Sports Screen Prints",
     },
     {
@@ -384,18 +384,18 @@ const collectionsByDepartment: Record<
       label: "Occasion Screen Prints",
     },
     {
-      value: "Awareness-Screen-Prints",
+      value: "awareness-screen-prints",
       label: "Awareness Screen Prints",
     },
   ],
 
   "gator-gear": [
-    { value: "Gator-Gifts", label: "Gator Gifts" },
+    { value: "gator-gifts", label: "Gator Gifts" },
     {
       value: "player-personalized",
       label: "Player Personalized",
     },
-    { value: "School Spirit", label: "School Spirit" },
+    { value: "school-spirit", label: "School Spirit" },
     { value: "senior-night", label: "Senior Night" },
   ],
 

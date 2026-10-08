@@ -45,6 +45,11 @@ const collectionDetails: Record<
     description: string;
   }
 > = {
+  "sympathy-arrangements": {
+    label: "Sympathy Arrangements",
+    description:
+      "Thoughtful sympathy flowers, memorial tributes, sprays, and arrangements created to honor and remember loved ones.",
+  },
   occasion: {
     label: "Occasion Arrangements",
     description:

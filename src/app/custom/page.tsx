@@ -52,6 +52,11 @@ const collectionDetails: Record<
     description: string;
   }
 > = {
+  "gift-bouquets": {
+    label: "Gift Bouquets & Sets",
+    description:
+      "Creative gift bouquets and coordinated gift sets prepared for birthdays, celebrations, thank-yous, and special occasions.",
+  },
   sports: {
     label: "Sports & Team Designs",
     description:

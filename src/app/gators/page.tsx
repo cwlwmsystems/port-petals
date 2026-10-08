@@ -52,6 +52,16 @@ const collectionDetails: Record<
     description: string;
   }
 > = {
+  "school-spirit": {
+    label: "School Spirit",
+    description:
+      "Port Allegany school-spirit pieces for players, families, students, and Gator fans.",
+  },
+  "gator-gifts": {
+    label: "Gator Gifts",
+    description:
+      "Port Allegany Gator gifts and accessories for game days, celebrations, and hometown pride.",
+  },
   "t-shirts": {
     label: "Gator T-Shirts",
     description:
