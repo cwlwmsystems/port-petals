@@ -10,10 +10,7 @@ import {
 import { useCart } from "@/components/CartProvider";
 import CheckoutProgress from "@/components/CheckoutProgress";
 import { createClient } from "@/lib/supabase/client";
-import {
-  trackAddPaymentInfo,
-  trackBeginCheckout,
-} from "@/lib/analytics";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 type FulfillmentType = "pickup" | "delivery";
 
@@ -683,28 +680,6 @@ export default function CheckoutClient() {
           "We couldn't open payment. Please try again."
         );
       }
-
-      trackAddPaymentInfo(
-        items.map((item) => ({
-          productId:
-            item.productId,
-          variantId:
-            item.variantId,
-          productName:
-            item.productName,
-          unitPrice:
-            item.unitPrice,
-          quantity:
-            item.quantity,
-          garmentType:
-            item.garmentType,
-          size: item.size,
-          color: item.color,
-        })),
-        createdOrder.total,
-        "Square"
-      );
-
       window.location.href =
         result.checkoutUrl;
     } catch (caughtError) {

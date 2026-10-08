@@ -200,27 +200,6 @@ export function trackRemoveFromCart(
   return true;
 }
 
-export function trackAddPaymentInfo(
-  items: AnalyticsCartItem[],
-  value: number,
-  paymentType = "Square"
-) {
-  const gtag = getGtag();
-
-  if (!gtag || items.length === 0) {
-    return false;
-  }
-
-  gtag("event", "add_payment_info", {
-    currency: "USD",
-    value: Number(value),
-    payment_type: paymentType,
-    items: items.map(buildItem),
-  });
-
-  return true;
-}
-
 export function trackViewCart(
   items: AnalyticsCartItem[],
   value: number
