@@ -1,7 +1,10 @@
 "use client";
 
 import { useToast } from "@/components/ToastProvider";
-import { trackAddToCart } from "@/lib/analytics";
+import {
+  trackAddToCart,
+  trackRemoveFromCart,
+} from "@/lib/analytics";
 
 
 import {
@@ -174,9 +177,42 @@ export default function CartProvider({
   }
 
   function removeItem(lineId: string) {
-    setItems((current) =>
-      current.filter((item) => item.lineId !== lineId)
-    );
+    setItems((current) => {
+      const existing =
+        current.find(
+          (item) =>
+            item.lineId === lineId
+        );
+
+      if (existing) {
+        trackRemoveFromCart(
+          {
+            productId:
+              existing.productId,
+            variantId:
+              existing.variantId,
+            productName:
+              existing.productName,
+            unitPrice:
+              existing.unitPrice,
+            quantity:
+              existing.quantity,
+            garmentType:
+              existing.garmentType,
+            size:
+              existing.size,
+            color:
+              existing.color,
+          },
+          existing.quantity
+        );
+      }
+
+      return current.filter(
+        (item) =>
+          item.lineId !== lineId
+      );
+    });
   }
 
   function setQuantity(
@@ -188,16 +224,54 @@ export default function CartProvider({
       return;
     }
 
-    setItems((current) =>
-      current.map((item) =>
+    setItems((current) => {
+      const existing =
+        current.find(
+          (item) =>
+            item.lineId === lineId
+        );
+
+      if (
+        existing &&
+        quantity <
+          existing.quantity
+      ) {
+        const removedQuantity =
+          existing.quantity -
+          quantity;
+
+        trackRemoveFromCart(
+          {
+            productId:
+              existing.productId,
+            variantId:
+              existing.variantId,
+            productName:
+              existing.productName,
+            unitPrice:
+              existing.unitPrice,
+            quantity:
+              removedQuantity,
+            garmentType:
+              existing.garmentType,
+            size:
+              existing.size,
+            color:
+              existing.color,
+          },
+          removedQuantity
+        );
+      }
+
+      return current.map((item) =>
         item.lineId === lineId
           ? {
               ...item,
               quantity,
             }
           : item
-      )
-    );
+      );
+    });
   }
 
   function clearCart() {
