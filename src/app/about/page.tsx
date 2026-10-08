@@ -4,6 +4,9 @@ import Link from "next/link";
 
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/about",
+  },
   title: "About & Contact",
   description:
     "Learn about Port Petals in Port Allegany, Pennsylvania and contact the shop about flowers, gifts, custom items, pickup, and local delivery.",

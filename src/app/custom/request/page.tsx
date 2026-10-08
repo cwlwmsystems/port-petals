@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/custom/request",
+  },
   title: "Custom Orders | Port Petals",
   description:
     "Contact Port Petals in Port Allegany, Pennsylvania to discuss a custom flower, gift, shirt, craft, or personalized order.",

@@ -102,7 +102,7 @@ export async function getPublishedFlowers(): Promise<FlowerProduct[]> {
         is_primary
       )
     `)
-    .eq("department", "flowers")
+    .eq("category", "flowers")
     .eq("status", "published")
     .order("featured", { ascending: false })
     .order("updated_at", { ascending: false });

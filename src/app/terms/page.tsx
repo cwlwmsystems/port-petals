@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/terms",
+  },
   title: "Terms & Store Policies",
   description:
     "Ordering, payment, pickup, delivery, cancellation, refund, and custom-product policies for Port Petals.",

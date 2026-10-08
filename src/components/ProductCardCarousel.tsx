@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type ProductCardCarouselProps = {
   children: React.ReactNode[];
@@ -11,17 +11,14 @@ export default function ProductCardCarousel({
   children,
   visibleCount = 3,
 }: ProductCardCarouselProps) {
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageIndex, setPageIndex] =
+    useState(0);
 
   const total = children.length;
-  const pageCount = Math.ceil(total / visibleCount);
 
-  const visibleItems = useMemo(() => {
-    const start = pageIndex * visibleCount;
-    const end = start + visibleCount;
-
-    return children.slice(start, end);
-  }, [children, pageIndex, visibleCount]);
+  const pageCount = Math.ceil(
+    total / visibleCount
+  );
 
   if (total <= visibleCount) {
     return (
@@ -31,29 +28,59 @@ export default function ProductCardCarousel({
     );
   }
 
-  const canGoBack = pageIndex > 0;
-  const canGoNext = pageIndex < pageCount - 1;
+  const pages = Array.from(
+    { length: pageCount },
+    (_, index) => {
+      const start =
+        index * visibleCount;
+
+      return children.slice(
+        start,
+        start + visibleCount
+      );
+    }
+  );
+
+  const canGoBack =
+    pageIndex > 0;
+
+  const canGoNext =
+    pageIndex < pageCount - 1;
 
   function goNext() {
     if (canGoNext) {
-      setPageIndex((current) => current + 1);
+      setPageIndex(
+        current => current + 1
+      );
     }
   }
 
   function goBack() {
     if (canGoBack) {
-      setPageIndex((current) => current - 1);
+      setPageIndex(
+        current => current - 1
+      );
     }
   }
 
   return (
     <div>
-      <div
-        key={pageIndex}
-        className="pp-fade-up grid gap-7 md:grid-cols-2 xl:grid-cols-3"
-      >
-        {visibleItems}
-      </div>
+      {pages.map(
+        (page, index) => (
+          <div
+            key={index}
+            hidden={
+              index !== pageIndex
+            }
+            aria-hidden={
+              index !== pageIndex
+            }
+            className="pp-fade-up grid gap-7 md:grid-cols-2 xl:grid-cols-3"
+          >
+            {page}
+          </div>
+        )
+      )}
 
       <div className="mt-7 flex items-center justify-center gap-4">
         <button
@@ -71,7 +98,8 @@ export default function ProductCardCarousel({
         </button>
 
         <p className="min-w-16 text-center text-sm text-[#718078]">
-          {pageIndex + 1} of {pageCount}
+          {pageIndex + 1} of{" "}
+          {pageCount}
         </p>
 
         <button
