@@ -29,7 +29,18 @@ export async function GET(request: Request) {
         delivery_fee,
         tax_amount,
         total,
-        paid_at
+        paid_at,
+        order_items (
+          product_id,
+          variant_id,
+          product_name,
+          variant_name,
+          garment_type,
+          size,
+          color,
+          quantity,
+          unit_price
+        )
       `)
       .eq("id", orderId)
       .maybeSingle();
@@ -65,6 +76,30 @@ export async function GET(request: Request) {
         taxAmount: Number(order.tax_amount ?? 0),
         total: Number(order.total ?? 0),
         paidAt: order.paid_at,
+        items: (
+          order.order_items ?? []
+        ).map((item) => ({
+          productId:
+            item.product_id,
+          variantId:
+            item.variant_id,
+          productName:
+            item.product_name,
+          variantName:
+            item.variant_name,
+          garmentType:
+            item.garment_type,
+          size: item.size,
+          color: item.color,
+          quantity:
+            Number(
+              item.quantity ?? 0
+            ),
+          unitPrice:
+            Number(
+              item.unit_price ?? 0
+            ),
+        })),
       },
     });
   } catch (error) {

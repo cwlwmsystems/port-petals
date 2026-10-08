@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import {
+  useEffect,
+  useRef,
+} from "react";
 import { useCart } from "@/components/CartProvider";
+import { trackViewCart } from "@/lib/analytics";
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("en-US", {
@@ -34,6 +39,44 @@ export default function CartPageClient() {
     setQuantity,
     clearCart,
   } = useCart();
+
+  const viewCartTracked =
+    useRef(false);
+
+  useEffect(() => {
+    if (
+      viewCartTracked.current ||
+      items.length === 0
+    ) {
+      return;
+    }
+
+    const sent =
+      trackViewCart(
+        items.map((item) => ({
+          productId:
+            item.productId,
+          variantId:
+            item.variantId,
+          productName:
+            item.productName,
+          unitPrice:
+            item.unitPrice,
+          quantity:
+            item.quantity,
+          garmentType:
+            item.garmentType,
+          size: item.size,
+          color: item.color,
+        })),
+        subtotal
+      );
+
+    if (sent) {
+      viewCartTracked.current =
+        true;
+    }
+  }, [items, subtotal]);
 
   function handleClearCart() {
     const confirmed = window.confirm(

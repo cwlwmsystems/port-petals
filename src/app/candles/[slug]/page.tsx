@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import { buildProductStructuredData } from "@/lib/seo/product";
 import JsonLd from "@/components/JsonLd";
+import ProductViewTracker from "@/components/ProductViewTracker";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import CandleOrderConfigurator from "@/components/CandleOrderConfigurator";
@@ -243,6 +244,12 @@ export default async function CandlePage({
 
   return (
     <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
+      <ProductViewTracker
+        productId={product.id}
+        productName={product.name}
+        category="candles"
+        price={startingPrice}
+      />
       <JsonLd data={productStructuredData} />
       <JsonLd data={breadcrumbStructuredData} />
       {/* BREADCRUMB */}

@@ -3,12 +3,14 @@
 import Link from "next/link";
 import {
   useEffect,
+  useRef,
   useState,
   type FormEvent,
 } from "react";
 import { useCart } from "@/components/CartProvider";
 import CheckoutProgress from "@/components/CheckoutProgress";
 import { createClient } from "@/lib/supabase/client";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 type FulfillmentType = "pickup" | "delivery";
 
@@ -143,6 +145,44 @@ export default function CheckoutClient() {
     selectedReferralRewardId,
     setSelectedReferralRewardId,
   ] = useState("");
+
+  const beginCheckoutTracked =
+    useRef(false);
+
+  useEffect(() => {
+    if (
+      beginCheckoutTracked.current ||
+      items.length === 0
+    ) {
+      return;
+    }
+
+    const sent =
+      trackBeginCheckout(
+        items.map((item) => ({
+          productId:
+            item.productId,
+          variantId:
+            item.variantId,
+          productName:
+            item.productName,
+          unitPrice:
+            item.unitPrice,
+          quantity:
+            item.quantity,
+          garmentType:
+            item.garmentType,
+          size: item.size,
+          color: item.color,
+        })),
+        subtotal
+      );
+
+    if (sent) {
+      beginCheckoutTracked.current =
+        true;
+    }
+  }, [items, subtotal]);
 
   useEffect(() => {
     let active = true;

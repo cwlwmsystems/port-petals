@@ -1,6 +1,7 @@
 "use client";
 
 import { useToast } from "@/components/ToastProvider";
+import { trackAddToCart } from "@/lib/analytics";
 
 
 import {
@@ -151,6 +152,20 @@ export default function CartProvider({
         },
       ];
     });
+
+    trackAddToCart(
+      {
+        productId: input.productId,
+        variantId: input.variantId,
+        productName: input.productName,
+        unitPrice: input.unitPrice,
+        garmentType:
+          input.garmentType,
+        size: input.size,
+        color: input.color,
+      },
+      quantity
+    );
 
     toast(
       `${input.productName} added to cart.`,

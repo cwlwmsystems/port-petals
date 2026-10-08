@@ -8,6 +8,19 @@ import {
 } from "react";
 import { useCart } from "@/components/CartProvider";
 import CheckoutProgress from "@/components/CheckoutProgress";
+import { trackPurchase } from "@/lib/analytics";
+
+type ConfirmationOrderItem = {
+  productId: string;
+  variantId: string | null;
+  productName: string;
+  variantName: string | null;
+  garmentType: string | null;
+  size: string | null;
+  color: string | null;
+  quantity: number;
+  unitPrice: number;
+};
 
 type ConfirmationOrder = {
   id: string;
@@ -20,6 +33,7 @@ type ConfirmationOrder = {
   taxAmount: number;
   total: number;
   paidAt: string | null;
+  items: ConfirmationOrderItem[];
 };
 
 type PaymentPreviewState =
@@ -79,6 +93,7 @@ export default function PaymentReturnClient({
         deliveryFee: 0,
         taxAmount: 0,
         total: 65,
+        items: [],
         paidAt:
           previewState === "paid"
             ? new Date().toISOString()
@@ -165,6 +180,47 @@ export default function PaymentReturnClient({
 
         if (paymentConfirmed) {
           setFinishedChecking(true);
+
+          const analyticsKey =
+            `port-petals-ga4-purchase-${nextOrder.id}`;
+
+          let alreadyTracked = false;
+
+          try {
+            alreadyTracked =
+              window.localStorage.getItem(
+                analyticsKey
+              ) === "1";
+          } catch {
+            alreadyTracked = false;
+          }
+
+          if (!alreadyTracked) {
+            const sent =
+              trackPurchase({
+                transactionId:
+                  nextOrder.orderNumber,
+                value:
+                  nextOrder.total,
+                tax:
+                  nextOrder.taxAmount,
+                shipping:
+                  nextOrder.deliveryFee,
+                items:
+                  nextOrder.items ?? [],
+              });
+
+            if (sent) {
+              try {
+                window.localStorage.setItem(
+                  analyticsKey,
+                  "1"
+                );
+              } catch {
+                // Analytics still sent successfully.
+              }
+            }
+          }
 
           if (!cartCleared.current) {
             clearCart();

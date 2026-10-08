@@ -3,6 +3,7 @@ import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import { buildProductStructuredData } from "@/lib/seo/product";
 import { buildShirtProductGroupStructuredData } from "@/lib/seo/product-variants";
 import JsonLd from "@/components/JsonLd";
+import ProductViewTracker from "@/components/ProductViewTracker";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ShirtOrderConfigurator from "@/components/ShirtOrderConfigurator";
@@ -276,6 +277,12 @@ export default async function ShirtPage({
 
   return (
     <main className="min-h-screen pb-24 lg:pb-0 bg-[#f7f1e8] text-[#284239]">
+      <ProductViewTracker
+        productId={product.id}
+        productName={product.name}
+        category="apparel"
+        price={startingPrice}
+      />
       <JsonLd data={productStructuredData} />
       <JsonLd data={productGroupStructuredData} />
       <JsonLd data={breadcrumbStructuredData} />
