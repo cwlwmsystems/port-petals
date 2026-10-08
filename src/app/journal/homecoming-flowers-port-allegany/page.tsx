@@ -19,9 +19,9 @@ const canonicalUrl =
 
 export const metadata: Metadata = {
   title:
-    "Homecoming Flowers in Port Allegany | Corsages & Boutonnieres",
+    "Homecoming Flowers in Port Allegany",
   description:
-    "Planning for Homecoming in Port Allegany? Learn about corsages, boutonnieres, matching flowers, ordering tips, and when to place your Homecoming flower order with Port Petals.",
+    "Plan Homecoming flowers in Port Allegany with tips on corsages, boutonnieres, matching colors, and when to order from Port Petals.",
   alternates: {
     canonical: canonicalPath,
   },

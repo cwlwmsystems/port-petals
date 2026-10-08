@@ -55,6 +55,44 @@ function getLeadTimeText(days: number | null) {
   } for this item.`;
 }
 
+
+function buildSeoDescription(
+  shortDescription: string | null,
+  description: string | null,
+  fallback: string
+) {
+  const short =
+    shortDescription?.trim() ?? "";
+
+  if (
+    short.length >= 80 &&
+    short.length <= 160
+  ) {
+    return short;
+  }
+
+  const source =
+    description?.trim() ||
+    short ||
+    fallback;
+
+  if (source.length <= 160) {
+    return source;
+  }
+
+  const shortened =
+    source.slice(0, 157);
+
+  const lastSpace =
+    shortened.lastIndexOf(" ");
+
+  return `${
+    lastSpace > 100
+      ? shortened.slice(0, lastSpace)
+      : shortened
+  }...`;
+}
+
 export async function generateMetadata({
   params,
 }: FlowerPageProps): Promise<Metadata> {
@@ -69,22 +107,32 @@ export async function generateMetadata({
   }
 
   const description =
-    product.short_description ??
-    product.description ??
-    "Fresh flowers from Port Petals.";
+    buildSeoDescription(
+      product.short_description,
+      product.description,
+      "Fresh flowers from Port Petals in Port Allegany, Pennsylvania."
+    );
+
+  const seoTitle =
+    slug === "adara"
+      ? "Adara White Rose Arrangement"
+      : slug ===
+          "on-a-cloudy-day-be-someones-rainbow-hand-tied"
+        ? "Someone's Rainbow Hand-Tied Bouquet"
+        : product.name;
 
   const canonical = `/flowers/${slug}`;
   const primaryImage = product.images[0]?.publicUrl;
 
   return {
-    title: product.name,
+    title: seoTitle,
     description,
     alternates: {
       canonical,
     },
     openGraph: {
       type: "website",
-      title: product.name,
+      title: seoTitle,
       description,
       url: canonical,
       images: primaryImage
@@ -102,7 +150,7 @@ export async function generateMetadata({
       card: primaryImage
         ? "summary_large_image"
         : "summary",
-      title: product.name,
+      title: seoTitle,
       description,
       images: primaryImage
         ? [primaryImage]

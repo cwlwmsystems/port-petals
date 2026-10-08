@@ -56,6 +56,44 @@ function getLeadTimeText(days: number | null) {
   } for this item.`;
 }
 
+
+function buildSeoDescription(
+  shortDescription: string | null,
+  description: string | null,
+  fallback: string
+) {
+  const short =
+    shortDescription?.trim() ?? "";
+
+  if (
+    short.length >= 80 &&
+    short.length <= 160
+  ) {
+    return short;
+  }
+
+  const source =
+    description?.trim() ||
+    short ||
+    fallback;
+
+  if (source.length <= 160) {
+    return source;
+  }
+
+  const shortened =
+    source.slice(0, 157);
+
+  const lastSpace =
+    shortened.lastIndexOf(" ");
+
+  return `${
+    lastSpace > 100
+      ? shortened.slice(0, lastSpace)
+      : shortened
+  }...`;
+}
+
 export async function generateMetadata({
   params,
 }: GatorPageProps): Promise<Metadata> {
@@ -71,9 +109,11 @@ export async function generateMetadata({
   }
 
   const description =
-    product.short_description ??
-    product.description ??
-    "Port Allegany Gator gear from Port Petals.";
+    buildSeoDescription(
+      product.short_description,
+      product.description,
+      "Port Allegany Gator gear and hometown gifts from Port Petals."
+    );
 
   const canonical = `/gators/${slug}`;
   const primaryImage =

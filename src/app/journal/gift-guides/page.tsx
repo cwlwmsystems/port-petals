@@ -17,7 +17,7 @@ const canonicalUrl =
 
 export const metadata: Metadata = {
   title:
-    "Gift Guide | Flowers, Gifts & Thoughtful Ideas from Port Petals",
+    "Gift Ideas: Flowers, Custom Gifts & More",
   description:
     "Find thoughtful gift ideas from Port Petals in Port Allegany, including flowers, candles, custom creations, apparel, and hometown gifts.",
   alternates: {
@@ -80,7 +80,7 @@ const articleStructuredData = {
     url: "https://www.portpetals.com",
   },
   image:
-    "https://www.portpetals.com/collections/gifts.jpg",
+    "https://www.portpetals.com/collections/giftset.jpg",
   url: canonicalUrl,
 };
 

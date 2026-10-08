@@ -8,7 +8,7 @@ const canonicalPath =
 
 export const metadata: Metadata = {
   title:
-    "Shop News | Port Petals Updates, Collections & Local Events",
+    "Shop News & Local Updates",
   description:
     "Follow Port Petals shop updates, seasonal collections, new products, local events, and Port Allegany Gator gear news.",
   alternates: {

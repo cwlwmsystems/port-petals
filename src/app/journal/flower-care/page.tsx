@@ -18,7 +18,7 @@ const canonicalUrl =
 
 export const metadata: Metadata = {
   title:
-    "Flower Care Guide | Keep Fresh Flowers Beautiful Longer",
+    "Fresh Flower Care Guide",
   description:
     "Learn how to care for fresh-cut flowers and floral arrangements with practical tips from Port Petals in Port Allegany, Pennsylvania.",
   alternates: {

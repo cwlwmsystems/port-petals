@@ -19,7 +19,7 @@ const canonicalUrl =
 
 export const metadata: Metadata = {
   title:
-    "Sympathy Flowers in Port Allegany | What to Send & How to Choose",
+    "Sympathy Flowers in Port Allegany",
   description:
     "Learn how to choose sympathy flowers in Port Allegany, including arrangement ideas, colors, messages, timing, and thoughtful gift options from Port Petals.",
   alternates: {

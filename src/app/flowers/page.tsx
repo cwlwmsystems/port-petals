@@ -9,9 +9,9 @@ import StoreProductCard from "@/components/StoreProductCard";
 
 export const metadata: Metadata = {
   title:
-    "Flower Delivery & Fresh Flowers in Port Allegany, PA",
+    "Fresh Flowers & Delivery in Port Allegany, PA",
   description:
-    "Order fresh flowers, bouquets, seasonal arrangements, birthday flowers, sympathy flowers, and Prom or Homecoming flowers from Port Petals in Port Allegany, PA. Pickup and eligible local delivery are available.",
+    "Order bouquets, seasonal arrangements, birthday, sympathy, Prom, and Homecoming flowers from Port Petals in Port Allegany, PA, with pickup and local delivery.",
   alternates: {
     canonical: "/flowers",
   },

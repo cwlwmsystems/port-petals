@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title:
     "Florist & Flower Shop in Port Allegany, PA",
   description:
-    "Shop fresh flowers, gifts, custom creations, apparel, seasonal favorites, and Port Allegany Gator gear from Port Petals. Local pickup and eligible flower delivery are available in the Port Allegany area.",
+    "Shop fresh flowers, gifts, custom creations, apparel, and Gator gear from Port Petals in Port Allegany, PA, with local pickup and eligible delivery.",
   alternates: {
     canonical: "/",
   },

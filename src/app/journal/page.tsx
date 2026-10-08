@@ -6,7 +6,7 @@ import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 
 export const metadata: Metadata = {
   title:
-    "Journal | Flower Guides, Gift Ideas & Port Petals Stories",
+    "Flower & Gift Guides | Local Florist Journal",
   description:
     "Explore flower guides, seasonal inspiration, thoughtful gift ideas, Port Allegany stories, and shop updates from Port Petals.",
   alternates: {

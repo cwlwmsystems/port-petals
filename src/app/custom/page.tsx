@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title:
     "Custom & Personalized Gifts in Port Allegany, PA",
   description:
-    "Shop custom and personalized gifts from Port Petals in Port Allegany, PA, including sports designs, signs, tumblers, seasonal decor, woodcrafts, and made-to-order creations.",
+    "Shop personalized gifts from Port Petals in Port Allegany, PA, including sports designs, signs, tumblers, seasonal decor, woodcrafts, and custom creations.",
   alternates: {
     canonical: "/custom",
   },

@@ -12,9 +12,9 @@ import {
 
 export const metadata: Metadata = {
   title:
-    "Wedding Florist & Wedding Flowers in Port Allegany, PA",
+    "Wedding Flowers in Port Allegany, PA",
   description:
-    "Plan wedding flowers with Port Petals, a local florist in Port Allegany, PA. Explore bridal bouquets, ceremony flowers, centerpieces, reception florals, wedding-party flowers, and custom floral consultations.",
+    "Plan wedding flowers with Port Petals in Port Allegany, PA, including bridal bouquets, ceremony flowers, centerpieces, reception florals, and consultations.",
   alternates: {
     canonical: "/weddings",
   },

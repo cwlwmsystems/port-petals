@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   },
   title: "Privacy Policy",
   description:
-    "Privacy Policy for the Port Petals website and online ordering experience.",
+    "Read how Port Petals collects, uses, stores, and protects information when customers browse the website, place orders, or contact the shop.",
 };
 
 export default function PrivacyPolicyPage() {
