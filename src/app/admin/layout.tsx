@@ -4,6 +4,7 @@ import type {
 import type {
   ReactNode,
 } from "react";
+import AdminShell from "@/components/admin/AdminShell";
 
 export const metadata: Metadata = {
   robots: {
@@ -22,5 +23,9 @@ export default function AdminLayout({
 }: {
   children: ReactNode;
 }) {
-  return children;
+  return (
+    <AdminShell>
+      {children}
+    </AdminShell>
+  );
 }
