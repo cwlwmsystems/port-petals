@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import ProductionCalendarGrid, {
+  type ProductionSpan,
+} from "./ProductionCalendarGrid";
 
 type Props = {
   searchParams: Promise<{
@@ -16,7 +20,8 @@ type CalendarEventType =
   | "delivery"
   | "wedding"
   | "consultation"
-  | "follow_up";
+  | "follow_up"
+  | "manual_work";
 
 type CalendarEvent = {
   id: string;
@@ -290,6 +295,9 @@ function eventClasses(
 
     case "follow_up":
       return "border-[#775d2f]/15 bg-[#f4ead8] text-[#775d2f]";
+
+    case "manual_work":
+      return "border-[#e76d61]/20 bg-[#fff0ed] text-[#9b463e]";
   }
 }
 
@@ -317,6 +325,9 @@ function eventLabel(
 
     case "follow_up":
       return "Follow-Up";
+
+    case "manual_work":
+      return "Manual Work";
   }
 }
 
@@ -407,6 +418,55 @@ export default async function ProductionCalendarPage({
 
   if (!adminUser) {
     redirect("/admin/login");
+  }
+
+  const adminSupabase =
+    createAdminClient();
+
+  const {
+    data: manualWorkItems,
+    error: manualWorkError,
+  } =
+    await adminSupabase
+      .from("manual_work_items")
+      .select(`
+        id,
+        work_number,
+        title,
+        customer_name,
+        customer_phone,
+        source,
+        work_type,
+        production_start_date,
+        due_date,
+        due_time,
+        fulfillment_type,
+        status,
+        notes
+      `)
+      .lte(
+        "production_start_date",
+        lastDate
+      )
+      .gte(
+        "due_date",
+        firstDate
+      )
+      .neq(
+        "status",
+        "cancelled"
+      )
+      .order(
+        "production_start_date",
+        {
+          ascending: true,
+        }
+      );
+
+  if (manualWorkError) {
+    throw new Error(
+      manualWorkError.message
+    );
   }
 
   const [
@@ -548,6 +608,9 @@ export default async function ProductionCalendarPage({
   const events:
     CalendarEvent[] = [];
 
+  const productionSpans:
+    ProductionSpan[] = [];
+
   for (
     const order of
       ordersResult.data ?? []
@@ -614,6 +677,35 @@ export default async function ProductionCalendarPage({
           -leadTimeDays
         );
 
+      productionSpans.push({
+        id:
+          `order-span-${order.id}`,
+        startDate:
+          productionStart,
+        endDate:
+          fulfillmentDate,
+        title:
+          order.order_number,
+        customerName:
+          order.customer_name,
+        href:
+          `/admin/orders/${order.id}`,
+        sourceType:
+          "order",
+        status:
+          order.status,
+        fulfillmentType:
+          order.fulfillment_type,
+        dueTime:
+          null,
+        source:
+          null,
+        workType:
+          null,
+        notes:
+          null,
+      });
+
       for (
         let offset = 0;
         offset <
@@ -653,6 +745,134 @@ export default async function ProductionCalendarPage({
               : "production",
         });
       }
+    }
+  }
+
+  for (
+    const item of
+      manualWorkItems ?? []
+  ) {
+    productionSpans.push({
+      id:
+        `manual-span-${item.id}`,
+      startDate:
+        item.production_start_date,
+      endDate:
+        item.due_date,
+      title:
+        `${item.work_number} · ${item.title}`,
+      customerName:
+        item.customer_name,
+      href:
+        `/admin/calendar/work/${item.id}`,
+      sourceType:
+        "manual",
+      status:
+        item.status,
+      fulfillmentType:
+        item.fulfillment_type,
+      dueTime:
+        item.due_time
+          ? String(
+              item.due_time
+            ).slice(
+              0,
+              5
+            )
+          : null,
+      source:
+        item.source,
+      workType:
+        item.work_type,
+      notes:
+        item.notes,
+    });
+
+    let dateKey =
+      item.production_start_date;
+
+    while (
+      dateKey <=
+      item.due_date
+    ) {
+      if (
+        dateKey >= firstDate &&
+        dateKey <= lastDate
+      ) {
+        const isStart =
+          dateKey ===
+          item.production_start_date;
+
+        const isDue =
+          dateKey ===
+          item.due_date;
+
+        let stage =
+          "In Production";
+
+        if (isStart) {
+          stage =
+            "Production Start";
+        }
+
+        if (isDue) {
+          if (
+            item.fulfillment_type ===
+            "pickup"
+          ) {
+            stage = "Pickup";
+          } else if (
+            item.fulfillment_type ===
+            "delivery"
+          ) {
+            stage = "Delivery";
+          } else {
+            stage = "Due";
+          }
+        }
+
+        const customer =
+          item.customer_name
+            ? ` · ${item.customer_name}`
+            : "";
+
+        events.push({
+          id:
+            `manual-${item.id}-${dateKey}`,
+          dateKey,
+          timeLabel:
+            isDue &&
+            item.due_time
+              ? String(
+                  item.due_time
+                ).slice(
+                  0,
+                  5
+                )
+              : null,
+          title:
+            `${item.work_number} · ${item.title}`,
+          subtitle:
+            `${stage}${customer}`,
+          href:
+            `/admin/calendar/work/${item.id}`,
+          type:
+            "manual_work",
+        });
+      }
+
+      if (
+        dateKey ===
+        item.due_date
+      ) {
+        break;
+      }
+
+      dateKey =
+        addCalendarDays(
+          dateKey,
+          1
+        );
     }
   }
 
@@ -872,6 +1092,13 @@ export default async function ProductionCalendarPage({
           actions={
             <>
               <Link
+                href="/admin/calendar/work/new"
+                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#e76d61] px-4 text-sm font-semibold text-white transition hover:bg-[#c95349]"
+              >
+                + Add Work
+              </Link>
+
+              <Link
                 href={`/admin/calendar?month=${previousMonth}`}
                 className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#284239]/15 bg-white px-4 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
               >
@@ -938,6 +1165,10 @@ export default async function ProductionCalendarPage({
               [
                 "follow_up",
                 "Follow-Up",
+              ],
+              [
+                "manual_work",
+                "Manual Work",
               ],
             ].map(
               ([
@@ -1037,126 +1268,17 @@ export default async function ProductionCalendarPage({
         )}
 
         {/* DESKTOP / TABLET MONTH GRID */}
-        <section className="mt-5 hidden overflow-hidden rounded-2xl border border-[#284239]/10 bg-white shadow-[0_1px_3px_rgba(21,63,50,0.05)] lg:block">
-          <div className="grid grid-cols-7 border-b border-[#284239]/10 bg-[#f5f7f4]">
-            {[
-              "Sun",
-              "Mon",
-              "Tue",
-              "Wed",
-              "Thu",
-              "Fri",
-              "Sat",
-            ].map(
-              (day) => (
-                <div
-                  key={day}
-                  className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[#607068]"
-                >
-                  {day}
-                </div>
-              )
-            )}
-          </div>
-
-          <div className="grid grid-cols-7">
-            {calendarDays.map(
-              (day) => (
-                <div
-                  key={
-                    day.dateKey
-                  }
-                  className={`min-h-36 border-b border-r border-[#284239]/10 p-2 xl:min-h-40 ${
-                    day.inMonth
-                      ? "bg-white"
-                      : "bg-[#faf7f1]/70"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                        day.dateKey ===
-                        todayKey
-                          ? "bg-[#e76d61] text-white"
-                          : day.inMonth
-                            ? "text-[#153f32]"
-                            : "text-[#9aa59f]"
-                      }`}
-                    >
-                      {day.day}
-                    </span>
-
-                    {day.events.length >
-                      0 && (
-                      <span className="text-xs font-semibold text-[#718078]">
-                        {
-                          day.events
-                            .length
-                        }
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-2 space-y-1.5">
-                    {day.events
-                      .slice(0, 4)
-                      .map(
-                        (
-                          event
-                        ) => (
-                          <Link
-                            key={
-                              event.id
-                            }
-                            href={
-                              event.href
-                            }
-                            className={`block rounded-lg border px-2 py-1.5 text-[11px] leading-4 transition hover:-translate-y-px ${eventClasses(
-                              event.type
-                            )}`}
-                          >
-                            <p className="font-semibold">
-                              {event.timeLabel
-                                ? `${event.timeLabel} · `
-                                : ""}
-                              {eventLabel(
-                                event.type
-                              )}
-                            </p>
-
-                            <p className="truncate font-medium">
-                              {
-                                event.title
-                              }
-                            </p>
-
-                            {event.subtitle && (
-                              <p className="truncate opacity-80">
-                                {
-                                  event.subtitle
-                                }
-                              </p>
-                            )}
-                          </Link>
-                        )
-                      )}
-
-                    {day.events.length >
-                      4 && (
-                      <p className="px-1 text-[11px] font-semibold text-[#607068]">
-                        +
-                        {day.events
-                          .length -
-                          4}{" "}
-                        more
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )
-            )}
-          </div>
-        </section>
+        <ProductionCalendarGrid
+          calendarDays={
+            calendarDays
+          }
+          productionSpans={
+            productionSpans
+          }
+          todayKey={
+            todayKey
+          }
+        />
 
         {/* MOBILE AGENDA */}
         <section className="mt-5 lg:hidden">
