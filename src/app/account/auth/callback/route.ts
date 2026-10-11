@@ -1,31 +1,70 @@
-import { NextResponse } from "next/server";
+import {
+  type EmailOtpType,
+} from "@supabase/supabase-js";
+
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
+
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET(request: Request) {
-  const requestUrl = new URL(request.url);
+export async function GET(
+  request: NextRequest
+) {
+  const {
+    searchParams,
+  } = new URL(
+    request.url
+  );
 
-  const code = requestUrl.searchParams.get("code");
+  const tokenHash =
+    searchParams.get(
+      "token_hash"
+    );
+
+  const type =
+    searchParams.get(
+      "type"
+    ) as
+      | EmailOtpType
+      | null;
 
   const requestedNext =
-    requestUrl.searchParams.get("next");
+    searchParams.get(
+      "next"
+    );
 
   const next =
     requestedNext &&
-    requestedNext.startsWith("/account")
+    requestedNext.startsWith(
+      "/account"
+    )
       ? requestedNext
       : "/account";
 
-  if (code) {
-    const supabase = await createClient();
+  if (
+    tokenHash &&
+    type
+  ) {
+    const supabase =
+      await createClient();
 
-    const { error } =
-      await supabase.auth.exchangeCodeForSession(
-        code
-      );
+    const {
+      error,
+    } =
+      await supabase.auth.verifyOtp({
+        type,
+        token_hash:
+          tokenHash,
+      });
 
     if (!error) {
       return NextResponse.redirect(
-        new URL(next, requestUrl.origin)
+        new URL(
+          next,
+          request.url
+        )
       );
     }
   }
@@ -33,7 +72,7 @@ export async function GET(request: Request) {
   return NextResponse.redirect(
     new URL(
       "/account/login?error=confirmation",
-      requestUrl.origin
+      request.url
     )
   );
 }
