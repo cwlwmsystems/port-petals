@@ -4,6 +4,8 @@ import { buildBreadcrumbStructuredData } from "@/lib/seo/breadcrumbs";
 import Image from "next/image";
 import Link from "next/link";
 import { getPublishedFlowers } from "@/lib/flowers";
+import { getPublishedSeasonalProducts } from "@/lib/seasonal";
+import type { SeasonalProduct } from "@/lib/seasonal";
 import ProductCardCarousel from "@/components/ProductCardCarousel";
 import StoreProductCard from "@/components/StoreProductCard";
 
@@ -86,12 +88,14 @@ function getCollectionDescription(collection: string) {
   );
 }
 
+type FlowerCardProduct =
+  | Awaited<ReturnType<typeof getPublishedFlowers>>[number]
+  | SeasonalProduct;
+
 function FlowerCard({
   product,
 }: {
-  product: Awaited<
-    ReturnType<typeof getPublishedFlowers>
-  >[number];
+  product: FlowerCardProduct;
 }) {
   const startingPrice = getStartingPrice(
     product.base_price,
@@ -146,7 +150,10 @@ const breadcrumbStructuredData =
   ]);
 
 export default async function FlowersPage() {
-  const products = await getPublishedFlowers();
+  const [products, seasonalProducts] = await Promise.all([
+    getPublishedFlowers(),
+    getPublishedSeasonalProducts(),
+  ]);
 
   const rawCollections = Array.from(
     new Set(products.map((product) => product.collection))
@@ -182,23 +189,17 @@ export default async function FlowersPage() {
     }).format(new Date())
   );
 
-  const isHomecomingSeason =
-    easternMonth >= 8 && easternMonth <= 10;
-
   const homecomingProducts = products.filter(
-    (product) =>
-      product.collection === "prom-homecoming"
+    (product) => product.collection === "prom-homecoming"
   );
 
-  const showHomecomingSpotlight =
-    isHomecomingSeason &&
-    homecomingProducts.length > 0;
+  const showAutumnSpotlight =
+    seasonalProducts.length > 0;
 
   const regularCollections =
-    showHomecomingSpotlight
+    showAutumnSpotlight
       ? collections.filter(
-          (collection) =>
-            collection !== "prom-homecoming"
+          (collection) => collection !== "seasonal"
         )
       : collections;
 
@@ -265,54 +266,6 @@ export default async function FlowersPage() {
         </div>
       </section>
 
-      {/* LOCAL FLOWER DELIVERY CONTEXT */}
-      <section className="border-b border-[#284239]/10 bg-[#fffaf3]">
-        <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-          <div className="grid gap-7 lg:grid-cols-[1.15fr_.85fr] lg:items-center">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e76d61]">
-                Flowers in Port Allegany
-              </p>
-
-              <h2 className="mt-3 font-serif text-3xl font-semibold text-[#153f32]">
-                Fresh flowers for celebrations, comfort, and everyday moments.
-              </h2>
-
-              <p className="mt-4 max-w-3xl leading-7 text-[#607068]">
-                Port Petals creates fresh flower arrangements and bouquets in
-                Port Allegany for birthdays, anniversaries, congratulations,
-                sympathy, Prom, Homecoming, and everyday gifting. Local pickup
-                is available, with eligible local flower delivery offered based
-                on the destination.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3 lg:justify-end">
-              <Link
-                href="/occasions"
-                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-              >
-                Flowers by Occasion
-              </Link>
-
-              <Link
-                href="/weddings"
-                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-              >
-                Wedding Flowers
-              </Link>
-
-              <Link
-                href="/fulfillment"
-                className="rounded-full border border-[#284239]/15 bg-white px-5 py-3 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-              >
-                Pickup & Delivery
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* POPULAR OCCASIONS */}
       <section className="border-b border-[#284239]/10 bg-[#f7f1e8]">
         <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
@@ -365,172 +318,6 @@ export default async function FlowersPage() {
           </div>
         </div>
       </section>
-
-      {/* COLLECTION NAVIGATION */}
-      {collections.length > 0 && (
-        <section
-          id="flower-collections"
-          className="scroll-mt-28 border-y border-[#284239]/10 bg-white/50"
-        >
-          <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
-            <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.22em] text-[#8a978f]">
-              Shop Flowers
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-3">
-              {collections.map((collection) => {
-                const count = products.filter(
-                  (product) =>
-                    product.collection === collection
-                ).length;
-
-                return (
-                  <a
-                    key={collection}
-                    href={`#${collection}`}
-                    className="rounded-full border border-[#284239]/15 bg-[#fffdf9] px-5 py-2.5 text-sm font-semibold text-[#284239] transition hover:border-[#e76d61]/40 hover:text-[#e76d61]"
-                  >
-                    {formatCollection(collection)}
-                    <span className="ml-2 text-xs font-normal text-[#8a978f]">
-                      {count}
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* HOMECOMING SPOTLIGHT */}
-      {showHomecomingSpotlight && (
-        <section
-          id="prom-homecoming"
-          className="scroll-mt-28 bg-[#171717] text-[#fffaf3]"
-        >
-          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
-            <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#ff7315]">
-                  Homecoming Season
-                </p>
-
-                <h2 className="mt-3 font-serif text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                  Flowers for a memorable Homecoming.
-                </h2>
-
-                <p className="mt-4 max-w-xl text-base leading-7 text-white/75">
-                  Shop corsages, boutonnieres,
-                  matching sets, bouquets, and fresh
-                  flowers for the big night.
-                </p>
-
-                <p className="mt-4 text-sm leading-6 text-white/60">
-                  Ordering early is encouraged as
-                  Homecoming approaches.
-                </p>
-              </div>
-
-              <div className="rounded-[1.6rem] border border-[#ff7315]/25 bg-white/[0.06] p-5">
-                <p className="text-sm font-semibold text-[#ff9b55]">
-                  Need help choosing?
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-white/70">
-                  Port Petals can help coordinate colors,
-                  flowers, and matching pieces for your
-                  Homecoming look.
-                </p>
-
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <a
-                    href="tel:+18146421253"
-                    className="rounded-full bg-[#ff7315] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e76500]"
-                  >
-                    Call 814-642-1253
-                  </a>
-
-                  <a
-                    href="mailto:stacy@portpetals.com?subject=Homecoming%20Flowers"
-                    className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                  >
-                    Email Port Petals
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <ProductCardCarousel visibleCount={3}>
-                {homecomingProducts.map((product) => {
-                  const startingPrice = getStartingPrice(
-                    product.base_price,
-                    product.variants
-                  );
-
-                  const primaryImage =
-                    product.images[0]?.publicUrl ??
-                    "/collections/fresh-flowers.jpg";
-
-                  return (
-                    <Link
-                      key={product.id}
-                      href={`/flowers/${product.slug}`}
-                      className="group block h-full overflow-hidden rounded-[1.4rem] border border-[#ff7315]/20 bg-white/[0.07] transition hover:-translate-y-1 hover:border-[#ff7315]/45 hover:bg-white/[0.10]"
-                    >
-                      <div className="grid h-[190px] grid-cols-[120px_1fr] sm:grid-cols-[145px_1fr]">
-                        <div className="bg-[#fffaf3]">
-                          <img
-                            src={primaryImage}
-                            alt={
-                              product.images[0]?.alt_text ??
-                              product.name
-                            }
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-
-                        <div className="flex min-h-0 flex-col justify-center overflow-hidden p-4 sm:p-5">
-                          {product.featured && (
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#ff9b55]">
-                              Featured
-                            </p>
-                          )}
-
-                          <h3 className="mt-1 font-serif text-xl font-semibold leading-tight text-white">
-                            {product.name}
-                          </h3>
-
-                          {product.short_description && (
-                            <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/65">
-                              {product.short_description}
-                            </p>
-                          )}
-
-                          <div className="mt-3 flex items-center justify-between gap-3">
-                            <span className="text-sm font-semibold text-[#ff9b55]">
-                              {startingPrice !== null
-                                ? `From ${new Intl.NumberFormat("en-US", {
-                                    style: "currency",
-                                    currency: "USD",
-                                  }).format(startingPrice)}`
-                                : "View details"}
-                            </span>
-
-                            <span className="text-xs font-semibold text-white/70 transition group-hover:text-white">
-                              View →
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </ProductCardCarousel>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* FLOWER COLLECTIONS */}
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">

@@ -396,46 +396,46 @@ function getSeasonalFeature(
   };
 
   const fall: SeasonalFeature = {
-    eyebrow: "Homecoming • Football • Gator Season",
-    title: "Homecoming flowers & hometown pride.",
+    eyebrow: "Autumn at Port Petals",
+    title: "Bring the beauty of autumn home.",
     description:
-      "It's football season in Port Allegany. Celebrate Homecoming, Friday nights, and everything Gator with flowers, spirit wear, personalized gear, gifts, and seasonal Port Petals favorites.",
+      "Celebrate the colors and comforts of fall with seasonal flowers, cozy candles, thoughtful gifts, autumn decor, and personalized creations from Port Petals.",
     note:
-      "Homecoming flowers and seasonal favorites may be limited as event dates approach, so ordering early is encouraged.",
-    background: "bg-[#151515]",
-    accent: "text-[#ff7315]",
+      "Autumn favorites change throughout the season as new products and seasonal creations become available.",
+    background: "bg-[#553b2b]",
+    accent: "text-[#f4c58a]",
     primary: {
-      label: "Shop Homecoming Flowers →",
-      href: "/flowers#prom-homecoming",
+      label: "Shop Autumn Flowers →",
+      href: "/flowers",
     },
     secondary: {
-      label: "Shop Gator Gear",
-      href: "/gators",
+      label: "Browse Fall Gifts",
+      href: "/gifts",
     },
     cards: [
       {
         icon: "✿",
-        title: "Homecoming Flowers",
+        title: "Autumn Flowers",
         description:
-          "Corsages, boutonnieres, matching sets, bouquets, and flowers for a memorable Homecoming.",
-        label: "Shop Homecoming Flowers →",
-        href: "/flowers#prom-homecoming",
+          "Explore seasonal floral arrangements and warm colors inspired by the beauty of fall.",
+        label: "Shop Flowers →",
+        href: "/flowers",
       },
       {
-        icon: "★",
-        title: "Gator Pride",
+        icon: "◈",
+        title: "Cozy Candles",
         description:
-          "Get game-day ready with Port Allegany Gator apparel, accessories, and personalized spirit gear.",
-        label: "Shop Gator Gear →",
-        href: "/gators",
+          "Bring warmth into your home with candle favorites and comforting seasonal scents.",
+        label: "Shop Candles →",
+        href: "/candles",
       },
       {
         icon: "✦",
-        title: "Fall Favorites",
+        title: "Fall Gifts & Decor",
         description:
-          "Shop fall crafts, personalized gifts, candles, decor, and other seasonal Port Petals favorites.",
-        label: "Browse Fall Favorites →",
-        href: "/custom",
+          "Find seasonal decor, personalized gifts, and thoughtful little touches for autumn.",
+        label: "Browse Gifts →",
+        href: "/gifts",
       },
     ],
   };
@@ -643,32 +643,21 @@ export default function SeasonalCallout() {
       easternDate
     );
 
-  const isOctober =
+  const isAutumn =
     easternDate.month === 10;
 
   return (
     <section
       className={`relative overflow-hidden ${feature.background} text-[#fffaf3]`}
     >
-      {isOctober ? (
+      {isAutumn ? (
         <>
-          {/* Gator-season background */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_25%,rgba(255,115,21,.24),transparent_30%),radial-gradient(circle_at_82%_55%,rgba(255,115,21,.12),transparent_34%)]" />
+          {/* Autumn background */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_25%,rgba(217,119,50,.25),transparent_30%),radial-gradient(circle_at_82%_55%,rgba(180,83,9,.16),transparent_34%)]" />
 
-          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[58%] overflow-hidden lg:block">
-            <Image
-              src="/port-gators.jpeg"
-              alt=""
-              fill
-              aria-hidden="true"
-              sizes="58vw"
-              className="scale-[1.08] object-contain object-right opacity-[0.13] mix-blend-screen grayscale-[15%]"
-            />
-          </div>
+          <div className="pointer-events-none absolute right-[4%] top-1/2 hidden h-[600px] w-[600px] -translate-y-1/2 rounded-full bg-[#d97732]/15 blur-[120px] lg:block" />
 
-          <div className="pointer-events-none absolute right-[4%] top-1/2 hidden h-[600px] w-[600px] -translate-y-1/2 rounded-full bg-[#ff7315]/10 blur-[120px] lg:block" />
-
-          <div className="absolute inset-x-0 top-0 h-1.5 bg-[#ff7315]" />
+          <div className="absolute inset-x-0 top-0 h-1.5 bg-[#c87535]" />
 
           <div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#ff7315]/40 to-transparent" />
         </>
@@ -701,8 +690,8 @@ export default function SeasonalCallout() {
               <Link
                 href={feature.primary.href}
                 className={`inline-flex items-center justify-center rounded-full px-7 py-3.5 font-semibold text-white transition hover:-translate-y-0.5 ${
-                  isOctober
-                    ? "bg-[#ff7315] hover:bg-[#e7640c]"
+                  isAutumn
+                    ? "bg-[#c87535] hover:bg-[#ad602b]"
                     : "bg-[#e76d61] hover:bg-[#d95d52]"
                 }`}
               >
@@ -712,8 +701,8 @@ export default function SeasonalCallout() {
               <Link
                 href={feature.secondary.href}
                 className={`inline-flex items-center justify-center rounded-full border px-7 py-3.5 font-semibold text-white backdrop-blur transition ${
-                  isOctober
-                    ? "border-[#ff7315]/60 bg-[#ff7315]/10 hover:bg-[#ff7315]/20"
+                  isAutumn
+                    ? "border-[#d99a63]/60 bg-[#c87535]/10 hover:bg-[#c87535]/20"
                     : "border-white/20 bg-white/10 hover:bg-white/15"
                 }`}
               >
@@ -729,16 +718,16 @@ export default function SeasonalCallout() {
                   key={card.title}
                   href={card.href}
                   className={`group rounded-[1.6rem] border p-6 backdrop-blur transition hover:-translate-y-1 ${
-                    isOctober
-                      ? "border-[#ff7315]/20 bg-white/[0.07] hover:border-[#ff7315]/45 hover:bg-white/[0.10]"
+                    isAutumn
+                      ? "border-[#d99a63]/20 bg-white/[0.07] hover:border-[#d99a63]/45 hover:bg-white/[0.10]"
                       : "border-white/10 bg-white/10 hover:bg-white/15"
                   }`}
                 >
                   <div className="flex gap-5">
                     <span
                       className={`text-3xl ${
-                        isOctober
-                          ? "text-[#ff7315]"
+                        isAutumn
+                          ? "text-[#e9ad70]"
                           : ""
                       }`}
                     >
